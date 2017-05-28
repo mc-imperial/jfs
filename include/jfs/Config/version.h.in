@@ -1,0 +1,22 @@
+#ifndef JFS_CONFIG_VERSION_H
+#define JFS_CONFIG_VERSION_H
+
+/* JFS major version number */
+#define JFS_VERSION_MAJOR @JFS_VERSION_MAJOR@
+
+/* JFS minor version number */
+#define JFS_VERSION_MINOR @JFS_VERSION_MINOR@
+
+/* JFS patch version number */
+#define JFS_VERSION_PATCH @JFS_VERSION_PATCH@
+
+/* JFS tweak version number */
+#define JFS_VERSION_TWEAK @JFS_VERSION_TWEAK@
+
+/* JFS git description */
+#cmakedefine JFS_GIT_DESCRIPTION @JFS_GIT_DESCRIPTION@
+
+/* JFS git hash */
+#cmakedefine JFS_GIT_HASH @JFS_GIT_HASH@
+
+#endif
