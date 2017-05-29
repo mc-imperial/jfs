@@ -15,6 +15,7 @@
 #include "jfs/Support/version.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/FileSystem.h"
 #include <string>
 
 using namespace jfs;
@@ -23,7 +24,7 @@ using namespace jfs::core;
 namespace {
 llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
                                     llvm::cl::desc("<input file>"),
-                                    llvm::cl::init("-"));
+                                    llvm::cl::Required);
 llvm::cl::opt<unsigned> Verbosity("v", llvm::cl::desc("Verbosity level"),
                                   llvm::cl::init(0));
 }
@@ -51,6 +52,11 @@ int main(int argc, char** argv) {
   JFSContextConfig ctxCfg;
   ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
+  if (!llvm::sys::fs::exists(InputFilename)) {
+    llvm::errs() << "(error \"" << InputFilename << " does not exist\")\n";
+    return 1;
+  }
+
   ToolErrorHandler toolHandler;
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
