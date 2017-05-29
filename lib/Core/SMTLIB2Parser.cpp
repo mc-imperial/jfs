@@ -34,6 +34,9 @@ std::shared_ptr<Query> SMTLIB2Parser::parseFile(llvm::StringRef fileName) {
   if (errorCount > 0) {
     return nullptr;
   }
+
+  // FIXME: We have no way of parsing solver options
+  // and SMT-LIB commands.
   std::shared_ptr<Query> query(new Query(ctx));
 
   // FIXME: Refactor this into a query pass
