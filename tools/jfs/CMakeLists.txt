@@ -20,6 +20,7 @@ target_link_libraries(
   PRIVATE
   ${llvm_components}
   JFSSupport
+  JFSCore
 )
 
 # Give shortname
