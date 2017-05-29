@@ -72,7 +72,7 @@ public:
   // To be specialised
   void dump() const;
 
-  operator T() { return node; }
+  operator T() const { return node; }
 };
 
 // Instantiate templates

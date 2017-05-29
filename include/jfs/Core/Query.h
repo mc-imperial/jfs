@@ -12,7 +12,9 @@
 #define JFS_CORE_QUERY_H
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Z3Node.h"
+#include "llvm/Support/raw_ostream.h"
 #include <vector>
+
 namespace jfs {
 namespace core {
 class Query {
@@ -24,7 +26,11 @@ public:
   Query(const JFSContext &ctx);
   ~Query();
   void dump() const;
+  void print(llvm::raw_ostream& os) const;
 };
+
+// Operator overload for easy printing of queries
+llvm::raw_ostream& operator<<(llvm::raw_ostream& os, const Query& q);
 }
 }
 #endif
