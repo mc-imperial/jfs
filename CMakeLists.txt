@@ -151,7 +151,6 @@ endif()
 # Find LLVM
 ################################################################################
 find_package(LLVM 4.0
-  EXACT
   CONFIG
 )
 set(NEEDED_LLVM_VARS
@@ -174,6 +173,7 @@ foreach (vname ${NEEDED_LLVM_VARS})
     message(FATAL_ERROR "${vname} was not defined")
   endif()
 endforeach()
+message(STATUS "LLVM_DIR: \"${LLVM_DIR}\"")
 
 # TODO: Find clang
 
