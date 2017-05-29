@@ -17,7 +17,7 @@ namespace jfs {
 namespace core {
 class Query {
 private:
-  JFSContext ctx;
+  const JFSContext &ctx;
 
 public:
   std::vector<Z3ASTHandle> constraints;

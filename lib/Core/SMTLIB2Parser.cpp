@@ -12,6 +12,7 @@
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/Z3Node.h"
 #include "z3.h"
+#include <assert.h>
 
 namespace jfs {
 namespace core {
@@ -33,8 +34,31 @@ std::shared_ptr<Query> SMTLIB2Parser::parseFile(llvm::StringRef fileName) {
   if (errorCount > 0) {
     return nullptr;
   }
-  // TODO: Make the query object
-  return nullptr;
+  std::shared_ptr<Query> query(new Query(ctx));
+
+  // FIXME: Refactor this into a query pass
+  if (!Z3_is_app(ctx.z3Ctx, constraint)) {
+    // Not a top-level and
+    query->constraints.push_back(constraint);
+    return query;
+  }
+  Z3AppHandle topLevelApp =
+      Z3AppHandle(::Z3_to_app(ctx.z3Ctx, constraint), ctx.z3Ctx);
+  Z3FuncDeclHandle topLevelFunc =
+      Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, topLevelApp), ctx.z3Ctx);
+  Z3_decl_kind kind = Z3_get_decl_kind(ctx.z3Ctx, topLevelFunc);
+  if (kind != Z3_OP_AND) {
+    // Not a top-level and
+    query->constraints.push_back(constraint);
+    return query;
+  }
+  unsigned numArgs = Z3_get_app_num_args(ctx.z3Ctx, topLevelApp);
+  assert(numArgs >= 2 && "Unexpected number of args");
+  for (unsigned index = 0; index < numArgs; ++index) {
+    query->constraints.push_back(Z3ASTHandle(
+        ::Z3_get_app_arg(ctx.z3Ctx, topLevelApp, index), ctx.z3Ctx));
+  }
+  return query;
 }
 
 JFSContextErrorHandler::ErrorAction

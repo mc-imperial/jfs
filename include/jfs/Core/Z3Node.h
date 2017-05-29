@@ -101,6 +101,26 @@ template <> inline void Z3NodeHandle<Z3_ast>::dec_ref(Z3_ast node) {
 typedef Z3NodeHandle<Z3_ast> Z3ASTHandle;
 template <> void Z3NodeHandle<Z3_ast>::dump() const __attribute__((used));
 
+// Specialise for Z3_app
+template <> inline void Z3NodeHandle<Z3_app>::inc_ref(Z3_app node) {
+  ::Z3_inc_ref(context, ::Z3_app_to_ast(context, node));
+}
+template <> inline void Z3NodeHandle<Z3_app>::dec_ref(Z3_app node) {
+  ::Z3_dec_ref(context, ::Z3_app_to_ast(context, node));
+}
+typedef Z3NodeHandle<Z3_app> Z3AppHandle;
+template <> void Z3NodeHandle<Z3_app>::dump() const __attribute__((used));
+
+// Specialise for Z3_func_decl
+template <> inline void Z3NodeHandle<Z3_func_decl>::inc_ref(Z3_func_decl node) {
+  ::Z3_inc_ref(context, ::Z3_func_decl_to_ast(context, node));
+}
+template <> inline void Z3NodeHandle<Z3_func_decl>::dec_ref(Z3_func_decl node) {
+  ::Z3_dec_ref(context, ::Z3_func_decl_to_ast(context, node));
+}
+typedef Z3NodeHandle<Z3_func_decl> Z3FuncDeclHandle;
+template <> void Z3NodeHandle<Z3_func_decl>::dump() const __attribute__((used));
+
 // Specialise for Z3_solver
 template <> inline void Z3NodeHandle<Z3_solver>::inc_ref(Z3_solver node) {
   ::Z3_solver_inc_ref(context, node);

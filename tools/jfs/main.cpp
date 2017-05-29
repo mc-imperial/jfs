@@ -24,6 +24,8 @@ namespace {
 llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
                                     llvm::cl::desc("<input file>"),
                                     llvm::cl::init("-"));
+llvm::cl::opt<unsigned> Verbosity("verbose", llvm::cl::desc("Verbosity level"),
+                                  llvm::cl::init(0));
 }
 
 void printVersion() {
@@ -52,5 +54,7 @@ int main(int argc, char** argv) {
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseFile(InputFilename);
+  if (Verbosity > 0)
+    query->dump();
   return 0;
 }
