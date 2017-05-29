@@ -34,7 +34,7 @@ endif()
 set (UNIT_TEST_EXE_SUFFIX "Test")
 function(add_jfs_unit_test target_name)
   add_executable(${target_name}${UNIT_TEST_EXE_SUFFIX} ${ARGN})
-  target_link_libraries(${target_name}${UNIT_TEST_EXE_SUFFIX} PRIVATE gtest_main)
+  target_link_libraries(${target_name}${UNIT_TEST_EXE_SUFFIX} PRIVATE jfs_gtest_main)
   target_include_directories(${target_name}${UNIT_TEST_EXE_SUFFIX} BEFORE PRIVATE "${GTEST_INCLUDE_DIR}")
   set_target_properties(${target_name}${UNIT_TEST_EXE_SUFFIX}
     PROPERTIES
