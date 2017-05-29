@@ -24,7 +24,7 @@ namespace {
 llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
                                     llvm::cl::desc("<input file>"),
                                     llvm::cl::init("-"));
-llvm::cl::opt<unsigned> Verbosity("verbose", llvm::cl::desc("Verbosity level"),
+llvm::cl::opt<unsigned> Verbosity("v", llvm::cl::desc("Verbosity level"),
                                   llvm::cl::init(0));
 }
 
@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
   llvm::cl::ParseCommandLineOptions(argc, argv);
 
   JFSContextConfig ctxCfg;
+  ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
   ToolErrorHandler toolHandler;
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);

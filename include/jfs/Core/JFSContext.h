@@ -16,7 +16,7 @@
 namespace jfs {
 namespace core {
 struct JFSContextConfig {
-  // TODO
+  unsigned verbosity = 0;
 };
 
 class JFSContext;
@@ -29,6 +29,7 @@ public:
 class JFSContext {
 private:
   std::list<JFSContextErrorHandler *> errorHandlers;
+  unsigned verbosity;
 
 public:
   Z3_context z3Ctx;
@@ -38,6 +39,7 @@ public:
   bool unRegisterErrorHandler(JFSContextErrorHandler *h);
   // FIXME: Should not be public
   void z3ErrorHandler(Z3_error_code ec);
+  unsigned getVerbosity() { return verbosity; }
 };
 }
 }

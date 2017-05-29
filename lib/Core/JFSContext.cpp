@@ -33,7 +33,8 @@ void z3_error_handler(Z3_context ctx, Z3_error_code ec) {
 
 namespace jfs {
 namespace core {
-JFSContext::JFSContext(const JFSContextConfig &ctxCfg) {
+JFSContext::JFSContext(const JFSContextConfig &ctxCfg)
+    : verbosity(ctxCfg.verbosity) {
   std::lock_guard<std::mutex> lock(activeContextsMutex);
   // TODO use ctxCfg
   Z3_config z3Cfg = Z3_mk_config();
