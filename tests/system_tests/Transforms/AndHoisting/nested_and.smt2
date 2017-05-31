@@ -1,10 +1,8 @@
 ; RUN: %jfs-opt -and-hoist %s | %FileCheck %s
 
-; FIXME: Should be CHECK-NEXT for y and z but there's a bug.
-; Order isn't stable and we have duplicate decls.
-; CHECK-DAG: (declare-fun x () Bool)
-; CHECK-DAG: (declare-fun y () Bool)
-; CHECK-DAG: (declare-fun z () Bool)
+; CHECK: (declare-fun x () Bool)
+; CHECK-NEXT: (declare-fun y () Bool)
+; CHECK-NEXT: (declare-fun z () Bool)
 (declare-fun x () Bool)
 (declare-fun y () Bool)
 (declare-fun z () Bool)
