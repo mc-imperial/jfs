@@ -64,7 +64,7 @@ void Query::print(llvm::raw_ostream& os) const {
         Z3ASTHandle(::Z3_func_decl_to_ast(ctx.z3Ctx, *vi), ctx.z3Ctx);
     os << ::Z3_ast_to_string(ctx.z3Ctx, asAst) << "\n";
   }
-  llvm::errs() << "; End decls\n";
+  os << "; End decls\n";
   // Print constraints
   os << "; Start constraints (" << constraints.size() << ")\n";
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
