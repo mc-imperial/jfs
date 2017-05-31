@@ -8,5 +8,19 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-add_subdirectory(jfs)
-add_subdirectory(jfs-opt)
+add_executable(jfs-opt
+  main.cpp
+)
+
+# Needed for command line support
+jfs_get_llvm_components(llvm_components support)
+
+target_link_libraries(
+  jfs-opt
+  PRIVATE
+  ${llvm_components}
+  JFSSupport
+  JFSCore
+  JFSTransform
+)
+
