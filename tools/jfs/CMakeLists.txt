@@ -21,6 +21,7 @@ target_link_libraries(
   ${llvm_components}
   JFSSupport
   JFSCore
+  JFSTransform
 )
 
 # Give shortname

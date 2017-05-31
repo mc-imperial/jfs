@@ -13,13 +13,16 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Support/version.h"
+#include "jfs/Transform/QueryPassManager.h"
+#include "jfs/Transform/StandardPasses.h"
 #include "llvm/Support/CommandLine.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/Support/raw_ostream.h"
 #include <string>
 
 using namespace jfs;
 using namespace jfs::core;
+using namespace jfs::transform;
 
 namespace {
 llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
@@ -61,6 +64,13 @@ int main(int argc, char** argv) {
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseFile(InputFilename);
+  if (Verbosity > 0)
+    query->dump();
+
+  // Run standard transformations
+  QueryPassManager pm;
+  AddStandardPasses(pm);
+  pm.run(*query);
   if (Verbosity > 0)
     query->dump();
   return 0;

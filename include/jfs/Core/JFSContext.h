@@ -35,11 +35,17 @@ public:
   Z3_context z3Ctx;
   JFSContext(const JFSContextConfig &ctxCfg);
   ~JFSContext();
+
+  // Don't allow copying
+  JFSContext(const JFSContext &) = delete;
+  JFSContext(const JFSContext &&) = delete;
+  JFSContext &operator=(const JFSContext &) = delete;
+
   bool registerErrorHandler(JFSContextErrorHandler *h);
   bool unRegisterErrorHandler(JFSContextErrorHandler *h);
   // FIXME: Should not be public
   void z3ErrorHandler(Z3_error_code ec);
-  unsigned getVerbosity() { return verbosity; }
+  unsigned getVerbosity() const { return verbosity; }
 };
 }
 }

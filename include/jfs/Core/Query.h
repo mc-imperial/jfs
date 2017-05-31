@@ -27,6 +27,7 @@ public:
   ~Query();
   void dump() const;
   void print(llvm::raw_ostream& os) const;
+  const JFSContext &getContext() const { return ctx; }
 };
 
 // Operator overload for easy printing of queries
