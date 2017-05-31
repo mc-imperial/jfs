@@ -31,6 +31,7 @@ set(NOT_BIN_PATH "${CMAKE_BINARY_DIR}/bin/not")
 
 # FIXME: This is not portable
 set(JFS_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs")
+set(JFS_OPT_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs-opt")
 
 configure_file(lit.site.cfg.in
   ${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
@@ -39,7 +40,7 @@ configure_file(lit.site.cfg.in
 
 add_custom_target(systemtests
   COMMAND "${LIT_TOOL}" ${LIT_ARGS} "${CMAKE_CURRENT_BINARY_DIR}"
-  DEPENDS jfs_tool
+  DEPENDS jfs_tool jfs-opt
   COMMENT "Running system tests"
   ${ADD_CUSTOM_COMMAND_USES_TERMINAL_ARG}
 )
