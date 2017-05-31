@@ -12,6 +12,7 @@
 #include "jfs/Transform/AndHoistingPass.h"
 #include "jfs/Transform/DuplicateConstraintEliminationPass.h"
 #include "jfs/Transform/SimplificationPass.h"
+#include "jfs/Transform/TrueConstraintEliminationPass.h"
 
 namespace jfs {
 namespace transform {
@@ -22,6 +23,9 @@ void AddStandardPasses(QueryPassManager &pm) {
   pm.add(std::make_shared<SimplificationPass>());
   // Remove duplicate constraints
   pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
+  // Remove any "true" constraints that were in the original constraints
+  // or come from simplification.
+  pm.add(std::make_shared<TrueConstraintEliminationPass>());
 }
 }
 }

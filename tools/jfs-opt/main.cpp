@@ -17,6 +17,7 @@
 #include "jfs/Transform/DuplicateConstraintEliminationPass.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/SimplificationPass.h"
+#include "jfs/Transform/TrueConstraintEliminationPass.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -48,13 +49,16 @@ enum QueryPassTy {
   and_hoist,
   simplify,
   duplicate_constraint_elimination,
+  true_constraint_elimination,
 };
 llvm::cl::list<QueryPassTy> PassList(
     llvm::cl::desc("Available passes:"),
     llvm::cl::values(clEnumValN(and_hoist, "and-hoist", "And hoisting"),
                      clEnumVal(simplify, "Simplify"),
                      clEnumValN(duplicate_constraint_elimination, "dce",
-                                "duplicate constraint elimination")));
+                                "duplicate constraint elimination"),
+                     clEnumValN(true_constraint_elimination, "tce",
+                                "true constraint elimination")));
 
 // FIXME: Don't do this manually
 unsigned AddPasses(QueryPassManager &pm) {
@@ -71,6 +75,9 @@ unsigned AddPasses(QueryPassManager &pm) {
       break;
     case duplicate_constraint_elimination:
       pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
+      break;
+    case true_constraint_elimination:
+      pm.add(std::make_shared<TrueConstraintEliminationPass>());
       break;
     default:
       llvm_unreachable("Unknown pass");
