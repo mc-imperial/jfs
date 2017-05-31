@@ -52,7 +52,7 @@ bool AndHoistingPass::run(Query &q) {
     unsigned numArgs = Z3_get_app_num_args(ctx.z3Ctx, topLevelApp);
     assert(numArgs >= 2 && "Unexpected number of args");
     for (unsigned index = 0; index < numArgs; ++index) {
-      workList.push_back(Z3ASTHandle(
+      workList.push_front(Z3ASTHandle(
           ::Z3_get_app_arg(ctx.z3Ctx, topLevelApp, index), ctx.z3Ctx));
     }
   }
