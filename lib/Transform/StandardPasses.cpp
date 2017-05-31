@@ -41,6 +41,13 @@ void AddStandardPasses(QueryPassManager &pm) {
 
   // Remove any duplicate "false" expressions that were introduced
   pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
+
+  // TODO: Implement pass that propagates equalities. This might remove
+  // unncessary variables for us. However we would need to figure out how we
+  // would do model generation in this case though. There's also the
+  // complication of which side of the equality to propagate. We could try some
+  // sort of greedy approach where we pick the equality that removes the most
+  // amount of variables locally. That might not work globally though.
 }
 }
 }
