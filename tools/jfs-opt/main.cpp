@@ -15,6 +15,7 @@
 #include "jfs/Support/version.h"
 #include "jfs/Transform/AndHoistingPass.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include "jfs/Transform/SimplificationPass.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -44,10 +45,12 @@ llvm::cl::opt<std::string>
 // have to manually list these
 enum QueryPassTy {
   and_hoist,
+  simplify,
 };
 llvm::cl::list<QueryPassTy> PassList(
     llvm::cl::desc("Available passes:"),
-    llvm::cl::values(clEnumValN(and_hoist, "and-hoist", "And hoisting")));
+    llvm::cl::values(clEnumValN(and_hoist, "and-hoist", "And hoisting"),
+                     clEnumVal(simplify, "Simplify")));
 
 // FIXME: Don't do this manually
 unsigned AddPasses(QueryPassManager &pm) {
@@ -58,6 +61,9 @@ unsigned AddPasses(QueryPassManager &pm) {
     switch (passTy) {
     case and_hoist:
       pm.add(std::make_shared<AndHoistingPass>());
+      break;
+    case simplify:
+      pm.add(std::make_shared<SimplificationPass>());
       break;
     default:
       llvm_unreachable("Unknown pass");

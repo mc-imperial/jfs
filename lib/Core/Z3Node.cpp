@@ -35,5 +35,10 @@ template <> void Z3NodeHandle<Z3_solver>::dump() const {
   llvm::errs() << "Z3SolverHandle:\n"
                << ::Z3_solver_to_string(context, node) << "\n";
 }
+
+template <> void Z3NodeHandle<Z3_params>::dump() const {
+  llvm::errs() << "Z3ParamsHandle:\n"
+               << ::Z3_params_to_string(context, node) << "\n";
+}
 }
 }

@@ -132,6 +132,16 @@ template <> inline void Z3NodeHandle<Z3_solver>::dec_ref(Z3_solver node) {
 }
 typedef Z3NodeHandle<Z3_solver> Z3SolverHandle;
 template <> void Z3NodeHandle<Z3_solver>::dump() const __attribute__((used));
+
+// Specialise for Z3_params
+template <> inline void Z3NodeHandle<Z3_params>::inc_ref(Z3_params node) {
+  ::Z3_params_inc_ref(context, node);
+}
+template <> inline void Z3NodeHandle<Z3_params>::dec_ref(Z3_params node) {
+  ::Z3_params_dec_ref(context, node);
+}
+typedef Z3NodeHandle<Z3_params> Z3ParamsHandle;
+template <> void Z3NodeHandle<Z3_params>::dump() const __attribute__((used));
 }
 }
 #endif

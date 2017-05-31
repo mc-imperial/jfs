@@ -8,17 +8,21 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
-#include "jfs/Transform/StandardPasses.h"
-#include "jfs/Transform/AndHoistingPass.h"
-#include "jfs/Transform/SimplificationPass.h"
+#ifndef JFS_TRANSFORM_SIMPLIFICATION_PASS_H
+#define JFS_TRANSFORM_SIMPLIFICATION_PASS_H
+#include "jfs/Core/Query.h"
+#include "jfs/Transform/QueryPass.h"
 
 namespace jfs {
 namespace transform {
-void AddStandardPasses(QueryPassManager &pm) {
-  // Seperate out into as many constraints as possible.
-  pm.add(std::make_shared<AndHoistingPass>());
-  // Simplify constraints.
-  pm.add(std::make_shared<SimplificationPass>());
+class SimplificationPass : public QueryPass {
+public:
+  SimplificationPass() {}
+  ~SimplificationPass() {}
+  bool run(jfs::core::Query &q) override;
+  virtual llvm::StringRef getName() override;
+};
 }
 }
-}
+
+#endif
