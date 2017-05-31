@@ -1,5 +1,6 @@
 jfs_add_component(JFSTransform
   AndHoistingPass.cpp
+  DuplicateConstraintEliminationPass.cpp
   QueryPassManager.cpp
   SimplificationPass.cpp
   StandardPasses.cpp

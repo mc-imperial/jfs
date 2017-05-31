@@ -14,6 +14,7 @@
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/AndHoistingPass.h"
+#include "jfs/Transform/DuplicateConstraintEliminationPass.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/SimplificationPass.h"
 #include "llvm/Support/CommandLine.h"
@@ -46,11 +47,14 @@ llvm::cl::opt<std::string>
 enum QueryPassTy {
   and_hoist,
   simplify,
+  duplicate_constraint_elimination,
 };
 llvm::cl::list<QueryPassTy> PassList(
     llvm::cl::desc("Available passes:"),
     llvm::cl::values(clEnumValN(and_hoist, "and-hoist", "And hoisting"),
-                     clEnumVal(simplify, "Simplify")));
+                     clEnumVal(simplify, "Simplify"),
+                     clEnumValN(duplicate_constraint_elimination, "dce",
+                                "duplicate constraint elimination")));
 
 // FIXME: Don't do this manually
 unsigned AddPasses(QueryPassManager &pm) {
@@ -64,6 +68,9 @@ unsigned AddPasses(QueryPassManager &pm) {
       break;
     case simplify:
       pm.add(std::make_shared<SimplificationPass>());
+      break;
+    case duplicate_constraint_elimination:
+      pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
       break;
     default:
       llvm_unreachable("Unknown pass");
