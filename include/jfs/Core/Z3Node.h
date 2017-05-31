@@ -73,6 +73,8 @@ public:
   void dump() const;
 
   operator T() const { return node; }
+
+  Z3_context getContext() const { return context; }
 };
 
 // Instantiate templates

@@ -9,7 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/Query.h"
+#include "jfs/Core/Z3NodeSet.h"
 #include "llvm/Support/raw_ostream.h"
+#include <algorithm>
 #include <list>
 
 namespace jfs {
@@ -35,7 +37,7 @@ void Query::print(llvm::raw_ostream& os) const {
   }
   // Do DFS to collect variables
   // FIXME: Not collecting custom sorts or functions
-  std::vector<Z3FuncDeclHandle> variables;
+  jfs::core::Z3FuncDeclSet variables; // Use a set to avoid duplicates
   while (workList.size() != 0) {
     Z3ASTHandle node = workList.front();
     workList.pop_front();
@@ -47,7 +49,7 @@ void Query::print(llvm::raw_ostream& os) const {
             Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, app), ctx.z3Ctx);
         if (::Z3_is_numeral_ast(ctx.z3Ctx, node))
           continue; // Don't print constants
-        variables.push_back(funcDecl);
+        variables.insert(funcDecl);
         continue;
       }
       // must be applying a function. Traverse its args
@@ -57,9 +59,25 @@ void Query::print(llvm::raw_ostream& os) const {
       }
     }
   }
+
+  // Created a sorted list of variables for printing
+  std::vector<Z3FuncDeclHandle> sortedVariables(variables.begin(),
+                                                variables.end());
+  std::sort(sortedVariables.begin(), sortedVariables.end(),
+            [](const Z3FuncDeclHandle &a, const Z3FuncDeclHandle &b) {
+              Z3_symbol aName = ::Z3_get_decl_name(a.getContext(), a);
+              Z3_symbol bName = ::Z3_get_decl_name(b.getContext(), b);
+              // std::string Allocation is necessary because
+              // ::Z3_get_symbol_string uses a static
+              // allocated buffer that changes between calls.
+              std::string aStr(::Z3_get_symbol_string(a.getContext(), aName));
+              std::string bStr(::Z3_get_symbol_string(b.getContext(), bName));
+              return aStr < bStr;
+            });
   // Print variables
   os << "; Start decls (" << variables.size() << ")\n";
-  for (auto vi = variables.begin(), ve = variables.end(); vi != ve; ++vi) {
+  for (auto vi = sortedVariables.begin(), ve = sortedVariables.end(); vi != ve;
+       ++vi) {
     Z3ASTHandle asAst =
         Z3ASTHandle(::Z3_func_decl_to_ast(ctx.z3Ctx, *vi), ctx.z3Ctx);
     os << ::Z3_ast_to_string(ctx.z3Ctx, asAst) << "\n";
