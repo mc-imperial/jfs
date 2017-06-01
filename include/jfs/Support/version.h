@@ -8,6 +8,8 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
+#ifndef JFS_SUPPORT_VERSION_H
+#define JFS_SUPPORT_VERSION_H
 
 namespace jfs {
 
@@ -16,3 +18,4 @@ namespace support {
 const char *getVersionString();
 }
 }
+#endif
