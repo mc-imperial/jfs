@@ -40,5 +40,10 @@ template <> void Z3NodeHandle<Z3_params>::dump() const {
   llvm::errs() << "Z3ParamsHandle:\n"
                << ::Z3_params_to_string(context, node) << "\n";
 }
+
+template <> void Z3NodeHandle<Z3_model>::dump() const {
+  llvm::errs() << "Z3ModelHandle:\n"
+               << ::Z3_model_to_string(context, node) << "\n";
+}
 }
 }

@@ -15,6 +15,7 @@
 #include "jfs/Support/version.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
+#include "jfs/Z3Backend/Z3Solver.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -30,6 +31,19 @@ llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
                                     llvm::cl::Required);
 llvm::cl::opt<unsigned> Verbosity("v", llvm::cl::desc("Verbosity level"),
                                   llvm::cl::init(0));
+
+llvm::cl::opt<unsigned>
+    MaxTime("max-time", llvm::cl::desc("Max allowed solver time (seconds). "
+                                       "Default is 0 which means no maximum"),
+            llvm::cl::init(0));
+
+enum BackendTy {
+  Z3_SOLVER,
+};
+
+llvm::cl::opt<BackendTy>
+    SolverBackend(llvm::cl::desc("Solver backend"),
+                  llvm::cl::values(clEnumValN(Z3_SOLVER, "z3", "Z3 backend")));
 }
 
 void printVersion() {
@@ -46,7 +60,9 @@ class ToolErrorHandler : public JFSContextErrorHandler {
     exit(1);
     return JFSContextErrorHandler::STOP; // Unreachable.
   }
+
 };
+
 
 int main(int argc, char** argv) {
   llvm::cl::SetVersionPrinter(printVersion);
@@ -73,5 +89,24 @@ int main(int argc, char** argv) {
   pm.run(*query);
   if (Verbosity > 0)
     query->dump();
+
+  // Create solver
+  // TODO: Refactor this so it can be used elsewhere
+  SolverOptions solverOptions;
+  solverOptions.maxTime = MaxTime;
+  std::unique_ptr<Solver> solver;
+  switch (SolverBackend) {
+    case Z3_SOLVER:
+      solver.reset(new jfs::z3Backend::Z3Solver(solverOptions));
+      break;
+    default:
+      llvm_unreachable("unknown solver backend");
+  }
+
+  if (Verbosity > 0)
+    llvm::errs() << "(using solver \"" << solver->getName() << "\")\n";
+
+  auto response = solver->solve(*query, /*produceModel=*/false);
+  llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";
   return 0;
 }

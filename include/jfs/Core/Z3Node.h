@@ -75,6 +75,7 @@ public:
   operator T() const { return node; }
 
   Z3_context getContext() const { return context; }
+  bool isNull() const { return node == nullptr; }
 };
 
 // Instantiate templates
@@ -142,6 +143,17 @@ template <> inline void Z3NodeHandle<Z3_params>::dec_ref(Z3_params node) {
 }
 typedef Z3NodeHandle<Z3_params> Z3ParamsHandle;
 template <> void Z3NodeHandle<Z3_params>::dump() const __attribute__((used));
+
+// Specialise for Z3_model
+template <> inline void Z3NodeHandle<Z3_model>::inc_ref(Z3_model node) {
+  ::Z3_model_inc_ref(context, node);
+}
+template <> inline void Z3NodeHandle<Z3_model>::dec_ref(Z3_model node) {
+  ::Z3_model_dec_ref(context, node);
+}
+typedef Z3NodeHandle<Z3_model> Z3ModelHandle;
+template <> void Z3NodeHandle<Z3_model>::dump() const __attribute__((used));
+
 }
 }
 #endif
