@@ -26,6 +26,13 @@ Query::Query(const JFSContext &ctx) : ctx(ctx) {}
 
 Query::~Query() {}
 
+Query::Query(const Query &other) : ctx(other.ctx) {
+  this->constraints.reserve(other.constraints.size());
+  this->constraints.insert(this->constraints.begin(),
+                           other.constraints.cbegin(),
+                           other.constraints.cend());
+}
+
 void Query::dump() const {
   llvm::errs() << *this;
 }

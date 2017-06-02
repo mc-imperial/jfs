@@ -25,6 +25,12 @@ public:
   std::vector<Z3ASTHandle> constraints;
   Query(const JFSContext &ctx);
   ~Query();
+  Query(const Query &other);
+  // In principle there's no reason we can't have these deleted methods.
+  // However we don't need them yet and I don't want the implicit declarations
+  // to accidently be called.
+  Query(const Query &&) = delete;
+  Query &operator=(const Query &) = delete;
   void dump() const;
   void print(llvm::raw_ostream& os) const;
   const JFSContext &getContext() const { return ctx; }
