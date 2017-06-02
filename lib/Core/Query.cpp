@@ -54,8 +54,9 @@ void Query::print(llvm::raw_ostream& os) const {
       if (numArgs == 0) {
         Z3FuncDeclHandle funcDecl =
             Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, app), ctx.z3Ctx);
-        if (::Z3_is_numeral_ast(ctx.z3Ctx, node))
+        if (::Z3_is_numeral_ast(ctx.z3Ctx, node)) {
           continue; // Don't print constants
+        }
         variables.insert(funcDecl);
         continue;
       }

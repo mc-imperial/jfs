@@ -101,8 +101,34 @@ template <> inline void Z3NodeHandle<Z3_ast>::inc_ref(Z3_ast node) {
 template <> inline void Z3NodeHandle<Z3_ast>::dec_ref(Z3_ast node) {
   ::Z3_dec_ref(context, node);
 }
-typedef Z3NodeHandle<Z3_ast> Z3ASTHandle;
 template <> void Z3NodeHandle<Z3_ast>::dump() const __attribute__((used));
+
+class Z3AppHandle;
+class Z3FuncDeclHandle;
+
+// Provide a class rather than a typedef so we can add
+// additional helper methods.
+class Z3ASTHandle : public Z3NodeHandle<Z3_ast> {
+public:
+  // Inherit constructors
+  using Z3NodeHandle<Z3_ast>::Z3NodeHandle;
+
+  // Helper methods
+  Z3_ast_kind getKind() const;
+  bool isApp() const;
+  bool isFuncDecl() const;
+  bool isSort() const;
+  bool isNumeral() const;
+
+  bool isTrue() const;
+  bool isFalse() const;
+  bool isConstant() const;
+  bool isFreeVariable() const;
+  bool isAppOf(Z3_decl_kind) const;
+
+  Z3AppHandle asApp() const;
+  Z3FuncDeclHandle asFuncDecl() const;
+};
 
 // Specialise for Z3_app
 template <> inline void Z3NodeHandle<Z3_app>::inc_ref(Z3_app node) {
@@ -111,8 +137,25 @@ template <> inline void Z3NodeHandle<Z3_app>::inc_ref(Z3_app node) {
 template <> inline void Z3NodeHandle<Z3_app>::dec_ref(Z3_app node) {
   ::Z3_dec_ref(context, ::Z3_app_to_ast(context, node));
 }
-typedef Z3NodeHandle<Z3_app> Z3AppHandle;
 template <> void Z3NodeHandle<Z3_app>::dump() const __attribute__((used));
+// FIXME: It's silly that Z3AppHandle does not inherit from Z3ASTHandle
+// to reflect the hierarchy in Z3.
+// Provide a class rather than a typedef so we can add
+// additional helper methods.
+class Z3AppHandle : public Z3NodeHandle<Z3_app> {
+public:
+  // Inherit constructors
+  using Z3NodeHandle<Z3_app>::Z3NodeHandle;
+
+  // Helper methods
+  Z3FuncDeclHandle getFuncDecl() const;
+  Z3_decl_kind getKind() const;
+  unsigned getNumKids() const;
+  Z3ASTHandle getKid(unsigned) const;
+
+  bool isConstant() const;
+  bool isFreeVariable() const;
+};
 
 // Specialise for Z3_func_decl
 template <> inline void Z3NodeHandle<Z3_func_decl>::inc_ref(Z3_func_decl node) {
@@ -121,8 +164,17 @@ template <> inline void Z3NodeHandle<Z3_func_decl>::inc_ref(Z3_func_decl node) {
 template <> inline void Z3NodeHandle<Z3_func_decl>::dec_ref(Z3_func_decl node) {
   ::Z3_dec_ref(context, ::Z3_func_decl_to_ast(context, node));
 }
-typedef Z3NodeHandle<Z3_func_decl> Z3FuncDeclHandle;
 template <> void Z3NodeHandle<Z3_func_decl>::dump() const __attribute__((used));
+// FIXME: It's silly that Z3FuncDeclHandle does not inherit from Z3ASTHandle
+// to reflect the hierarchy in Z3.
+// Provide a class rather than a typedef so we can add
+// additional helper methods.
+class Z3FuncDeclHandle : public Z3NodeHandle<Z3_func_decl> {
+  // Inherit constructors
+public:
+  using Z3NodeHandle<Z3_func_decl>::Z3NodeHandle;
+  Z3_decl_kind getKind() const;
+};
 
 // Specialise for Z3_solver
 template <> inline void Z3NodeHandle<Z3_solver>::inc_ref(Z3_solver node) {
