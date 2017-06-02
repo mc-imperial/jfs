@@ -40,9 +40,15 @@ bool AndHoistingPass::run(Query &q) {
     assert(e.isApp() && "should be an application");
     Z3AppHandle app = e.asApp();
 
-    assert(app.getNumKids() >= 2 && "Unexpected number of args");
-    for (unsigned index = 0; index < app.getNumKids(); ++index) {
-      workList.push_front(app.getKid(index));
+    unsigned numKids = app.getNumKids();
+    assert(numKids >= 2 && "Unexpected number of args");
+    for (unsigned index = 0; index < numKids; ++index) {
+      // We invert the index so we add the kids right to left to the work list
+      // which means when popping from the work list we'll handle the nodes
+      // left to right.
+      assert(numKids >= (index + 1) && "underflow");
+      unsigned invertedIndex = numKids - 1 - index;
+      workList.push_front(app.getKid(invertedIndex));
     }
   }
 

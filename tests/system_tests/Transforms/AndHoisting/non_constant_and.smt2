@@ -7,10 +7,9 @@
 (declare-fun y () Bool)
 (declare-fun z () Bool)
 
-; CHECK: (assert y)
-; CHECK-NEXT: (assert z)
+; CHECK: (assert (or y z))
 ; CHECK-NEXT: (assert x)
-(assert (and (and y z) x))
+(assert (and (or y z) x))
 
 ; CHECK-NEXT: (assert (= x x))
 (assert (= x x))
