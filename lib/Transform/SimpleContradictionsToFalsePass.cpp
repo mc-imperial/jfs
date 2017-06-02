@@ -33,21 +33,15 @@ bool simplifyTopLevelNot(Query &q) {
        ++ci) {
     Z3ASTHandle e = *ci;
 
-    if (!Z3_is_app(ctx.z3Ctx, e))
-      continue;
-
-    Z3AppHandle topLevelApp = Z3AppHandle(::Z3_to_app(ctx.z3Ctx, e), ctx.z3Ctx);
-    Z3FuncDeclHandle topLevelFunc =
-        Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, topLevelApp), ctx.z3Ctx);
-    Z3_decl_kind kind = Z3_get_decl_kind(ctx.z3Ctx, topLevelFunc);
-    if (kind != Z3_OP_NOT)
+    if (!e.isAppOf(Z3_OP_NOT))
       continue;
 
     // Not expr
-    assert(Z3_get_app_num_args(ctx.z3Ctx, topLevelApp) == 1 &&
-           "wrong number of args");
-    Z3ASTHandle notExprChild =
-        Z3ASTHandle(::Z3_get_app_arg(ctx.z3Ctx, topLevelApp, 0), ctx.z3Ctx);
+    assert(e.isApp());
+    Z3AppHandle app = e.asApp();
+    assert(app.getNumKids() == 1 && "wrong number of child args");
+
+    Z3ASTHandle notExprChild = app.getKid(0);
     if (seenExpr.count(notExprChild) == 0)
       continue;
 
