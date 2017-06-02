@@ -48,23 +48,16 @@ void Query::print(llvm::raw_ostream& os) const {
   while (workList.size() != 0) {
     Z3ASTHandle node = workList.front();
     workList.pop_front();
-    if (::Z3_is_app(ctx.z3Ctx, node)) {
-      Z3AppHandle app = Z3AppHandle(::Z3_to_app(ctx.z3Ctx, node), ctx.z3Ctx);
-      unsigned numArgs = ::Z3_get_app_num_args(ctx.z3Ctx, app);
-      if (numArgs == 0) {
-        Z3FuncDeclHandle funcDecl =
-            Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, app), ctx.z3Ctx);
-        if (::Z3_is_numeral_ast(ctx.z3Ctx, node)) {
-          continue; // Don't print constants
-        }
-        variables.insert(funcDecl);
-        continue;
-      }
-      // must be applying a function. Traverse its args
-      for (unsigned index = 0; index < numArgs; ++index) {
-        workList.push_front(
-            Z3ASTHandle(::Z3_get_app_arg(ctx.z3Ctx, app, index), ctx.z3Ctx));
-      }
+    if (node.isFreeVariable()) {
+      variables.insert(node.asApp().getFuncDecl());
+      continue;
+    }
+    if (!node.isApp())
+      continue;
+    // Must be a function application. Traverse the arguments
+    Z3AppHandle app = node.asApp();
+    for (unsigned index = 0; index < app.getNumKids(); ++index) {
+      workList.push_front(app.getKid(index));
     }
   }
 
@@ -88,12 +81,16 @@ void Query::print(llvm::raw_ostream& os) const {
        ++vi) {
     Z3ASTHandle asAst =
         Z3ASTHandle(::Z3_func_decl_to_ast(ctx.z3Ctx, *vi), ctx.z3Ctx);
+    // FIXME: should really use .toStr() method but I want to avoid alloc
+    // overhead for now.
     os << ::Z3_ast_to_string(ctx.z3Ctx, asAst) << "\n";
   }
   os << "; End decls\n";
   // Print constraints
   os << "; Start constraints (" << constraints.size() << ")\n";
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
+    // FIXME: should really use .toStr() method but I want to avoid alloc
+    // overhead for now.
     os << "(assert " << ::Z3_ast_to_string(ctx.z3Ctx, *bi) << ")\n";
   }
   os << "; End constraints\n";

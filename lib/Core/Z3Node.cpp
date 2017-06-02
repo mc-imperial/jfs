@@ -14,37 +14,68 @@
 
 namespace jfs {
 namespace core {
+
 template <> void Z3NodeHandle<Z3_sort>::dump() const {
-  llvm::errs() << "Z3SortHandle:\n"
-               << ::Z3_sort_to_string(context, node) << "\n";
+  llvm::errs() << "Z3SortHandle:\n" << toStr() << "\n";
 }
+template <> std::string Z3NodeHandle<Z3_sort>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_sort_to_string(context, node);
+}
+
 template <> void Z3NodeHandle<Z3_ast>::dump() const {
-  llvm::errs() << "Z3ASTHandle:\n" << ::Z3_ast_to_string(context, node) << "\n";
+  llvm::errs() << "Z3ASTHandle:\n" << toStr() << "\n";
 }
+template <> std::string Z3NodeHandle<Z3_ast>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_ast_to_string(context, node);
+}
+
 template <> void Z3NodeHandle<Z3_app>::dump() const {
-  llvm::errs() << "Z3AppHandle:\n"
-               << ::Z3_ast_to_string(context, ::Z3_app_to_ast(context, node))
-               << "\n";
+  llvm::errs() << "Z3AppHandle:\n" << toStr() << "\n";
 }
+template <> std::string Z3NodeHandle<Z3_app>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_ast_to_string(context, ::Z3_app_to_ast(context, node));
+}
+
 template <> void Z3NodeHandle<Z3_func_decl>::dump() const {
-  llvm::errs() << "Z3FuncDeclHandle:\n"
-               << ::Z3_ast_to_string(context,
-                                     ::Z3_func_decl_to_ast(context, node))
-               << "\n";
+  llvm::errs() << "Z3FuncDeclHandle:\n" << toStr() << "\n";
 }
+template <> std::string Z3NodeHandle<Z3_func_decl>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_ast_to_string(context, ::Z3_func_decl_to_ast(context, node));
+}
+
 template <> void Z3NodeHandle<Z3_solver>::dump() const {
-  llvm::errs() << "Z3SolverHandle:\n"
-               << ::Z3_solver_to_string(context, node) << "\n";
+  llvm::errs() << "Z3SolverHandle:\n" << toStr() << "\n";
+}
+template <> std::string Z3NodeHandle<Z3_solver>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_solver_to_string(context, node);
 }
 
 template <> void Z3NodeHandle<Z3_params>::dump() const {
-  llvm::errs() << "Z3ParamsHandle:\n"
-               << ::Z3_params_to_string(context, node) << "\n";
+  llvm::errs() << "Z3ParamsHandle:\n" << toStr() << "\n";
+}
+template <> std::string Z3NodeHandle<Z3_params>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_params_to_string(context, node);
 }
 
 template <> void Z3NodeHandle<Z3_model>::dump() const {
-  llvm::errs() << "Z3ModelHandle:\n"
-               << ::Z3_model_to_string(context, node) << "\n";
+  llvm::errs() << "Z3ModelHandle:\n" << toStr() << "\n";
+}
+template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
+  // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
+  // to make this thread safe.
+  return ::Z3_model_to_string(context, node);
 }
 
 // Z3ASTHandle helper methods
@@ -53,12 +84,10 @@ Z3_ast_kind Z3ASTHandle::getKind() const {
 }
 
 bool Z3ASTHandle::isApp() const {
-  // return getKind() == Z3_APP_AST;
   bool condition = ::Z3_is_app(context, node);
-// FIXME: Not sure if this holds
 #ifndef NDEBUG
   if (condition)
-    assert(getKind() == Z3_APP_AST);
+    assert(getKind() == Z3_APP_AST || getKind() == Z3_NUMERAL_AST);
 #endif
   return condition;
 }

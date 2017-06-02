@@ -12,6 +12,7 @@
 #define JFS_CORE_Z3NODE_H
 #include "z3.h"
 #include <assert.h>
+#include <string>
 
 namespace jfs {
 namespace core {
@@ -71,6 +72,7 @@ public:
   }
   // To be specialised
   void dump() const;
+  std::string toStr() const;
 
   operator T() const { return node; }
 
@@ -93,6 +95,8 @@ template <> inline void Z3NodeHandle<Z3_sort>::dec_ref(Z3_sort node) {
 }
 typedef Z3NodeHandle<Z3_sort> Z3SortHandle;
 template <> void Z3NodeHandle<Z3_sort>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_sort>::toStr() const __attribute__((used));
 
 // Specialise for Z3_ast
 template <> inline void Z3NodeHandle<Z3_ast>::inc_ref(Z3_ast node) {
@@ -102,6 +106,8 @@ template <> inline void Z3NodeHandle<Z3_ast>::dec_ref(Z3_ast node) {
   ::Z3_dec_ref(context, node);
 }
 template <> void Z3NodeHandle<Z3_ast>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_ast>::toStr() const __attribute__((used));
 
 class Z3AppHandle;
 class Z3FuncDeclHandle;
@@ -138,6 +144,9 @@ template <> inline void Z3NodeHandle<Z3_app>::dec_ref(Z3_app node) {
   ::Z3_dec_ref(context, ::Z3_app_to_ast(context, node));
 }
 template <> void Z3NodeHandle<Z3_app>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_app>::toStr() const __attribute__((used));
+
 // FIXME: It's silly that Z3AppHandle does not inherit from Z3ASTHandle
 // to reflect the hierarchy in Z3.
 // Provide a class rather than a typedef so we can add
@@ -165,6 +174,9 @@ template <> inline void Z3NodeHandle<Z3_func_decl>::dec_ref(Z3_func_decl node) {
   ::Z3_dec_ref(context, ::Z3_func_decl_to_ast(context, node));
 }
 template <> void Z3NodeHandle<Z3_func_decl>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_func_decl>::toStr() const __attribute__((used));
+
 // FIXME: It's silly that Z3FuncDeclHandle does not inherit from Z3ASTHandle
 // to reflect the hierarchy in Z3.
 // Provide a class rather than a typedef so we can add
@@ -185,6 +197,8 @@ template <> inline void Z3NodeHandle<Z3_solver>::dec_ref(Z3_solver node) {
 }
 typedef Z3NodeHandle<Z3_solver> Z3SolverHandle;
 template <> void Z3NodeHandle<Z3_solver>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_solver>::toStr() const __attribute__((used));
 
 // Specialise for Z3_params
 template <> inline void Z3NodeHandle<Z3_params>::inc_ref(Z3_params node) {
@@ -195,6 +209,8 @@ template <> inline void Z3NodeHandle<Z3_params>::dec_ref(Z3_params node) {
 }
 typedef Z3NodeHandle<Z3_params> Z3ParamsHandle;
 template <> void Z3NodeHandle<Z3_params>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_params>::toStr() const __attribute__((used));
 
 // Specialise for Z3_model
 template <> inline void Z3NodeHandle<Z3_model>::inc_ref(Z3_model node) {
@@ -205,7 +221,8 @@ template <> inline void Z3NodeHandle<Z3_model>::dec_ref(Z3_model node) {
 }
 typedef Z3NodeHandle<Z3_model> Z3ModelHandle;
 template <> void Z3NodeHandle<Z3_model>::dump() const __attribute__((used));
-
+template <>
+std::string Z3NodeHandle<Z3_model>::toStr() const __attribute__((used));
 }
 }
 #endif
