@@ -54,21 +54,11 @@ std::unique_ptr<SolverResponse> FuzzingSolver::solve(const jfs::core::Query &q,
   }
 
   // Check for trivial UNSAT
-  const JFSContext &ctx = q.getContext();
   bool isUnsat = false;
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
-
     Z3ASTHandle e = *ci;
-    if (!Z3_is_app(ctx.z3Ctx, e)) {
-      // Not an application.
-      continue;
-    }
-    Z3AppHandle topLevelApp = Z3AppHandle(::Z3_to_app(ctx.z3Ctx, e), ctx.z3Ctx);
-    Z3FuncDeclHandle topLevelFunc =
-        Z3FuncDeclHandle(::Z3_get_app_decl(ctx.z3Ctx, topLevelApp), ctx.z3Ctx);
-    Z3_decl_kind kind = Z3_get_decl_kind(ctx.z3Ctx, topLevelFunc);
-    if (kind == Z3_OP_FALSE) {
+    if (e.isFalse()) {
       isUnsat = true;
       break;
     }
