@@ -24,5 +24,5 @@ cd "cmake-${CMAKE_VERSION}"
 make -j$(nproc)
 
 if [ "X${CMAKE_INSTALL}" = "X1" ]; then
-  make install
+  sudo make install
 fi

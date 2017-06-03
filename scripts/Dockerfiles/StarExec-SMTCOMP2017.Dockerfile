@@ -53,10 +53,7 @@ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
   sudo pip install lit==0.5.0
 
 # Build and install CMake
-# Note not using sudo due to env vars not being propagated
-USER root
 RUN ${JFS_SRC_DIR}/scripts/dist/build_and_install_cmake.sh
-USER user
 
 # Build Z3
 RUN ${JFS_SRC_DIR}/scripts/dist/build_z3.sh
