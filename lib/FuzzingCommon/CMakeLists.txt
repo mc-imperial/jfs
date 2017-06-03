@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSFuzzingCommon
+  DummyFuzzingSolver.cpp
   FuzzingSolver.cpp
 )
 target_link_libraries(JFSFuzzingCommon

@@ -12,6 +12,7 @@
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
+#include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
@@ -38,12 +39,16 @@ llvm::cl::opt<unsigned>
             llvm::cl::init(0));
 
 enum BackendTy {
+  DUMMY_FUZZING_SOLVER,
   Z3_SOLVER,
 };
 
 llvm::cl::opt<BackendTy>
     SolverBackend(llvm::cl::desc("Solver backend"),
-                  llvm::cl::values(clEnumValN(Z3_SOLVER, "z3", "Z3 backend")));
+                  llvm::cl::values(clEnumValN(DUMMY_FUZZING_SOLVER, "dummy",
+                                              "dummy solver (default)"),
+                                   clEnumValN(Z3_SOLVER, "z3", "Z3 backend")),
+                  llvm::cl::init(DUMMY_FUZZING_SOLVER));
 }
 
 void printVersion() {
@@ -96,11 +101,14 @@ int main(int argc, char** argv) {
   solverOptions.maxTime = MaxTime;
   std::unique_ptr<Solver> solver;
   switch (SolverBackend) {
-    case Z3_SOLVER:
-      solver.reset(new jfs::z3Backend::Z3Solver(solverOptions));
-      break;
-    default:
-      llvm_unreachable("unknown solver backend");
+  case DUMMY_FUZZING_SOLVER:
+    solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(solverOptions));
+    break;
+  case Z3_SOLVER:
+    solver.reset(new jfs::z3Backend::Z3Solver(solverOptions));
+    break;
+  default:
+    llvm_unreachable("unknown solver backend");
   }
 
   if (Verbosity > 0)

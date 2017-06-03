@@ -22,6 +22,7 @@ target_link_libraries(
   JFSSupport
   JFSCore
   JFSTransform
+  JFSFuzzingCommon
   JFSZ3Backend
 )
 

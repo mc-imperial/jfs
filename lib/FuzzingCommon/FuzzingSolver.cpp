@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FuzzingSolver.h"
+#include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/Transform/QueryPassManager.h"
 
 using namespace jfs::core;
@@ -19,15 +20,6 @@ namespace fuzzingCommon {
 FuzzingSolver::FuzzingSolver(const SolverOptions &opts) : Solver(opts) {}
 FuzzingSolver::~FuzzingSolver() {}
 
-// This contains the necessary analysis info
-// that a fuzzing solver needs.
-class FuzzingAnalysisInfo {
-public:
-  // TODO figure out what analysis passes belong here.
-  void addTo(QueryPassManager &pm) {
-    // TODO
-  }
-};
 
 // This response type is used for the trivial queries
 // that we can solve without fuzzing
