@@ -3,20 +3,6 @@
 FROM centos:centos7.2.1511
 LABEL maintainer "dan@su-root.co.uk"
 
-ENV \
-  CMAKE_SRC_DIR=/home/user/cmake/src_build \
-  CMAKE_INSTALL=1 \
-  Z3_SRC_DIR=/home/user/z3/src \
-  Z3_BUILD_DIR=/home/user/z3/build \
-  Z3_BUILD_TYPE=Release \
-  Z3_STATIC_BUILD=1 \
-  Z3_CMAKE_GENERATOR="Unix Makefiles" \
-  LLVM_SRC_DIR=/home/user/llvm/src \
-  LLVM_BUILD_DIR=/home/user/llvm/build \
-  LLVM_CMAKE_GENERATOR="Unix Makefiles" \
-  JFS_SRC_DIR=/home/user/jfs/src \
-  JFS_BUILD_DIR=/home/user/jfs/build \
-  JFS_CMAKE_GENERATOR="Unix Makefiles"
 
 # Woraround stupid issue
 # https://github.com/CentOS/sig-cloud-instance-images/issues/15
@@ -55,18 +41,37 @@ RUN mkdir -p "${JFS_SRC_DIR}"
 # first) to avoid triggering a rebuild of CMake/Z3/LLVM unnecessarily.
 
 # Build and install CMake
+ENV \
+  CMAKE_SRC_DIR=/home/user/cmake/src_build \
+  CMAKE_INSTALL=1
 ADD /scripts/dist/build_and_install_cmake.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_and_install_cmake.sh
 
 # Build Z3
+ENV \
+  Z3_SRC_DIR=/home/user/z3/src \
+  Z3_BUILD_DIR=/home/user/z3/build \
+  Z3_BUILD_TYPE=Release \
+  Z3_STATIC_BUILD=1 \
+  Z3_CMAKE_GENERATOR="Unix Makefiles"
 ADD /scripts/dist/build_z3.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_z3.sh
 
 # Build LLVM
+ENV \
+  LLVM_SRC_DIR=/home/user/llvm/src \
+  LLVM_BUILD_DIR=/home/user/llvm/build \
+  LLVM_BUILD_TYPE=Release \
+  LLVM_CMAKE_GENERATOR="Unix Makefiles"
 ADD /scripts/dist/build_llvm.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_llvm.sh
 
 # Build JFS
 # Now finally copy across all the other sources
 ADD / ${JFS_SRC_DIR}
+ENV \
+  JFS_SRC_DIR=/home/user/jfs/src \
+  JFS_BUILD_DIR=/home/user/jfs/build \
+  JFS_BUILD_TYPE=Release \
+  JFS_CMAKE_GENERATOR="Unix Makefiles"
 RUN ${JFS_SRC_DIR}/scripts/dist/build_jfs.sh
