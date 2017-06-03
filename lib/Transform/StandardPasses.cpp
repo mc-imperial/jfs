@@ -9,11 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/StandardPasses.h"
-#include "jfs/Transform/AndHoistingPass.h"
-#include "jfs/Transform/DuplicateConstraintEliminationPass.h"
-#include "jfs/Transform/SimpleContradictionsToFalsePass.h"
-#include "jfs/Transform/SimplificationPass.h"
-#include "jfs/Transform/TrueConstraintEliminationPass.h"
+#include "jfs/Transform/Passes.h"
 
 namespace jfs {
 namespace transform {
@@ -24,10 +20,21 @@ void AddStandardPasses(QueryPassManager &pm) {
 
   // Seperate out into as many constraints as possible.
   pm.add(std::make_shared<AndHoistingPass>());
+
+  // TODO: This should probably be iterated to a fixed point
   // Simplify constraints.
   pm.add(std::make_shared<SimplificationPass>());
+  // Propagate constants
+  pm.add(std::make_shared<ConstantPropagationPass>());
+  // Simplify again
+  pm.add(std::make_shared<SimplificationPass>());
+
   // Remove duplicate constraints
   pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
+
+  // FIXME: The `ConstantPropagationPass` actually removes
+  // `true` constraints too. Is `TrueConstraintEliminationPass` now redundant?
+  //
   // Remove any "true" constraints that were in the original constraints
   // or come from simplification.
   pm.add(std::make_shared<TrueConstraintEliminationPass>());
@@ -41,13 +48,6 @@ void AddStandardPasses(QueryPassManager &pm) {
 
   // Remove any duplicate "false" expressions that were introduced
   pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
-
-  // TODO: Implement pass that propagates equalities. This might remove
-  // unncessary variables for us. However we would need to figure out how we
-  // would do model generation in this case though. There's also the
-  // complication of which side of the equality to propagate. We could try some
-  // sort of greedy approach where we pick the equality that removes the most
-  // amount of variables locally. That might not work globally though.
 }
 }
 }

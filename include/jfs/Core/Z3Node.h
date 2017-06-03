@@ -13,6 +13,7 @@
 #include "z3.h"
 #include <assert.h>
 #include <string>
+#include <vector>
 
 namespace jfs {
 namespace core {
@@ -131,6 +132,7 @@ public:
   bool isConstant() const;
   bool isFreeVariable() const;
   bool isAppOf(Z3_decl_kind) const;
+  bool isStructurallyEqualTo(Z3ASTHandle other) const;
 
   Z3AppHandle asApp() const;
   Z3FuncDeclHandle asFuncDecl() const;
@@ -223,6 +225,69 @@ typedef Z3NodeHandle<Z3_model> Z3ModelHandle;
 template <> void Z3NodeHandle<Z3_model>::dump() const __attribute__((used));
 template <>
 std::string Z3NodeHandle<Z3_model>::toStr() const __attribute__((used));
+
+// Specialise for Z3_goal
+template <> inline void Z3NodeHandle<Z3_goal>::inc_ref(Z3_goal node) {
+  ::Z3_goal_inc_ref(context, node);
+}
+template <> inline void Z3NodeHandle<Z3_goal>::dec_ref(Z3_goal node) {
+  ::Z3_goal_dec_ref(context, node);
+}
+template <> void Z3NodeHandle<Z3_goal>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_goal>::toStr() const __attribute__((used));
+
+class Z3GoalHandle : public Z3NodeHandle<Z3_goal> {
+  // Inherit constructors
+public:
+  using Z3NodeHandle<Z3_goal>::Z3NodeHandle;
+  void addFormula(Z3ASTHandle);
+  unsigned getNumFormulas() const;
+  Z3ASTHandle getFormula(unsigned index) const;
+};
+
+class Z3ApplyResultHandle;
+
+// Specialise for Z3_tactic
+template <> inline void Z3NodeHandle<Z3_tactic>::inc_ref(Z3_tactic node) {
+  ::Z3_tactic_inc_ref(context, node);
+}
+template <> inline void Z3NodeHandle<Z3_tactic>::dec_ref(Z3_tactic node) {
+  ::Z3_tactic_dec_ref(context, node);
+}
+template <> void Z3NodeHandle<Z3_tactic>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_tactic>::toStr() const __attribute__((used));
+
+class Z3TacticHandle : public Z3NodeHandle<Z3_tactic> {
+  // Inherit constructors
+public:
+  using Z3NodeHandle<Z3_tactic>::Z3NodeHandle;
+  Z3ApplyResultHandle apply(Z3GoalHandle goal);
+};
+
+// Specialise for Z3_apply_result
+template <>
+inline void Z3NodeHandle<Z3_apply_result>::inc_ref(Z3_apply_result node) {
+  ::Z3_apply_result_inc_ref(context, node);
+}
+template <>
+inline void Z3NodeHandle<Z3_apply_result>::dec_ref(Z3_apply_result node) {
+  ::Z3_apply_result_dec_ref(context, node);
+}
+template <>
+void Z3NodeHandle<Z3_apply_result>::dump() const __attribute__((used));
+template <>
+std::string Z3NodeHandle<Z3_apply_result>::toStr() const __attribute__((used));
+
+class Z3ApplyResultHandle : public Z3NodeHandle<Z3_apply_result> {
+  // Inherit constructors
+public:
+  using Z3NodeHandle<Z3_apply_result>::Z3NodeHandle;
+  unsigned getNumGoals() const;
+  Z3GoalHandle getGoal(unsigned index) const;
+  void collectAllFormulas(std::vector<Z3ASTHandle> &) const;
+};
 }
 }
 #endif

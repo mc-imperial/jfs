@@ -95,5 +95,29 @@ void Query::print(llvm::raw_ostream& os) const {
   }
   os << "; End constraints\n";
 }
+
+bool Query::areSame(std::vector<Z3ASTHandle> &a, std::vector<Z3ASTHandle> &b,
+                    bool ignoreOrder) {
+  if (a.size() != b.size())
+    return false;
+
+  if (ignoreOrder) {
+    Z3ASTSet aExpr(a.cbegin(), a.cend());
+    for (auto ci = b.cbegin(), ce = b.cend(); ci != ce; ++ci) {
+      if (aExpr.count(*ci) == 0)
+        return false;
+    }
+    return true;
+  }
+
+  // Do order sensitive comparison
+  for (unsigned index = 0; index < a.size(); ++index) {
+    Z3ASTHandle aExpr = a[index];
+    Z3ASTHandle bExpr = b[index];
+    if (!aExpr.isStructurallyEqualTo(bExpr))
+      return false;
+  }
+  return true;
+}
 }
 }

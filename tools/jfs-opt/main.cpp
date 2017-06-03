@@ -13,12 +13,8 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Support/version.h"
-#include "jfs/Transform/AndHoistingPass.h"
-#include "jfs/Transform/DuplicateConstraintEliminationPass.h"
+#include "jfs/Transform/Passes.h"
 #include "jfs/Transform/QueryPassManager.h"
-#include "jfs/Transform/SimpleContradictionsToFalsePass.h"
-#include "jfs/Transform/SimplificationPass.h"
-#include "jfs/Transform/TrueConstraintEliminationPass.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -52,6 +48,7 @@ enum QueryPassTy {
   duplicate_constraint_elimination,
   true_constraint_elimination,
   simple_contradictions_to_false,
+  constant_propagation,
 };
 llvm::cl::list<QueryPassTy> PassList(
     llvm::cl::desc("Available passes:"),
@@ -62,7 +59,9 @@ llvm::cl::list<QueryPassTy> PassList(
                      clEnumValN(true_constraint_elimination, "tce",
                                 "true constraint elimination"),
                      clEnumValN(simple_contradictions_to_false, "sctf",
-                                "simple contradictions to false")));
+                                "simple contradictions to false"),
+                     clEnumValN(constant_propagation, "constant-propagation",
+                                "constant propagation")));
 
 // FIXME: Don't do this manually
 unsigned AddPasses(QueryPassManager &pm) {
@@ -85,6 +84,9 @@ unsigned AddPasses(QueryPassManager &pm) {
       break;
     case simple_contradictions_to_false:
       pm.add(std::make_shared<SimpleContradictionsToFalsePass>());
+      break;
+    case constant_propagation:
+      pm.add(std::make_shared<ConstantPropagationPass>());
       break;
     default:
       llvm_unreachable("Unknown pass");

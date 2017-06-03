@@ -34,6 +34,9 @@ public:
   void dump() const;
   void print(llvm::raw_ostream& os) const;
   const JFSContext &getContext() const { return ctx; }
+
+  static bool areSame(std::vector<Z3ASTHandle> &a, std::vector<Z3ASTHandle> &b,
+                      bool ignoreOrder = false);
 };
 
 // Operator overload for easy printing of queries
