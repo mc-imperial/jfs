@@ -34,11 +34,23 @@ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
   sudo python get-pip.py && \
   sudo pip install lit==0.5.0
 
+# NOTE: We stagger copying across files (i.e. don't do `ADD / ${JFS_SRC_DIR}`
+# first) to avoid triggering a rebuild of CMake/Z3/LLVM unnecessarily.
+
+# This is unlikely to change (i.e. doing so would trigger rebuilds)
+# so its okay to have this declared early.
+ENV \
+  JFS_SRC_DIR=/home/user/jfs/src
+
 # Make directory for JFS source tree
 RUN mkdir -p "${JFS_SRC_DIR}"
 
-# NOTE: We stagger copying across files (i.e. don't do `ADD / ${JFS_SRC_DIR}`
-# first) to avoid triggering a rebuild of CMake/Z3/LLVM unnecessarily.
+# Build and install Ninja
+ENV \
+  NINJA_SRC_DIR=/home/user/ninja/src_build \
+  NINJA_INSTALL=1
+ADD /scripts/dist/build_and_install_ninja.sh ${JFS_SRC_DIR}/scripts/dist/
+RUN ${JFS_SRC_DIR}/scripts/dist/build_and_install_ninja.sh
 
 # Build and install CMake
 ENV \
@@ -70,7 +82,6 @@ RUN ${JFS_SRC_DIR}/scripts/dist/build_llvm.sh
 # Now finally copy across all the other sources
 ADD / ${JFS_SRC_DIR}
 ENV \
-  JFS_SRC_DIR=/home/user/jfs/src \
   JFS_BUILD_DIR=/home/user/jfs/build \
   JFS_BUILD_TYPE=Release \
   JFS_CMAKE_GENERATOR="Unix Makefiles"
