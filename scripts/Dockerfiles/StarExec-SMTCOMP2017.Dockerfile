@@ -43,7 +43,9 @@ RUN sudo yum install -y gcc gcc-c++ wget make coreutils && \
   sudo yum clean all
 
 # Install lit
-RUN sudo pip install lit==0.5.0
+RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
+  sudo python get-pip.py && \
+  sudo pip install lit==0.5.0
 
 # Build and install CMake
 # Note not using sudo due to env vars not being propagated
