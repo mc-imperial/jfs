@@ -23,7 +23,7 @@ else
 fi
 
 # Setup source tree
-mkdir "${Z3_SRC_DIR}"
+mkdir -p "${Z3_SRC_DIR}"
 git clone "${Z3_GIT_URL}" "${Z3_SRC_DIR}"
 cd "${Z3_SRC_DIR}"
 git checkout "${Z3_GIT_REVISION}"
