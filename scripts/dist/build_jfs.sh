@@ -29,6 +29,8 @@ cmake \
 # Build
 if [ "${JFS_CMAKE_GENERATOR}" = "Ninja" ]; then
   ninja
+  ninja check
 else
   make -j$(nproc)
+  make -j$(nproc) check
 fi
