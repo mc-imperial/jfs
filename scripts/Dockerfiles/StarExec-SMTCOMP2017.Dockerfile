@@ -39,8 +39,13 @@ ADD / ${JFS_SRC_DIR}
 RUN sudo yum install -y vim less
 
 # Install the dependencies for CentOS repos that we can use
-RUN sudo yum install -y gcc gcc-c++ wget make coreutils && \
-  sudo yum clean all
+RUN sudo yum install -y \
+  coreutils \
+  gcc \
+  gcc-c++ \
+  git \
+  make \
+  && sudo yum clean all
 
 # Install lit
 RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \

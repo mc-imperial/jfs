@@ -16,7 +16,7 @@ CMAKE_TARBALL_URL="${CMAKE_TARBALL_URL:-https://cmake.org/files/v3.8/cmake-${CMA
 # Setup source tree
 mkdir -p "${CMAKE_SRC_DIR}"
 cd "${CMAKE_SRC_DIR}"
-wget "https://cmake.org/files/v3.8/cmake-${CMAKE_VERSION}.tar.gz"
+curl "https://cmake.org/files/v3.8/cmake-${CMAKE_VERSION}.tar.gz" -o "cmake-${CMAKE_VERSION}.tar.gz"
 tar -xvf "cmake-${CMAKE_VERSION}.tar.gz"
 cd "cmake-${CMAKE_VERSION}"
 # Do a bootstrap so that we don't require CMake to be already installed
