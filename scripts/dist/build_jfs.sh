@@ -22,7 +22,7 @@ cd "${JFS_BUILD_DIR}"
 cmake \
   -G "${JFS_CMAKE_GENERATOR}" \
   -DCMAKE_BUILD_TYPE=${JFS_BUILD_TYPE} \
-  -DLLVM_DIR=${LLVM_BUILD_DIR} \
+  -DLLVM_DIR=${LLVM_BUILD_DIR}/lib/cmake/llvm \
   -DZ3_DIR=${Z3_BUILD_DIR} \
   "${JFS_SRC_DIR}"
 
