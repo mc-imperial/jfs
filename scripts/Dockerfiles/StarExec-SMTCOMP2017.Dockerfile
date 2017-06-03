@@ -65,7 +65,7 @@ ENV \
   Z3_BUILD_DIR=/home/user/z3/build \
   Z3_BUILD_TYPE=Release \
   Z3_STATIC_BUILD=1 \
-  Z3_CMAKE_GENERATOR="Unix Makefiles"
+  Z3_CMAKE_GENERATOR="Ninja"
 ADD /scripts/dist/build_z3.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_z3.sh
 
@@ -74,7 +74,7 @@ ENV \
   LLVM_SRC_DIR=/home/user/llvm/src \
   LLVM_BUILD_DIR=/home/user/llvm/build \
   LLVM_BUILD_TYPE=Release \
-  LLVM_CMAKE_GENERATOR="Unix Makefiles"
+  LLVM_CMAKE_GENERATOR="Ninja"
 ADD /scripts/dist/build_llvm.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_llvm.sh
 
@@ -84,5 +84,5 @@ ADD / ${JFS_SRC_DIR}
 ENV \
   JFS_BUILD_DIR=/home/user/jfs/build \
   JFS_BUILD_TYPE=Release \
-  JFS_CMAKE_GENERATOR="Unix Makefiles"
+  JFS_CMAKE_GENERATOR="Ninja"
 RUN ${JFS_SRC_DIR}/scripts/dist/build_jfs.sh
