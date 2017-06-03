@@ -1,4 +1,6 @@
 .dockerignore
-.git
+# Pass `.git` directory so that
+# `jfs --version` gives git hash.
+#.git
 **/.*.swp
 scripts/Dockerfiles/*
