@@ -31,10 +31,6 @@ RUN yum install -y sudo && \
 USER user
 WORKDIR /home/user
 
-# Copy across JFS source tree
-RUN mkdir -p "${JFS_SRC_DIR}"
-ADD / ${JFS_SRC_DIR}
-
 # In container development packages (not essential and can be commented out)
 RUN sudo yum install -y vim less
 
@@ -52,14 +48,25 @@ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
   sudo python get-pip.py && \
   sudo pip install lit==0.5.0
 
+# Make directory for JFS source tree
+RUN mkdir -p "${JFS_SRC_DIR}"
+
+# NOTE: We stagger copying across files (i.e. don't do `ADD / ${JFS_SRC_DIR}`
+# first) to avoid triggering a rebuild of CMake/Z3/LLVM unnecessarily.
+
 # Build and install CMake
+ADD /scripts/dist/build_and_install_cmake.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_and_install_cmake.sh
 
 # Build Z3
+ADD /scripts/dist/build_z3.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_z3.sh
 
 # Build LLVM
+ADD /scripts/dist/build_llvm.sh ${JFS_SRC_DIR}/scripts/dist/
 RUN ${JFS_SRC_DIR}/scripts/dist/build_llvm.sh
 
 # Build JFS
+# Now finally copy across all the other sources
+ADD / ${JFS_SRC_DIR}
 RUN ${JFS_SRC_DIR}/scripts/dist/build_jfs.sh
