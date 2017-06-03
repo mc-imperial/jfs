@@ -10,13 +10,13 @@ ENV \
   Z3_BUILD_DIR=/home/user/z3/build \
   Z3_BUILD_TYPE=Release \
   Z3_STATIC_BUILD=1 \
-  Z3_CMAKE_GENERATOR="UNIX Makefiles" \
+  Z3_CMAKE_GENERATOR="Unix Makefiles" \
   LLVM_SRC_DIR=/home/user/llvm/src \
   LLVM_BUILD_DIR=/home/user/llvm/build \
-  LLVM_CMAKE_GENERATOR="UNIX Makefiles" \
+  LLVM_CMAKE_GENERATOR="Unix Makefiles" \
   JFS_SRC_DIR=/home/user/jfs/src \
   JFS_BUILD_DIR=/home/user/jfs/build \
-  JFS_CMAKE_GENERATOR="UNIX Makefiles"
+  JFS_CMAKE_GENERATOR="Unix Makefiles"
 
 # Woraround stupid issue
 # https://github.com/CentOS/sig-cloud-instance-images/issues/15
