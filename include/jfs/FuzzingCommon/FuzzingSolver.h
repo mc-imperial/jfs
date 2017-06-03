@@ -8,8 +8,8 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef JFS_CXX_FUZZING_BACKEND_FUZZING_SOLVER_H
-#define JFS_CXX_FUZZING_BACKEND_FUZZING_SOLVER_H
+#ifndef JFS_FUZZING_COMMON_FUZZING_SOLVER_H
+#define JFS_FUZZING_COMMON_FUZZING_SOLVER_H
 #include "jfs/Core/Solver.h"
 #include <memory>
 
