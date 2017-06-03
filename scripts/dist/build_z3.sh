@@ -35,7 +35,7 @@ cd "${Z3_BUILD_DIR}"
 
 # Configure
 cmake \
-  -G ${Z3_CMAKE_GENERATOR} \
+  -G "${Z3_CMAKE_GENERATOR}" \
   -DCMAKE_BUILD_TYPE=${Z3_BUILD_TYPE} \
   -DUSE_OPENMP=ON"${Z3_SRC_DIR}" \
   -DUSE_LIB_GMP=FALSE \

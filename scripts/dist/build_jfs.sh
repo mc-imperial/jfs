@@ -20,7 +20,7 @@ cd "${JFS_BUILD_DIR}"
 
 # Configure
 cmake \
-  -G ${JFS_CMAKE_GENERATOR} \
+  -G "${JFS_CMAKE_GENERATOR}" \
   -DCMAKE_BUILD_TYPE=${JFS_BUILD_TYPE} \
   -DLLVM_DIR=${LLVM_BUILD_DIR} \
   -DZ3_DIR=${Z3_BUILD_DIR} \
