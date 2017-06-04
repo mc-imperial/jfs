@@ -4,3 +4,4 @@
 #.git
 **/.*.swp
 **/*.Dockerfile
+utils/SMT-COMP

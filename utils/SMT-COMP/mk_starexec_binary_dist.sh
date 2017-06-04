@@ -134,18 +134,23 @@ mkdir -p "${TEMP_DIR}/bin"
 # Copy build artifacts across
 artifacts=("bin/jfs")
 for a in "${artifacts[*]}" ; do
-  docker cp "${TEMP_DOCKER_CONTAINER_NAME}:/home/user/jfs/build/${a}" "{TEMP_DIR}/${a}"
+  docker cp "${TEMP_DOCKER_CONTAINER_NAME}:/home/user/jfs/build/${a}" "${TEMP_DIR}/${a}"
 done
 
 # Remove container
 docker rm "${TEMP_DOCKER_CONTAINER_NAME}"
 
-# TODO: implement image removal
+if [ "${RM_TEMP_DOCKER_IMAGE}" -eq 1 ]; then
+  docker rmi "${TEMP_DOCKER_IMAGE_NAME}"
+fi
 
-# Copy across configurations
+# Copy across StarExec configurations
 cp "${SCRIPT_ROOT}/configs/"* "${TEMP_DIR}/bin"
 
 # Now tarball up
 tar -C "${TEMP_DIR}" -cvzf "${OUTPUT_FILE_NAME}" $(cd "${TEMP_DIR}"; echo *)
+
+# Remove temp dir
+rm -rf "${TEMP_DIR}"
 
 # Done
