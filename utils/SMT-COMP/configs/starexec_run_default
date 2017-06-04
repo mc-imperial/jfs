@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# FIXME: Shouldn't be using dummy backend
+./jfs -dummy -max-time=900 $1

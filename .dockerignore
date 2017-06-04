@@ -3,4 +3,4 @@
 # `jfs --version` gives git hash.
 #.git
 **/.*.swp
-scripts/Dockerfiles/*
+**/*.Dockerfile
