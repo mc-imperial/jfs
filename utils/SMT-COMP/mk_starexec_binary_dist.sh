@@ -147,6 +147,9 @@ fi
 # Copy across StarExec configurations
 cp "${SCRIPT_ROOT}/configs/"* "${TEMP_DIR}/bin"
 
+# Copy across StarExec description
+cp "${SCRIPT_ROOT}/starexec_description.txt" "${TEMP_DIR}/"
+
 # Now tarball up
 tar -C "${TEMP_DIR}" -cvzf "${OUTPUT_FILE_NAME}" $(cd "${TEMP_DIR}"; echo *)
 

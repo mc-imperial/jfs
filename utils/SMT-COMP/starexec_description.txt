@@ -1,0 +1,17 @@
+# JFS
+
+JFS is a proto-type JIT Fuzzing Solver. It designed to operate on
+the QF_BV, QF_FP, and QF_FPBV theories.
+
+JFS takes as input an SMT query, from which it generates a C program
+with a sequence of "if" branches, each corresponding to an
+assert from the query.  The program is constructed such that finding
+an input to the program that traverses all the ``true'' edges of the
+branches is equivalent to finding a satisfying assignment to all the
+free variables of the SMT query. To find such an input, a
+high-performance coverage-guided fuzzer is used.
+
+**NOTE**:
+Currently the fuzzing implementation in JFS is not finished so the "dummy"
+solver is being used which means satisfiability/unsatisfiability can only be
+shown for trivial benchmarks.
