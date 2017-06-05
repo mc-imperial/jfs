@@ -30,14 +30,26 @@ bool ConstantPropagationPass::run(Query &q) {
                            z3Ctx);
 
   // Add the constraints to the goal
+// FIXME: I wish Z3's Goal API didn't do this. I'd like the simplifications
+// to come from the tactics I apply and not happen implicitly.
+#ifndef NDEBUG
   unsigned correctInsertCount = 0;
+#endif
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
-    // `true` gets ignored when inserted into a goal so don't count it for the
-    // assert.
-    if (!ci->isTrue())
+#ifndef NDEBUG
+    if (ci->isTrue()) {
+      // `true` gets ignored when inserted into a goal so don't count it for the
+      // assert.
+    } else if (ci->isAppOf(Z3_OP_AND)) {
+      // Z3's API seems to hoist ands so count these.
+      correctInsertCount += ci->asApp().getNumKids();
+    } else {
+      // Otherwise assume that adding the formula will add one formula
+      // to the formula count
       ++correctInsertCount;
-
+    }
+#endif
     initialGoal.addFormula(*ci);
   }
 
