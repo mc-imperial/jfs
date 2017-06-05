@@ -11,6 +11,7 @@
 #ifndef JFS_CORE_JFSCONTEXT_H
 #define JFS_CORE_JFSCONTEXT_H
 #include "z3.h"
+#include "llvm/Support/raw_ostream.h"
 #include <list>
 
 namespace jfs {
@@ -46,6 +47,9 @@ public:
   // FIXME: Should not be public
   void z3ErrorHandler(Z3_error_code ec);
   unsigned getVerbosity() const { return verbosity; }
+  llvm::raw_ostream &getErrorStream();
+  llvm::raw_ostream &getWarningStream();
+  llvm::raw_ostream &getDebugStream();
 };
 }
 }

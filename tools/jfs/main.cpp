@@ -61,7 +61,8 @@ void printVersion() {
 class ToolErrorHandler : public JFSContextErrorHandler {
   JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext &ctx,
                                                     Z3_error_code ec) {
-    llvm::errs() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec) << "\")\n";
+    ctx.getErrorStream() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec)
+                         << "\")\n";
     exit(1);
     return JFSContextErrorHandler::STOP; // Unreachable.
   }
@@ -77,7 +78,8 @@ int main(int argc, char** argv) {
   ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
   if (!llvm::sys::fs::exists(InputFilename)) {
-    llvm::errs() << "(error \"" << InputFilename << " does not exist\")\n";
+    ctx.getErrorStream() << "(error \"" << InputFilename
+                         << " does not exist\")\n";
     return 1;
   }
 
@@ -86,14 +88,14 @@ int main(int argc, char** argv) {
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseFile(InputFilename);
   if (Verbosity > 0)
-    query->dump();
+    ctx.getDebugStream() << *query;
 
   // Run standard transformations
   QueryPassManager pm;
   AddStandardPasses(pm);
   pm.run(*query);
   if (Verbosity > 0)
-    query->dump();
+    ctx.getDebugStream() << *query;
 
   // Create solver
   // TODO: Refactor this so it can be used elsewhere
@@ -112,7 +114,7 @@ int main(int argc, char** argv) {
   }
 
   if (Verbosity > 0)
-    llvm::errs() << "(using solver \"" << solver->getName() << "\")\n";
+    ctx.getDebugStream() << "(using solver \"" << solver->getName() << "\")\n";
 
   auto response = solver->solve(*query, /*produceModel=*/false);
   llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";

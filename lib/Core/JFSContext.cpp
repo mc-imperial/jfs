@@ -89,9 +89,24 @@ void JFSContext::z3ErrorHandler(Z3_error_code ec) {
   }
 
   // Default behaviour
-  llvm::errs() << "JFSContext: Received unhandled Z3 error \""
-               << Z3_get_error_msg(z3Ctx, ec) << "\"\n";
+  getErrorStream() << "JFSContext: Received unhandled Z3 error \""
+                   << Z3_get_error_msg(z3Ctx, ec) << "\"\n";
   abort();
+}
+
+llvm::raw_ostream &JFSContext::getErrorStream() {
+  // TODO: Make this customisable
+  return llvm::errs();
+}
+
+llvm::raw_ostream &JFSContext::getWarningStream() {
+  // TODO: Make this customisable
+  return llvm::errs();
+}
+
+llvm::raw_ostream &JFSContext::getDebugStream() {
+  // TODO: Make this customisable
+  return llvm::errs();
 }
 }
 }

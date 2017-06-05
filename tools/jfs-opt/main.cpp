@@ -113,7 +113,8 @@ void printVersion() {
 class ToolErrorHandler : public JFSContextErrorHandler {
   JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext &ctx,
                                                     Z3_error_code ec) {
-    llvm::errs() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec) << "\")\n";
+    ctx.getErrorStream() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec)
+                         << "\")\n";
     exit(1);
     return JFSContextErrorHandler::STOP; // Unreachable.
   }
@@ -128,7 +129,8 @@ int main(int argc, char **argv) {
   ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
   if (!llvm::sys::fs::exists(InputFilename)) {
-    llvm::errs() << "(error \"" << InputFilename << " does not exist\")\n";
+    ctx.getErrorStream() << "(error \"" << InputFilename
+                         << " does not exist\")\n";
     return 1;
   }
 
@@ -140,8 +142,8 @@ int main(int argc, char **argv) {
   std::error_code ec;
   llvm::raw_fd_ostream output(OutputFile, ec, llvm::sys::fs::F_Excl);
   if (ec) {
-    llvm::errs() << "(error \"Failed to open output stream: " << ec.message()
-                 << "\")\n";
+    ctx.getErrorStream() << "(error \"Failed to open output stream: "
+                         << ec.message() << "\")\n";
     return 1;
   }
 
@@ -150,7 +152,7 @@ int main(int argc, char **argv) {
 
   unsigned count = AddPasses(pm);
   if (Verbosity > 0)
-    llvm::errs() << "; Added " << count << " passes\n";
+    ctx.getDebugStream() << "; Added " << count << " passes\n";
   if (PrintBefore)
     output << *query;
   pm.run(*query);

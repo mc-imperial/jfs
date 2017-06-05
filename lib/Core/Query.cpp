@@ -22,7 +22,7 @@ llvm::raw_ostream& operator<<(llvm::raw_ostream& os, const Query& q) {
   return os;
 }
 
-Query::Query(const JFSContext &ctx) : ctx(ctx) {}
+Query::Query(JFSContext &ctx) : ctx(ctx) {}
 
 Query::~Query() {}
 

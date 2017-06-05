@@ -29,24 +29,25 @@ public:
   ~QueryPassManagerImpl() {}
   void add(std::shared_ptr<QueryPass> pass) { passes.push_back(pass); }
   void run(Query &q) {
-    const JFSContext &ctx = q.getContext();
-    IF_VERB(ctx, llvm::errs() << "(QueryPassManager starting)\n";);
+    JFSContext &ctx = q.getContext();
+    IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager starting)\n";);
     for (auto pi = passes.begin(), pe = passes.end(); pi != pe; ++pi) {
       IF_VERB(ctx,
-              llvm::errs() << "(QueryPassManager \"" << (*pi)->getName()
-                           << "\")\n";);
+              ctx.getDebugStream()
+                  << "(QueryPassManager \"" << (*pi)->getName() << "\")\n";);
       IF_VERB_GT(ctx, 1,
-                 llvm::errs() << ";Before \"" << (*pi)->getName() << "\n"
-                              << q << "\n";);
+                 ctx.getDebugStream()
+                     << ";Before \"" << (*pi)->getName() << "\n"
+                     << q << "\n";);
 
       // Now run the pass
       (*pi)->run(q);
 
       IF_VERB_GT(ctx, 1,
-                 llvm::errs() << ";After \"" << (*pi)->getName() << "\n"
-                              << q << "\n";);
+                 ctx.getDebugStream() << ";After \"" << (*pi)->getName() << "\n"
+                                      << q << "\n";);
     }
-    IF_VERB(ctx, llvm::errs() << "(QueryPassManager finished)\n";);
+    IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager finished)\n";);
   }
 };
 

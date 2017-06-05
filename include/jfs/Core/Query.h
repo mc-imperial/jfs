@@ -19,11 +19,11 @@ namespace jfs {
 namespace core {
 class Query {
 private:
-  const JFSContext &ctx;
+  JFSContext &ctx;
 
 public:
   std::vector<Z3ASTHandle> constraints;
-  Query(const JFSContext &ctx);
+  Query(JFSContext &ctx);
   ~Query();
   Query(const Query &other);
   // In principle there's no reason we can't have these deleted methods.
@@ -33,7 +33,7 @@ public:
   Query &operator=(const Query &) = delete;
   void dump() const;
   void print(llvm::raw_ostream& os) const;
-  const JFSContext &getContext() const { return ctx; }
+  JFSContext &getContext() const { return ctx; }
 
   static bool areSame(std::vector<Z3ASTHandle> &a, std::vector<Z3ASTHandle> &b,
                       bool ignoreOrder = false);
