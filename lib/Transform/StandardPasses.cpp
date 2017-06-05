@@ -24,10 +24,16 @@ void AddStandardPasses(QueryPassManager &pm) {
   // TODO: This should probably be iterated to a fixed point
   // Simplify constraints.
   pm.add(std::make_shared<SimplificationPass>());
+  // Hoist any ands introduced
+  pm.add(std::make_shared<AndHoistingPass>());
   // Propagate constants
   pm.add(std::make_shared<ConstantPropagationPass>());
+  // Hoist any ands introduced
+  pm.add(std::make_shared<AndHoistingPass>());
   // Simplify again
   pm.add(std::make_shared<SimplificationPass>());
+  // Hoist any ands introduced
+  pm.add(std::make_shared<AndHoistingPass>());
 
   // Remove duplicate constraints
   pm.add(std::make_shared<DuplicateConstraintEliminationPass>());
