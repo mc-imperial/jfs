@@ -10,6 +10,7 @@ set -o pipefail
 
 # Set values if not already set externally
 JFS_CMAKE_GENERATOR="${JFS_CMAKE_GENERATOR:-Ninja}"
+JFS_ENABLE_ASSERTIONS="${JFS_ENABLE_ASSERTIONS:-ON}"
 
 # Setup source dir
 # TODO: Support fetching from source repo
@@ -24,6 +25,7 @@ cmake \
   -DCMAKE_BUILD_TYPE=${JFS_BUILD_TYPE} \
   -DLLVM_DIR=${LLVM_BUILD_DIR}/lib/cmake/llvm \
   -DZ3_DIR=${Z3_BUILD_DIR} \
+  -DENABLE_JFS_ASSERTS=${JFS_ENABLE_ASSERTIONS} \
   "${JFS_SRC_DIR}"
 
 # Build

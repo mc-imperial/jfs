@@ -80,9 +80,11 @@ RUN ${JFS_SRC_DIR}/scripts/dist/build_llvm.sh
 
 # Build JFS
 # Now finally copy across all the other sources
+# FIXME: For final solver build we should disable assertions
 ADD / ${JFS_SRC_DIR}
 ENV \
   JFS_BUILD_DIR=/home/user/jfs/build \
   JFS_BUILD_TYPE=Release \
-  JFS_CMAKE_GENERATOR="Ninja"
+  JFS_CMAKE_GENERATOR="Ninja" \
+  JFS_ENABLE_ASSERTIONS=ON
 RUN ${JFS_SRC_DIR}/scripts/dist/build_jfs.sh
