@@ -50,6 +50,7 @@ enum QueryPassTy {
   true_constraint_elimination,
   simple_contradictions_to_false,
   constant_propagation,
+  bv_bound_propagation,
   standard_passes,
 };
 llvm::cl::list<QueryPassTy> PassList(
@@ -64,6 +65,8 @@ llvm::cl::list<QueryPassTy> PassList(
                                 "simple contradictions to false"),
                      clEnumValN(constant_propagation, "constant-propagation",
                                 "constant propagation"),
+                     clEnumValN(bv_bound_propagation, "bv-bound-propagation",
+                                "Bitvector bound propagation"),
                      clEnumValN(standard_passes, "standard-passes",
                                 "Run all standard passes")));
 
@@ -91,6 +94,9 @@ unsigned AddPasses(QueryPassManager &pm) {
       break;
     case constant_propagation:
       pm.add(std::make_shared<ConstantPropagationPass>());
+      break;
+    case bv_bound_propagation:
+      pm.add(std::make_shared<BvBoundPropagationPass>());
       break;
     case standard_passes:
       // This isn't really a single pass

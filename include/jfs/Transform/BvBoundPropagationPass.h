@@ -1,0 +1,30 @@
+//===----------------------------------------------------------------------===//
+//
+//                        JFS - The JIT Fuzzing Solver
+//
+// Copyright 2017 Daniel Liew
+//
+// This file is distributed under the MIT license.
+// See LICENSE.txt for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef JFS_TRANSFORM_BV_BOUND_PROPAGATION_PASS_H
+#define JFS_TRANSFORM_BV_BOUND_PROPAGATION_PASS_H
+#include "jfs/Core/Query.h"
+#include "jfs/Transform/QueryPass.h"
+
+namespace jfs {
+namespace transform {
+// NOTE: This pass only supports bvule and bvsle
+// currently so simplifier must be run first.
+class BvBoundPropagationPass : public QueryPass {
+public:
+  BvBoundPropagationPass() {}
+  ~BvBoundPropagationPass() {}
+  bool run(jfs::core::Query &q) override;
+  virtual llvm::StringRef getName() override;
+};
+}
+}
+
+#endif
