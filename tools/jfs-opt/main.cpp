@@ -15,6 +15,7 @@
 #include "jfs/Support/version.h"
 #include "jfs/Transform/Passes.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include "jfs/Transform/StandardPasses.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -49,6 +50,7 @@ enum QueryPassTy {
   true_constraint_elimination,
   simple_contradictions_to_false,
   constant_propagation,
+  standard_passes,
 };
 llvm::cl::list<QueryPassTy> PassList(
     llvm::cl::desc("Available passes:"),
@@ -61,7 +63,9 @@ llvm::cl::list<QueryPassTy> PassList(
                      clEnumValN(simple_contradictions_to_false, "sctf",
                                 "simple contradictions to false"),
                      clEnumValN(constant_propagation, "constant-propagation",
-                                "constant propagation")));
+                                "constant propagation"),
+                     clEnumValN(standard_passes, "standard-passes",
+                                "Run all standard passes")));
 
 // FIXME: Don't do this manually
 unsigned AddPasses(QueryPassManager &pm) {
@@ -87,6 +91,10 @@ unsigned AddPasses(QueryPassManager &pm) {
       break;
     case constant_propagation:
       pm.add(std::make_shared<ConstantPropagationPass>());
+      break;
+    case standard_passes:
+      // This isn't really a single pass
+      jfs::transform::AddStandardPasses(pm);
       break;
     default:
       llvm_unreachable("Unknown pass");
@@ -139,11 +147,10 @@ int main(int argc, char **argv) {
 
   // Run standard transformations
   QueryPassManager pm;
+
   unsigned count = AddPasses(pm);
-  if (count == 0) {
-    llvm::errs() << "(error \"At least one pass must be specified\")\n";
-    return 1;
-  }
+  if (Verbosity > 0)
+    llvm::errs() << "; Added " << count << " passes\n";
   if (PrintBefore)
     output << *query;
   pm.run(*query);
