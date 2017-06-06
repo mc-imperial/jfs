@@ -12,5 +12,6 @@ add_jfs_unit_test(BitVector
   Native/BvAlloc.cpp
   Native/BvAdd.cpp
   Native/BvSub.cpp
+  Native/BvMul.cpp
 )
 target_link_libraries(BitVector${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)
