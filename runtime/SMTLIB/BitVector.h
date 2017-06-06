@@ -35,13 +35,16 @@ private:
     // FIXME: gcc fails this assert
     // static_assert(N < 64, "Invalid N value");
     // FIXME: gcc incorrect warns about overshift here
-    return (1 << N) - 1;
+    return (UINT64_C(1) << N) - 1;
   }
   dataTy doMod(dataTy value) const {
-    if (N == 64)
+    if (N >= 64)
       return value;
     else
       return value % (1 << N);
+  }
+  constexpr dataTy mostSignificantBitMask() const {
+    return (UINT64_C(1) << (N - 1));
   }
 
 public:
@@ -82,6 +85,16 @@ public:
   }
 
   // Arithmetic operators
+  BitVector<N> bvneg() const {
+    // [[(bvneg s)]] := nat2bv[m](2^m - bv2nat([[s]]))
+    if (data == 0) {
+      return BitVector<N>(0);
+    }
+
+    // In two's complement, flipping bits and adding one negates
+    // the number.
+    return BitVector<N>(((~data) & mask()) + 1);
+  }
   BitVector<N> bvadd(const BitVector<N> &other) const {
     return BitVector<N>(doMod(data + other.data));
   }
@@ -119,7 +132,7 @@ public:
 
   // Comparison operators
   bool operator==(const BitVector &rhs) const { return data == rhs.data; }
-  bool operator==(uint64_t &rhs) const { return data == rhs; }
+  bool operator==(const uint64_t &rhs) const { return data == rhs; }
   bool operator!=(const BitVector &rhs) const { return !(*this == rhs); }
 };
 
