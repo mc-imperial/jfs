@@ -49,6 +49,7 @@ endfunction()
 
 # Unit Tests
 add_subdirectory(Dummy)
+add_subdirectory(SMTLIBRuntime)
 
 
 # Set up lit configuration
