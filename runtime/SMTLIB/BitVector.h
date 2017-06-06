@@ -54,6 +54,9 @@ public:
   BitVector() : BitVector(0) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
   }
+  BitVector(const BitVector<N> &other) : data(other.data) {
+    static_assert(N > 0 && N <= 64, "Invalid value for N");
+  }
   // Operators producing values of width != N
   // TODO
   template <uint64_t M> BitVector<N + M> concat(BitVector<M> &other) const {
@@ -79,23 +82,32 @@ public:
   }
 
   // Arithmetic operators
-  BitVector<N> bvadd(BitVector<N> &other) const {
+  BitVector<N> bvadd(const BitVector<N> &other) const {
     return BitVector<N>(doMod(data + other.data));
   }
-  BitVector<N> bvsub(BitVector<N> &other) const {
+  BitVector<N> bvsub(const BitVector<N> &other) const {
     return BitVector<N>(doMod(data - other.data));
   }
-  BitVector<N> bvmul(BitVector<N> &other) const {
+  BitVector<N> bvmul(const BitVector<N> &other) const {
     return BitVector<N>(doMod(data * other.data));
   }
-  BitVector<N> bvudiv(BitVector<N> &divisor) const {
+  BitVector<N> bvudiv(const BitVector<N> &divisor) const {
     //   [[(bvudiv s t)]] := if bv2nat([[t]]) = 0
     //                       then λx:[0, m). 1
-    //                      else nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
+    //                       else nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
     if (divisor == 0) {
       return BitVector<N>(mask());
     }
     return data / divisor.data;
+  }
+  BitVector<N> bvurem(const BitVector<N> &divisor) const {
+    //  [[(bvurem s t)]] := if bv2nat([[t]]) = 0
+    //                      then [[s]]
+    //                      else nat2bv[m](bv2nat([[s]]) rem bv2nat([[t]]))
+    if (divisor == 0) {
+      return BitVector<N>(*this);
+    }
+    return data % divisor.data;
   }
   // TODO
 
