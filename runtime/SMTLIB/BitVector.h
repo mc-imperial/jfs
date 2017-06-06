@@ -28,9 +28,13 @@ class BitVector<N, typename std::enable_if<(N <= 64)>::type> {
 private:
   typedef uint64_t dataTy;
   dataTy data;
-  constexpr dataTy mask() {
-    if (N == 64)
+  constexpr dataTy mask() const {
+    if (N >= 64)
       return UINT64_MAX;
+
+    // FIXME: gcc fails this assert
+    // static_assert(N < 64, "Invalid N value");
+    // FIXME: gcc incorrect warns about overshift here
     return (1 << N) - 1;
   }
   dataTy doMod(dataTy value) const {
@@ -83,6 +87,15 @@ public:
   }
   BitVector<N> bvmul(BitVector<N> &other) const {
     return BitVector<N>(doMod(data * other.data));
+  }
+  BitVector<N> bvudiv(BitVector<N> &divisor) const {
+    //   [[(bvudiv s t)]] := if bv2nat([[t]]) = 0
+    //                       then λx:[0, m). 1
+    //                      else nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
+    if (divisor == 0) {
+      return BitVector<N>(mask());
+    }
+    return data / divisor.data;
   }
   // TODO
 
