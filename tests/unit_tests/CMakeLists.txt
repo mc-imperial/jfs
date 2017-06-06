@@ -48,7 +48,6 @@ function(add_jfs_unit_test target_name)
 endfunction()
 
 # Unit Tests
-add_subdirectory(Dummy)
 add_subdirectory(SMTLIBRuntime)
 
 
