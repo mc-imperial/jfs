@@ -128,18 +128,43 @@ public:
     }
     return data % divisor.data;
   }
+  BitVector<N> bvshl(const BitVector<N> &shift) const {
+    //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
+    if (shift.data >= N) {
+      // Overshift to zero
+      return BitVector<N>(0);
+    }
+    return BitVector<N>((data << shift.data) & mask());
+  }
+  BitVector<N> bvlshr(const BitVector<N> &shift) const {
+    // [[(bvlshr s t)]] := nat2bv[m](bv2nat([[s]]) div 2^(bv2nat([[t]])))
+    if (shift.data >= N) {
+      // Overshift to zero
+      return BitVector<N>(0);
+    }
+    return BitVector<N>((data >> shift.data) & mask());
+  }
   // TODO
 
   // Bitwise operators
-  // TODO
-
-  // Logical operators
+  BitVector<N> bvand(const BitVector<N> &other) const {
+    return BitVector<N>((data & other.data) & mask());
+  }
+  BitVector<N> bvor(const BitVector<N> &other) const {
+    return BitVector<N>((data | other.data) & mask());
+  }
+  BitVector<N> bvnot() const { return BitVector<N>((~data) & mask()); }
   // TODO
 
   // Comparison operators
   bool operator==(const BitVector &rhs) const { return data == rhs.data; }
-  bool operator==(const uint64_t &rhs) const { return data == rhs; }
   bool operator!=(const BitVector &rhs) const { return !(*this == rhs); }
+
+  bool bvule(const BitVector &rhs) const { return data <= rhs.data; }
+  bool bvult(const BitVector &rhs) const { return data < rhs.data; }
+  bool bvugt(const BitVector &rhs) const { return data > rhs.data; }
+  bool bvuge(const BitVector &rhs) const { return data >= rhs.data; }
+  // TODO
 };
 
 // Use template magic to specialize BitVector for widths
