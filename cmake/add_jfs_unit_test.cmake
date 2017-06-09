@@ -8,7 +8,12 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-set(GTEST_SRC_DIR "${CMAKE_SOURCE_DIR}/utils/googletest/googletest")
+if (NOT DEFINED GTEST_SRC_DIR)
+  message(FATAL_ERROR "GTEST_SRC_DIR must be defined")
+endif()
+if (NOT EXISTS "${GTEST_SRC_DIR}")
+  message(FATAL_ERROR "GTEST_SRC_DIR (${GTEST_SRC_DIR}) must exist")
+endif()
 
 # This keeps track of all the unit test
 # targets so we can ensure they are built

@@ -175,7 +175,14 @@ foreach (vname ${NEEDED_LLVM_VARS})
 endforeach()
 message(STATUS "LLVM_DIR: \"${LLVM_DIR}\"")
 
-# TODO: Find clang
+# Find Clang
+# FIXME: This won't work if LLVM was built with a multi-configuration generator.
+set(LLVM_CLANG_CXX_TOOL "${LLVM_TOOLS_BINARY_DIR}/clang++")
+if (NOT EXISTS "${LLVM_CLANG_CXX_TOOL}")
+  message(FATAL_ERROR "Failed to find clang++ at \"${LLVM_CLANG_CXX_TOOL}\"")
+else()
+  message(STATUS "Found clang++ at \"${LLVM_CLANG_CXX_TOOL}\"")
+endif()
 
 if (LLVM_ENABLE_ASSERTIONS)
   # Certain LLVM debugging macros only work when LLVM was built with asserts
