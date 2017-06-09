@@ -22,6 +22,8 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
   include(ExternalProject)
   option(BUILD_RUNTIME_TESTS_WITH_UBSAN "Build runtime tests with UBSan" OFF)
   option(BUILD_RUNTIME_TESTS_WITH_ASAN "Build runtime tests with UBSan" OFF)
+  # TODO: Validate this option is Release, Debug, or RelWithDebInfo
+  set(RUNTIME_TEST_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Runtime test build type")
   message(STATUS "Building runtime tests with runtime compiler")
 
   ExternalProject_Add(SMTLIBRuntimeTests
@@ -35,6 +37,7 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
       "-DGTEST_SRC_DIR=${GTEST_SRC_DIR}"
       "-DUSE_UBSAN=${BUILD_RUNTIME_TESTS_WITH_UBSAN}"
       "-DUSE_ASAN=${BUILD_RUNTIME_TESTS_WITH_ASAN}"
+      "-DCMAKE_BUILD_TYPE=${RUNTIME_TEST_BUILD_TYPE}"
     BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntime"
     BUILD_ALWAYS 1
     # HACK: This hack means that if the build generator for JFS
