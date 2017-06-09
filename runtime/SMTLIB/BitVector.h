@@ -16,6 +16,18 @@
 #include <string.h>
 #include <type_traits>
 
+template <typename T> class BufferRef {
+private:
+  T *data;
+  size_t size;
+
+public:
+  BufferRef(T *data, size_t size) : data(data), size(size) {}
+  T *get() const { return data; }
+  operator T *() const { return get(); }
+  size_t getSize() const { return size; }
+};
+
 // Arbitary precision bitvector of width N
 // that mimics the semantics of SMT-LIBv2
 template <uint64_t N, typename = void> class BitVector {};
@@ -57,14 +69,92 @@ public:
   BitVector() : BitVector(0) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
   }
+  BitVector(BufferRef<uint8_t> bufferRef) {
+    data = 0;
+    memcpy(&data, bufferRef, bufferRef.getSize());
+  }
   BitVector(const BitVector<N> &other) : data(other.data) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
   }
+  BufferRef<uint8_t> getBuffer() const {
+    return BufferRef<uint8_t>(
+        reinterpret_cast<uint8_t *>(const_cast<dataTy *>(&data)),
+        sizeof(dataTy));
+  }
   // Operators producing values of width != N
   // TODO
-  template <uint64_t M> BitVector<N + M> concat(BitVector<M> &other) const {
-    // TODO
-    return BitVector<N + M>(0);
+
+  // Concat [this][rhs]
+  // this is conceptually in MSB.
+  // rhs is in conceptually in LSB.
+  //
+  // Implementation for where result is a native BitVector
+  template <uint64_t M,
+            typename std::enable_if<((N + M) <= 64)>::type * = nullptr>
+  BitVector<N + M> concat(const BitVector<M> &rhs) const {
+    // Concatentation produces native BitVector.
+    static_assert((N + M) <= 64, "Too many bits");
+    assert((rhs.doMod(rhs.data) == rhs.data) && "too many bits");
+    assert((doMod(data) == data) && "too many bits");
+    uint64_t newValue = rhs.data;
+    newValue |= (data << M);
+    return BitVector<N + M>(newValue);
+  }
+
+  // Implementation for where result is not a native BitVector
+  template <uint64_t M,
+            typename std::enable_if<((N + M) > 64)>::type * = nullptr>
+  BitVector<N + M> concat(const BitVector<M> &rhs) const {
+    // Concat produces bitvector that we can't represent natively.
+    constexpr size_t bufferSize = (N + M + 7) / 8;
+    uint8_t rawData[bufferSize];
+
+    // Copy across rhs
+    memcpy(rawData, rhs.getBuffer().get(), rhs.getBuffer().getSize());
+
+    const size_t lhsByteStart = M / 8;
+    const size_t shiftOffset = M % 8;
+    const size_t lookBackShiftOffset = 8 - shiftOffset;
+    if (shiftOffset == 0) {
+      // On byte boundary
+      for (unsigned int index = lhsByteStart; index < bufferSize; ++index) {
+        if ((index * 8) < (N + M)) {
+          const uint8_t *lhsByte =
+              reinterpret_cast<const uint8_t *>(&data) + (index - lhsByteStart);
+          // We are writing a byte from lhs
+          rawData[index] = *lhsByte;
+          continue;
+        }
+        // Zero the data
+        rawData[index] = 0;
+      }
+    } else {
+      // Not on byte boundary. More complicated
+      for (unsigned int index = lhsByteStart; index < bufferSize; ++index) {
+        if ((index * 8) < (N + M)) {
+          // We are writing at least 1 bit for lhs
+          const uint8_t *lhsByte =
+              reinterpret_cast<const uint8_t *>(&data) + (index - lhsByteStart);
+          if (index == lhsByteStart) {
+            // First byte has to be done specially because we writing
+            // to a byte that contains bits from rhs.
+            rawData[index] |= ((*lhsByte) << shiftOffset);
+            continue;
+          }
+          // Not doing the first byte. This means we need to also grab the bits
+          // from the previous iteration that we shifted out.
+          const uint8_t *lhsBytePrevIter = lhsByte - 1;
+          rawData[index] |= ((*lhsByte) << shiftOffset) |
+                            ((*lhsBytePrevIter) >> lookBackShiftOffset);
+          continue;
+        }
+        // Not writing any bits from lhs so just zero the data
+        rawData[index] = 0;
+      }
+    }
+    BufferRef<uint8_t> rawDataRef(reinterpret_cast<uint8_t *>(rawData),
+                                  bufferSize);
+    return BitVector<N + M>(rawDataRef);
   }
 
   template <uint64_t HIGH, uint64_t LOW>
@@ -165,10 +255,13 @@ public:
   bool bvugt(const BitVector &rhs) const { return data > rhs.data; }
   bool bvuge(const BitVector &rhs) const { return data >= rhs.data; }
   // TODO
+
+  // This template is friends with all other instantiations
+  // FIXME: It would be better if we were only friends where
+  // N <= 64.
+  template <uint64_t W, typename T> friend class BitVector;
 };
 
-// Use template magic to specialize BitVector for widths
-// > 64 bits.
 template <uint64_t N>
 class BitVector<N, typename std::enable_if<(N > 64)>::type> {
 private:
@@ -187,15 +280,23 @@ public:
     assert(numBytes <= numBytesRequired(N));
     memcpy(data, bytesToCopy, numBytesRequired(N));
   }
+  BitVector(BufferRef<uint8_t> bufferRef)
+      : BitVector(bufferRef.get(), bufferRef.getSize()) {}
   // Initialize to zero
   BitVector() {
     data = reinterpret_cast<uint8_t *>(malloc(numBytesRequired(N)));
     assert(data);
     memset(data, 0, numBytesRequired(N));
   }
+  BitVector(uint64_t value) : BitVector() {
+    memcpy(data, &value, sizeof(uint64_t));
+  }
   ~BitVector() {
     if (data)
       free(data);
+  }
+  BufferRef<uint8_t> getBuffer() const {
+    return BufferRef<uint8_t>(data, numBytesRequired(N));
   }
   // TODO:
 };

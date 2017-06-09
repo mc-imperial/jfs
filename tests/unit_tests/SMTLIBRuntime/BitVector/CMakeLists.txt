@@ -8,22 +8,27 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
+
+# FIXME: We should be build this with the runtime compiler.
+# Not the native compiler
 add_jfs_unit_test(BitVector
   Native/BvAlloc.cpp
   Native/BvAdd.cpp
-  Native/BvSub.cpp
+  Native/BvAnd.cpp
+  Native/BvLShr.cpp
   Native/BvMul.cpp
+  Native/BvNeg.cpp
+  Native/BvNot.cpp
+  Native/BvOr.cpp
+  Native/BvShl.cpp
+  Native/BvSub.cpp
   Native/BvUDiv.cpp
   Native/BvURem.cpp
-  Native/BvNeg.cpp
-  Native/BvShl.cpp
-  Native/BvLShr.cpp
-  Native/BvAnd.cpp
-  Native/BvOr.cpp
-  Native/BvNot.cpp
-  Native/BvUle.cpp
-  Native/BvUlt.cpp
   Native/BvUgt.cpp
   Native/BvUge.cpp
+  Native/BvUle.cpp
+  Native/BvUlt.cpp
+  Native/Concat.cpp
+  NonNative/Concat.cpp
 )
 target_link_libraries(BitVector${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)
