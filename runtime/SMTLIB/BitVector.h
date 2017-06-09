@@ -41,13 +41,7 @@ private:
   typedef uint64_t dataTy;
   dataTy data;
   constexpr dataTy mask() const {
-    if (N >= 64)
-      return UINT64_MAX;
-
-    // FIXME: gcc fails this assert
-    // static_assert(N < 64, "Invalid N value");
-    // FIXME: gcc incorrect warns about overshift here
-    return (UINT64_C(1) << N) - 1;
+    return (N >= 64) ? UINT64_MAX : ((UINT64_C(1) << N) - 1);
   }
   dataTy doMod(dataTy value) const {
     if (N >= 64)
