@@ -40,7 +40,7 @@ configure_file(lit.site.cfg.in
 
 add_custom_target(systemtests
   COMMAND "${LIT_TOOL}" ${LIT_ARGS} "${CMAKE_CURRENT_BINARY_DIR}"
-  DEPENDS jfs_tool jfs-opt
+  DEPENDS jfs_tool jfs-opt FileCheck not
   COMMENT "Running system tests"
   ${ADD_CUSTOM_COMMAND_USES_TERMINAL_ARG}
 )
