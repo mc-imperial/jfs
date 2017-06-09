@@ -161,8 +161,22 @@ public:
   template <uint64_t HIGH, uint64_t LOW>
   BitVector<(HIGH - LOW) + 1> extract() const {
     static_assert(HIGH >= LOW, "Invalid HIGH and/or LOW value");
-    // TODO
-    return BitVector<(HIGH - LOW) + 1>(0);
+    static_assert(HIGH < N, "Invalid HIGH bit");
+    static_assert(LOW < N, "Invalid LOW bit");
+    if (((HIGH - LOW) + 1) == N)
+      return BitVector<(HIGH - LOW) +1>(data); // no-op
+    dataTy temp = data;
+    // Remove higher bits that we don't want
+    dataTy mask = 0;
+    if ((HIGH +1) == N)
+      mask = UINT64_MAX;
+    else
+      mask = (UINT64_C(1) << (HIGH + 1)) - 1;
+    temp &= mask;
+
+    // Remove lower bits that we don't want.
+    temp >>= LOW;
+    return BitVector<(HIGH - LOW) + 1>(temp);
   }
 
   template <uint64_t BITS> BitVector<N + BITS> zeroExtend() const {
