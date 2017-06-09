@@ -9,8 +9,6 @@
 #
 #===------------------------------------------------------------------------===#
 
-# FIXME: We should be build this with the runtime compiler.
-# Not the native compiler
 add_jfs_unit_test(BitVector
   Native/BvAlloc.cpp
   Native/BvAdd.cpp
