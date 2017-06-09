@@ -240,8 +240,10 @@ list(APPEND JFS_COMPONENT_EXTRA_INCLUDE_DIRS ${Z3_C_INCLUDE_DIRS})
 ################################################################################
 # FIXME: Use CMake's support for this
 if (("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
-  jfs_component_add_cxx_flag("-std=c++11" REQUIRED)
+  set(JFS_USE_CXX_FLAG "-std=c++11")
+  jfs_component_add_cxx_flag("${JFS_USE_CXX_FLAG}" REQUIRED)
 else()
+  set(JFS_USE_CXX_FLAG "")
 endif()
 
 ################################################################################

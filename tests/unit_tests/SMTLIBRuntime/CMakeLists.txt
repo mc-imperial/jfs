@@ -13,6 +13,12 @@
 add_library(JFSSMTLIBRuntime INTERFACE)
 
 target_include_directories(JFSSMTLIBRuntime
-  INTERFACE "${CMAKE_SOURCE_DIR}/runtime")
+  INTERFACE "${CMAKE_SOURCE_DIR}/runtime"
+)
+
+# Header should use C++11
+target_compile_options(JFSSMTLIBRuntime
+  INTERFACE "${JFS_USE_CXX_FLAG}"
+)
 
 add_subdirectory(BitVector)
