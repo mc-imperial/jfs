@@ -131,14 +131,21 @@ public:
               reinterpret_cast<const uint8_t *>(&data) + (index - lhsByteStart);
           if (index == lhsByteStart) {
             // First byte has to be done specially because we writing
-            // to a byte that contains bits from rhs.
+            // to a byte that contains bits from rhs (hence `|=`).
             rawData[index] |= ((*lhsByte) << shiftOffset);
             continue;
           }
           // Not doing the first byte. This means we need to also grab the bits
           // from the previous iteration that we shifted out.
           const uint8_t *lhsBytePrevIter = lhsByte - 1;
-          rawData[index] |= ((*lhsByte) << shiftOffset) |
+          uint8_t lhsByteValue = 0;
+          if ((index - lhsByteStart) < sizeof(dataTy)) {
+            // Guard accessing this byte. On the last iteration
+            // we may need to still copy bits from the previous iteration
+            // but reading `*lhsByte` would be an out of bounds access.
+            lhsByteValue = *lhsByte;
+          }
+          rawData[index] = (lhsByteValue << shiftOffset) |
                             ((*lhsBytePrevIter) >> lookBackShiftOffset);
           continue;
         }
