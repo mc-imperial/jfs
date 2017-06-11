@@ -15,8 +15,8 @@
   TEST(bvzeroextend, BruteForceBv##N##_##E) {                                  \
     for (unsigned x = 0; x < (1 << N); ++x) {                                  \
       BitVector<N> xBv(x);                                                     \
-      static_assert(N < 64, "not safe");                                       \
-      uint64_t mask = (UINT64_C(1) << N) - 1;                                  \
+      static_assert((N + E) < 64, "not safe");                                 \
+      uint64_t mask = (UINT64_C(1) << (N + E)) - 1;                            \
       uint64_t expected = x & mask;                                            \
       BitVector<N + E> result = xBv.zeroExtend<E>();                           \
       EXPECT_EQ(result, expected);                                             \
