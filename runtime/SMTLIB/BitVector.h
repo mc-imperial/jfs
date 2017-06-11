@@ -179,9 +179,28 @@ public:
     return BitVector<(HIGH - LOW) + 1>(temp);
   }
 
-  template <uint64_t BITS> BitVector<N + BITS> zeroExtend() const {
-    // TODO
-    return BitVector<N + BITS>(0);
+  // Implementation for where result is a native BitVector
+  template <uint64_t BITS,
+            typename std::enable_if<((N + BITS) <= 64)>::type * = nullptr>
+  BitVector<N + BITS> zeroExtend() const {
+    // No really work to do provided internal invariant that unused biits
+    // are zero is maintained.
+    assert(doMod(data) == data && "too many bits");
+    return BitVector<N + BITS>(data);
+  }
+
+  // Implementation for where result is not a native BitVector
+  template <uint64_t BITS,
+            typename std::enable_if<((N + BITS) > 64)>::type * = nullptr>
+  BitVector<N + BITS> zeroExtend() const {
+    constexpr size_t bufferSize = (N + BITS + 7) / 8;
+    uint8_t rawData[bufferSize];
+    // Zero the buffer
+    memset(rawData, 0, bufferSize);
+    // Copy in this bits
+    memcpy(rawData, &data, sizeof(dataTy));
+    BufferRef<uint8_t> bufferRef(rawData, bufferSize);
+    return BitVector<N + BITS>(bufferRef);
   }
 
   template <uint64_t BITS> BitVector<N + BITS> signExtend() const {
