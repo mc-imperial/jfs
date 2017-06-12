@@ -20,8 +20,8 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
   # so that we can use the runtime compiler rather than
   # the host compiler.
   include(ExternalProject)
-  option(BUILD_RUNTIME_TESTS_WITH_UBSAN "Build runtime tests with UBSan" OFF)
-  option(BUILD_RUNTIME_TESTS_WITH_ASAN "Build runtime tests with UBSan" OFF)
+  option(BUILD_RUNTIME_TESTS_WITH_UBSAN "Build runtime tests with UBSan" ON)
+  option(BUILD_RUNTIME_TESTS_WITH_ASAN "Build runtime tests with ASan" ON)
   # TODO: Validate this option is Release, Debug, or RelWithDebInfo
   set(RUNTIME_TEST_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Runtime test build type")
   message(STATUS "Building runtime tests with runtime compiler")
