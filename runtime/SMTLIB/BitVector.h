@@ -53,6 +53,10 @@ private:
     return (UINT64_C(1) << (N - 1));
   }
 
+  constexpr dataTy computeSignExtendMask(uint64_t bits) const {
+    return ((N + bits) >= 64) ? UINT64_MAX : ((UINT64_C(1) << (N + bits)) - 1);
+  }
+
 public:
   BitVector(uint64_t value) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
@@ -203,9 +207,49 @@ public:
     return BitVector<N + BITS>(bufferRef);
   }
 
-  template <uint64_t BITS> BitVector<N + BITS> signExtend() const {
-    // TODO
-    return BitVector<N + BITS>(0);
+  // Implementation for where result is a native BitVector
+  template <uint64_t BITS,
+            typename std::enable_if<((N + BITS) <= 64)>::type * = nullptr>
+  BitVector<N + BITS> signExtend() const {
+    static_assert((N + BITS) <= 64, "too many bits");
+    if (data & mostSignificantBitMask()) {
+      // msb is zero. Must do sign extend
+      uint64_t resultMask = computeSignExtendMask(BITS);
+      return (data | (~mask())) & resultMask;
+    } else {
+      // Just do zero extend
+      return zeroExtend<BITS>();
+    }
+  }
+
+  // Implementation for where result is not a native BitVector
+  template <uint64_t BITS,
+            typename std::enable_if<((N + BITS) > 64)>::type * = nullptr>
+  BitVector<N + BITS> signExtend() const {
+    static_assert((N + BITS) > 64, "too few bits");
+    if ((data & mostSignificantBitMask()) == 0) {
+      // Can just zero extend
+      return zeroExtend<BITS>();
+    }
+    // Have to sign extend
+    constexpr size_t bufferSize = (N + BITS + 7) / 8;
+    uint8_t rawData[bufferSize];
+    uint64_t resultMask = computeSignExtendMask(BITS);
+    uint64_t signExtendedOriginal = (data | (~mask())) & resultMask;
+    // Copy in signExtended
+    memcpy(rawData, &signExtendedOriginal, sizeof(dataTy));
+    // Now set remaining bytes to all ones.
+    memset(rawData + sizeof(dataTy), 0xff, bufferSize - sizeof(dataTy));
+    // Modify last byte if necessary. We need to maintain invariant
+    // that bits in the buffer outside of the bitvector we want to represent
+    // are zero.
+    if (((N + BITS) % 8) != 0) {
+      uint8_t lastByteMask = 0xff;
+      lastByteMask >>= (8 - ((N + BITS) % 8));
+      rawData[bufferSize - 1] &= lastByteMask;
+    }
+    BufferRef<uint8_t> buffer(rawData, bufferSize);
+    return BitVector<N + BITS>(buffer);
   }
 
   // Arithmetic operators

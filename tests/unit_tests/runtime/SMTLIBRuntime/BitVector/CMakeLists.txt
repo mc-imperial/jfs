@@ -29,7 +29,9 @@ add_jfs_unit_test(BitVector
   Native/Concat.cpp
   Native/Extract.cpp
   Native/ZeroExtend.cpp
-  NonNative/ZeroExtend.cpp
+  Native/SignExtend.cpp
   NonNative/Concat.cpp
+  NonNative/ZeroExtend.cpp
+  NonNative/SignExtend.cpp
 )
 target_link_libraries(BitVector${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)
