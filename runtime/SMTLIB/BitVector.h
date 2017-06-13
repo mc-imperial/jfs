@@ -348,6 +348,21 @@ public:
   bool bvult(const BitVector<N> &rhs) const { return data < rhs.data; }
   bool bvugt(const BitVector<N> &rhs) const { return data > rhs.data; }
   bool bvuge(const BitVector<N> &rhs) const { return data >= rhs.data; }
+
+  BitVector<1> bvcomp(const BitVector<N> &rhs) const {
+    // SMTLIB gives this recursive definition:
+    // (bvcomp s t) abbreviates (bvxnor s t) if m = 1, and
+    //   (bvand (bvxnor ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
+    //          (bvcomp ((_ extract |m-2| 0) s) ((_ extract |m-2| 0) t)))
+    //          otherwise
+    //
+    // But we can just do this.
+    if (data == rhs.data) {
+      return BitVector<1>(1);
+    }
+    return BitVector<1>(0);
+  }
+
   // TODO
 
   // This template is friends with all other instantiations
