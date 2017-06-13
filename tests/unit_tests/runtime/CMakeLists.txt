@@ -26,6 +26,24 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
   set(RUNTIME_TEST_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Runtime test build type")
   message(STATUS "Building runtime tests with runtime compiler")
 
+  set(RUNTIME_TEST_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntime")
+  if ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
+    # HACK: This hack means that if the build generator for JFS
+    # is Make then `-j` value will passed through to make run
+    # to build the external project.
+    # See
+    # http://cmake.3232098.n2.nabble.com/How-would-I-use-parallel-make-on-ExternalProjects-td5609078.html
+    #
+    set(JFS_EXTERNAL_PROJECT_BUILD_COMMAND "BUILD_COMMAND" "$(MAKE)")
+  else()
+    include(ProcessorCount)
+    ProcessorCount(NUM_CPUS)
+    message(STATUS "Detected ${NUM_CPUS} CPUS. Will run this many jobs when building runtime tests")
+    set(JFS_EXTERNAL_PROJECT_BUILD_COMMAND
+      "BUILD_COMMAND" "${CMAKE_COMMAND}" "--build" "${RUNTIME_TEST_BUILD_DIR}" "--" "-j${NUM_CPUS}")
+  endif()
+
+
   ExternalProject_Add(SMTLIBRuntimeTests
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIBRuntime"
     # FIXME: We should allow other generators
@@ -38,17 +56,9 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
       "-DUSE_UBSAN=${BUILD_RUNTIME_TESTS_WITH_UBSAN}"
       "-DUSE_ASAN=${BUILD_RUNTIME_TESTS_WITH_ASAN}"
       "-DCMAKE_BUILD_TYPE=${RUNTIME_TEST_BUILD_TYPE}"
-    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntime"
+    BINARY_DIR "${RUNTIME_TEST_BUILD_DIR}"
     BUILD_ALWAYS 1
-    # HACK: This hack means that if the build generator for JFS
-    # is Make then `-j` value will passed through to make run
-    # to build the external project.
-    # See
-    # http://cmake.3232098.n2.nabble.com/How-would-I-use-parallel-make-on-ExternalProjects-td5609078.html
-    #
-    # We should remove this, or at the very least guard it based on the
-    # current generator.
-    BUILD_COMMAND "$(MAKE)"
+    ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
     # Don't run install command
     INSTALL_COMMAND ""
     # FIXME: Guard these based on CMake version
