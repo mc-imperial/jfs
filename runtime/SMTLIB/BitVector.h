@@ -80,7 +80,25 @@ public:
         sizeof(dataTy));
   }
   // Operators producing values of width != N
-  // TODO
+
+  // Repeat operation producing a width that is native
+  template <uint64_t M,
+            typename std::enable_if<(((N * M) < 64) && (N * M) > 0)>::type * =
+                nullptr>
+  BitVector<(N * M)> repeat() const {
+    // TODO:
+    abort();
+    return BitVector<N * M>(0);
+  }
+
+  // Repeat operation producing a width that is not native
+  template <uint64_t M,
+            typename std::enable_if<((N * M) > 64)>::type * = nullptr>
+  BitVector<(N * M)> repeat() const {
+    // TODO:
+    abort();
+    return BitVector<N * M>(0);
+  }
 
   // Concat [this][rhs]
   // this is conceptually in MSB.
