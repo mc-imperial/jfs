@@ -318,11 +318,27 @@ public:
   BitVector<N> bvand(const BitVector<N> &other) const {
     return BitVector<N>((data & other.data) & mask());
   }
+
   BitVector<N> bvor(const BitVector<N> &other) const {
     return BitVector<N>((data | other.data) & mask());
   }
   BitVector<N> bvnot() const { return BitVector<N>((~data) & mask()); }
-  // TODO
+
+  BitVector<N> bvnand(const BitVector<N> &other) const {
+    return BitVector<N>((~(data & other.data)) & mask());
+  }
+
+  BitVector<N> bvnor(const BitVector<N> &other) const {
+    return BitVector<N>((~(data | other.data)) & mask());
+  }
+
+  BitVector<N> bvxor(const BitVector<N> &other) const {
+    return BitVector<N>((data ^ other.data) & mask());
+  }
+
+  BitVector<N> bvxnor(const BitVector<N> &other) const {
+    return BitVector<N>((~(data ^ other.data)) & mask());
+  }
 
   // Comparison operators
   bool operator==(const BitVector &rhs) const { return data == rhs.data; }

@@ -15,7 +15,9 @@ add_jfs_unit_test(BitVector
   Native/BvAnd.cpp
   Native/BvLShr.cpp
   Native/BvMul.cpp
+  Native/BvNand.cpp
   Native/BvNeg.cpp
+  Native/BvNor.cpp
   Native/BvNot.cpp
   Native/BvOr.cpp
   Native/BvShl.cpp
@@ -26,6 +28,8 @@ add_jfs_unit_test(BitVector
   Native/BvUge.cpp
   Native/BvUle.cpp
   Native/BvUlt.cpp
+  Native/BvXor.cpp
+  Native/BvXNor.cpp
   Native/Concat.cpp
   Native/Extract.cpp
   Native/ZeroExtend.cpp
