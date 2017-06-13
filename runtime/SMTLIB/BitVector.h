@@ -446,6 +446,39 @@ public:
   bool bvugt(const BitVector<N> &rhs) const { return data > rhs.data; }
   bool bvuge(const BitVector<N> &rhs) const { return data >= rhs.data; }
 
+  bool bvslt(const BitVector<N> &rhs) const {
+    // (bvslt s t) abbreviates:
+    //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
+    //           (= ((_ extract |m-1| |m-1|) t) #b0))
+    //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
+    //           (bvult s t)))
+    bool lhsNeg = data & mostSignificantBitMask();
+    bool rhsNeg = rhs.data & mostSignificantBitMask();
+    if (lhsNeg && !rhsNeg) {
+      return true;
+    }
+    return (lhsNeg == rhsNeg) && this->bvult(rhs);
+  }
+
+  bool bvsle(const BitVector<N> &rhs) const {
+    // (bvsle s t) abbreviates:
+    //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
+    //           (= ((_ extract |m-1| |m-1|) t) #b0))
+    //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
+    //           (bvule s t)))
+    return data == rhs.data || bvslt(rhs);
+  }
+
+  bool bvsgt(const BitVector<N> &rhs) const {
+    // (bvsgt s t) abbreviates (bvslt t s)
+    return rhs.bvslt(*this);
+  }
+
+  bool bvsge(const BitVector<N> &rhs) const {
+    // (bvsge s t) abbreviates (bvsle t s)
+    return rhs.bvsle(*this);
+  }
+
   BitVector<1> bvcomp(const BitVector<N> &rhs) const {
     // SMTLIB gives this recursive definition:
     // (bvcomp s t) abbreviates (bvxnor s t) if m = 1, and

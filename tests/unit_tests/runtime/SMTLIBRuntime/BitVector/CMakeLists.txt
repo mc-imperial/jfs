@@ -27,6 +27,10 @@ add_jfs_unit_test(BitVector
   Native/BvSDiv.cpp
   Native/BvSRem.cpp
   Native/BvSMod.cpp
+  Native/BvSge.cpp
+  Native/BvSgt.cpp
+  Native/BvSlt.cpp
+  Native/BvSle.cpp
   Native/BvUgt.cpp
   Native/BvUge.cpp
   Native/BvUle.cpp
@@ -43,3 +47,4 @@ add_jfs_unit_test(BitVector
   NonNative/SignExtend.cpp
 )
 target_link_libraries(BitVector${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)
+target_link_libraries(BitVector${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntimeTestUtil)

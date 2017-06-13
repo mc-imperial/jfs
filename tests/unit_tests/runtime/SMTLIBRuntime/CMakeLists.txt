@@ -82,6 +82,16 @@ target_compile_options(JFSSMTLIBRuntime
 )
 
 ###############################################################################
+# Utility library
+###############################################################################
+add_library(JFSSMTLIBRuntimeTestUtil
+  SMTLIBRuntimeTestUtil.cpp
+)
+target_include_directories(JFSSMTLIBRuntimeTestUtil
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+###############################################################################
 # Build GTest
 ###############################################################################
 # FIXME: This is kind of wasteful. We should import the targets instead and just
