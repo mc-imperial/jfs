@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "SMTLIB/BitVector.h"
+#include "SMTLIBRuntimeTestUtil.h"
 #include "gtest/gtest.h"
 
 uint64_t getNegBits(uint64_t v, uint64_t N) {
@@ -16,7 +17,6 @@ uint64_t getNegBits(uint64_t v, uint64_t N) {
   return ((~v) + 1) & mask;
 }
 
-// FIXME: Refactor to use to_signed_value()
 #define BVSDIV_BRUTE(N)                                                        \
   TEST(bvsdiv, BruteForceBv##N) {                                              \
     assert(N < 64 && "too many bits");                                         \
@@ -28,13 +28,9 @@ uint64_t getNegBits(uint64_t v, uint64_t N) {
         int64_t negativeMSB = (int64_t(UINT64_C(1) << (N - 1))) * -1;          \
         uint64_t maskOnlyPositiveBits = mask >> 1;                             \
         int64_t xAsSigned =                                                    \
-            (x & (UINT64_C(1) << (N - 1)))                                     \
-                ? (((int64_t)(x & maskOnlyPositiveBits)) + negativeMSB)        \
-                : ((int64_t)x);                                                \
+            jfs::smtlib_runtime_test_util::to_signed_value(x, N);              \
         int64_t yAsSigned =                                                    \
-            (y & (UINT64_C(1) << (N - 1)))                                     \
-                ? (((int64_t)(y & maskOnlyPositiveBits)) + negativeMSB)        \
-                : ((int64_t)y);                                                \
+            jfs::smtlib_runtime_test_util::to_signed_value(y, N);              \
         /* SMT-LIB returns all ones if division by zero with bvudiv but        \
            their definition means that if the dividend is negative then the    \
            result of bvudiv gets negated giving `1`.*/                         \
