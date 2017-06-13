@@ -325,6 +325,74 @@ public:
     return (this->bvneg()).bvudiv(divisor.bvneg());
   }
 
+  BitVector<N> bvsrem(const BitVector<N> &divisor) const {
+    // 2's complement signed remainder (sign follows dividend)
+    // (bvsrem s t) abbreviates
+    //  (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+    //        (?msb_t ((_ extract |m-1| |m-1|) t)))
+    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+    //         (bvurem s t)
+    //    (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+    //         (bvneg (bvurem (bvneg s) t))
+    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+    //         (bvurem s (bvneg t)))
+    //         (bvneg (bvurem (bvneg s) (bvneg t))))))
+    bool msb_s = data & mostSignificantBitMask();
+    bool msb_t = divisor.data & mostSignificantBitMask();
+    // TODO: Can we write this more efficiently?
+    if (!msb_s && !msb_t) {
+      // Both operands are postive in two's complement
+      return bvurem(divisor);
+    } else if (msb_s && !msb_t) {
+      // lhs is negative and rhs is positive in two's complement
+      return (this->bvneg()).bvurem(divisor).bvneg();
+    } else if (!msb_s && msb_t) {
+      // lhs is positive and rhs is negative in two's complement
+      return bvurem(divisor.bvneg());
+    }
+    // Both operands are negative in two's complement
+    return ((this->bvneg()).bvurem(divisor.bvneg())).bvneg();
+  }
+
+  BitVector<N> bvsmod(const BitVector<N> &t) const {
+    // 2's complement signed remainder (sign follows divisor)
+    // (bvsmod s t) abbreviates
+    //  (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+    //        (?msb_t ((_ extract |m-1| |m-1|) t)))
+    //    (let ((abs_s (ite (= ?msb_s #b0) s (bvneg s)))
+    //          (abs_t (ite (= ?msb_t #b0) t (bvneg t))))
+    //      (let ((u (bvurem abs_s abs_t)))
+    //        (ite (= u (_ bv0 m))
+    //             u
+    //        (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+    //             u
+    //        (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+    //             (bvadd (bvneg u) t)
+    //        (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+    //             (bvadd u t)
+    //             (bvneg u))))))))
+    // TODO: Can we write this more efficiently?
+    bool msb_s = data & mostSignificantBitMask();
+    bool msb_t = t.data & mostSignificantBitMask();
+    BitVector<N> abs_s = msb_s ? this->bvneg() : *this;
+    BitVector<N> abs_t = msb_t ? t.bvneg() : t;
+    BitVector<N> u = abs_s.bvurem(abs_t);
+    if (u.data == 0) {
+      return u;
+    } else if (!msb_s && !msb_t) {
+      // Both operands are postive in two's complement
+      return u;
+    } else if (msb_s && !msb_t) {
+      // lhs is negative and rhs is positive in two's complement
+      return (u.bvneg()).bvadd(t);
+    } else if (!msb_s && msb_t) {
+      // lhs is positive and rhs is negative in two's complement
+      return u.bvadd(t);
+    }
+    // Both operands are negative in two's complement
+    return u.bvneg();
+  }
+
   BitVector<N> bvshl(const BitVector<N> &shift) const {
     //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
     if (shift.data >= N) {
