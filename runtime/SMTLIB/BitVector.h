@@ -296,6 +296,35 @@ public:
     }
     return data % divisor.data;
   }
+
+  BitVector<N> bvsdiv(const BitVector<N> &divisor) const {
+    // (bvsdiv s t) abbreviates
+    //  (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+    //        (?msb_t ((_ extract |m-1| |m-1|) t)))
+    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+    //         (bvudiv s t)
+    //    (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+    //         (bvneg (bvudiv (bvneg s) t))
+    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+    //         (bvneg (bvudiv s (bvneg t)))
+    //         (bvudiv (bvneg s) (bvneg t))))))
+    bool msb_s = data & mostSignificantBitMask();
+    bool msb_t = divisor.data & mostSignificantBitMask();
+    // TODO: Can we write this more efficiently?
+    if (!msb_s && !msb_t) {
+      // Both operands are postive in two's complement
+      return bvudiv(divisor);
+    } else if (msb_s && !msb_t) {
+      // lhs is negative and rhs is positive in two's complement
+      return ((this->bvneg()).bvudiv(divisor)).bvneg();
+    } else if (!msb_s && msb_t) {
+      // lhs is positive and rhs is negative in two's complement
+      return (bvudiv(divisor.bvneg())).bvneg();
+    }
+    // Both operands are negative in two's complement
+    return (this->bvneg()).bvudiv(divisor.bvneg());
+  }
+
   BitVector<N> bvshl(const BitVector<N> &shift) const {
     //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
     if (shift.data >= N) {
