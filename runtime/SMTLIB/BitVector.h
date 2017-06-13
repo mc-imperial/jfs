@@ -341,13 +341,13 @@ public:
   }
 
   // Comparison operators
-  bool operator==(const BitVector &rhs) const { return data == rhs.data; }
-  bool operator!=(const BitVector &rhs) const { return !(*this == rhs); }
+  bool operator==(const BitVector<N> &rhs) const { return data == rhs.data; }
+  bool operator!=(const BitVector<N> &rhs) const { return !(*this == rhs); }
 
-  bool bvule(const BitVector &rhs) const { return data <= rhs.data; }
-  bool bvult(const BitVector &rhs) const { return data < rhs.data; }
-  bool bvugt(const BitVector &rhs) const { return data > rhs.data; }
-  bool bvuge(const BitVector &rhs) const { return data >= rhs.data; }
+  bool bvule(const BitVector<N> &rhs) const { return data <= rhs.data; }
+  bool bvult(const BitVector<N> &rhs) const { return data < rhs.data; }
+  bool bvugt(const BitVector<N> &rhs) const { return data > rhs.data; }
+  bool bvuge(const BitVector<N> &rhs) const { return data >= rhs.data; }
   // TODO
 
   // This template is friends with all other instantiations
