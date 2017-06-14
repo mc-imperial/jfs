@@ -43,6 +43,8 @@ add_jfs_unit_test(BitVector
   Native/Extract.cpp
   Native/ZeroExtend.cpp
   Native/SignExtend.cpp
+  Native/RotateLeft.cpp
+  Native/RotateRight.cpp
   NonNative/Concat.cpp
   NonNative/ZeroExtend.cpp
   NonNative/SignExtend.cpp
