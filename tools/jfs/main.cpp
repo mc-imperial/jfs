@@ -87,14 +87,14 @@ int main(int argc, char** argv) {
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseFile(InputFilename);
-  if (Verbosity > 0)
+  if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
   // Run standard transformations
   QueryPassManager pm;
   AddStandardPasses(pm);
   pm.run(*query);
-  if (Verbosity > 0)
+  if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
   // Create solver
