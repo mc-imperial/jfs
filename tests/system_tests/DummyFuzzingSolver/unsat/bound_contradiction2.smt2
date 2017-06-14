@@ -1,3 +1,5 @@
+; FIXME: BvBoundPropagationPass is broken
+; XFAIL: *
 ; RUN: %jfs %s | %FileCheck %s
 ; CHECK-NOT: (declare-fun a () (_ BitVec 8))
 (declare-fun a () (_ BitVec 8))

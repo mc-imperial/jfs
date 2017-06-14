@@ -25,14 +25,18 @@ void AddStandardPasses(QueryPassManager &pm) {
   // FIXME: BvBoundPropagationPass shouldn't be here. There seems to be some
   // issues when combining simplifier and propagate-bv-bounds
   // https://github.com/Z3Prover/z3/issues/1054
+  // FIXME: BvBoundPropagationPass is broken. On some benchmarks it gets stuck
+  // see https://github.com/Z3Prover/z3/issues/1078
   // Simplify bounds
-  pm.add(std::make_shared<BvBoundPropagationPass>());
+  //pm.add(std::make_shared<BvBoundPropagationPass>());
   // Simplify constraints.
   pm.add(std::make_shared<SimplificationPass>());
   // Hoist any ands introduced
   pm.add(std::make_shared<AndHoistingPass>());
   // Simplify bounds
-  pm.add(std::make_shared<BvBoundPropagationPass>());
+  // FIXME: BvBoundPropagationPass is broken. On some benchmarks it gets stuck
+  // see https://github.com/Z3Prover/z3/issues/1078
+  //pm.add(std::make_shared<BvBoundPropagationPass>());
   // Simplify again
   pm.add(std::make_shared<SimplificationPass>());
   // Propagate constants
