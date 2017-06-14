@@ -30,6 +30,19 @@ struct Z3ASTCmp {
   }
 };
 
+struct Z3SortHashGet {
+  size_t operator()(const Z3SortHandle &h) const {
+    return ::Z3_get_ast_hash(h.getContext(), h.asAST());
+  }
+};
+
+struct Z3SortCmp {
+  bool operator()(const Z3SortHandle &a, const Z3SortHandle b) const {
+    assert(a.getContext() == b.getContext() && "Contexts must be equal");
+    return ::Z3_is_eq_ast(a.getContext(), a.asAST(), b.asAST());
+  }
+};
+
 struct Z3FuncDeclHashGet {
   size_t operator()(const Z3FuncDeclHandle &h) const {
     return ::Z3_get_ast_hash(h.getContext(),
@@ -49,8 +62,11 @@ struct Z3FuncDeclCmp {
 // We don't provide a templated Z3NodeSet because not all Z3Node's are ASTs.
 // For now doing these aliases is simpler.
 using Z3ASTSet = std::unordered_set<Z3ASTHandle, Z3ASTHashGet, Z3ASTCmp>;
+
 using Z3FuncDeclSet =
     std::unordered_set<Z3FuncDeclHandle, Z3FuncDeclHashGet, Z3FuncDeclCmp>;
+
+using Z3SortSet = std::unordered_set<Z3SortHandle, Z3SortHashGet, Z3SortCmp>;
 }
 }
 

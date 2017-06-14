@@ -78,6 +78,23 @@ template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
   return ::Z3_model_to_string(context, node);
 }
 
+// Z3SortHandle helper methods
+Z3_sort_kind Z3SortHandle::getKind() const {
+  return ::Z3_get_sort_kind(context, node);
+}
+
+bool Z3SortHandle::isBoolTy() const { return getKind() == Z3_BOOL_SORT; }
+
+bool Z3SortHandle::isBitVectorTy() const { return getKind() == Z3_BV_SORT; }
+
+bool Z3SortHandle::isFloatingPointTy() const {
+  return getKind() == Z3_FLOATING_POINT_SORT;
+}
+
+Z3ASTHandle Z3SortHandle::asAST() const {
+  return Z3ASTHandle(::Z3_sort_to_ast(context, node), context);
+}
+
 // Z3ASTHandle helper methods
 Z3_ast_kind Z3ASTHandle::getKind() const {
   return ::Z3_get_ast_kind(context, node);

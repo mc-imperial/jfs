@@ -94,10 +94,23 @@ template <> inline void Z3NodeHandle<Z3_sort>::dec_ref(Z3_sort node) {
   // instead to simplify our implementation but this seems cleaner.
   ::Z3_dec_ref(context, ::Z3_sort_to_ast(context, node));
 }
-typedef Z3NodeHandle<Z3_sort> Z3SortHandle;
 template <> void Z3NodeHandle<Z3_sort>::dump() const __attribute__((used));
 template <>
 std::string Z3NodeHandle<Z3_sort>::toStr() const __attribute__((used));
+
+class Z3ASTHandle;
+
+class Z3SortHandle : public Z3NodeHandle<Z3_sort> {
+public:
+  // Inherit constructors
+  using Z3NodeHandle<Z3_sort>::Z3NodeHandle;
+  // Helper methods
+  Z3_sort_kind getKind() const;
+  bool isBoolTy() const;
+  bool isBitVectorTy() const;
+  bool isFloatingPointTy() const;
+  Z3ASTHandle asAST() const;
+};
 
 // Specialise for Z3_ast
 template <> inline void Z3NodeHandle<Z3_ast>::inc_ref(Z3_ast node) {
