@@ -17,6 +17,8 @@ uint64_t getNegBits(uint64_t v, uint64_t N) {
   return ((~v) + 1) & mask;
 }
 
+// FIXME: Use
+// jfs::smtlib_runtime_test_util::to_expected_bits_from_signed_value()
 #define BVSDIV_BRUTE(N)                                                        \
   TEST(bvsdiv, BruteForceBv##N) {                                              \
     assert(N < 64 && "too many bits");                                         \

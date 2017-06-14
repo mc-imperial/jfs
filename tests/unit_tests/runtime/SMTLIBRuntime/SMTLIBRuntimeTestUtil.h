@@ -13,7 +13,12 @@
 #include <stdint.h>
 namespace jfs {
 namespace smtlib_runtime_test_util {
+
 int64_t to_signed_value(uint64_t bits, uint64_t N);
+
+uint64_t get_neg_bits(uint64_t v, uint64_t N);
+
+uint64_t to_expected_bits_from_signed_value(int64_t bits, uint64_t N);
 }
 }
 #endif

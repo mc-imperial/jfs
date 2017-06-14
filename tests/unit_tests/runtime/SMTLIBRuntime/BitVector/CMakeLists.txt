@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 
 add_jfs_unit_test(BitVector
+  Native/BvAShr.cpp
   Native/BvAlloc.cpp
   Native/BvAdd.cpp
   Native/BvAnd.cpp

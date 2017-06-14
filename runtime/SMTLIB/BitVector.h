@@ -411,6 +411,8 @@ public:
     return u.bvneg();
   }
 
+  // Shift operators
+
   BitVector<N> bvshl(const BitVector<N> &shift) const {
     //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
     if (shift.data >= N) {
@@ -419,6 +421,7 @@ public:
     }
     return BitVector<N>((data << shift.data) & mask());
   }
+
   BitVector<N> bvlshr(const BitVector<N> &shift) const {
     // [[(bvlshr s t)]] := nat2bv[m](bv2nat([[s]]) div 2^(bv2nat([[t]])))
     if (shift.data >= N) {
@@ -427,7 +430,18 @@ public:
     }
     return BitVector<N>((data >> shift.data) & mask());
   }
-  // TODO
+
+  BitVector<N> bvashr(const BitVector<N> &shift) const {
+    // (bvashr s t) abbreviates
+    //  (ite (= ((_ extract |m-1| |m-1|) s) #b0)
+    //       (bvlshr s t)
+    //       (bvnot (bvlshr (bvnot s) t)))
+    // TODO: Can we do this more efficiently?
+    bool lhsNeg = data & mostSignificantBitMask();
+    if (!lhsNeg)
+      return bvlshr(shift);
+    return ((this->bvnot()).bvlshr(shift)).bvnot();
+  }
 
   // Bitwise operators
   BitVector<N> bvand(const BitVector<N> &other) const {
