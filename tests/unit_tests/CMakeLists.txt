@@ -35,7 +35,9 @@ get_property(UNIT_TEST_DEPENDS
 )
 add_custom_target(unittests
   COMMAND
-    "${LIT_TOOL}" ${LIT_ARGS} "${CMAKE_CURRENT_BINARY_DIR}"
+    "${CMAKE_COMMAND}" -E env
+      "UBSAN_OPTIONS=halt_on_error=1"
+      "${LIT_TOOL}" ${LIT_ARGS} "${CMAKE_CURRENT_BINARY_DIR}"
     DEPENDS ${UNIT_TEST_DEPENDS} SMTLIBRuntimeTests
     COMMENT "Running unittests"
     ${ADD_CUSTOM_COMMAND_USES_TERMINAL_ARG}
