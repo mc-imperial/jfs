@@ -11,6 +11,7 @@
 jfs_add_component(JFSFuzzingCommon
   DummyFuzzingSolver.cpp
   FuzzingSolver.cpp
+  SortConformanceCheckPass.cpp
 )
 target_link_libraries(JFSFuzzingCommon
   PUBLIC

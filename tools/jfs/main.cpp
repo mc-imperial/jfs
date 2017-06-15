@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
@@ -41,13 +42,16 @@ llvm::cl::opt<unsigned>
 enum BackendTy {
   DUMMY_FUZZING_SOLVER,
   Z3_SOLVER,
+  CXX_FUZZING_SOLVER,
 };
 
 llvm::cl::opt<BackendTy>
     SolverBackend(llvm::cl::desc("Solver backend"),
                   llvm::cl::values(clEnumValN(DUMMY_FUZZING_SOLVER, "dummy",
                                               "dummy solver (default)"),
-                                   clEnumValN(Z3_SOLVER, "z3", "Z3 backend")),
+                                   clEnumValN(Z3_SOLVER, "z3", "Z3 backend"),
+                                   clEnumValN(CXX_FUZZING_SOLVER, "cxx",
+                                              "CXX fuzzing backend")),
                   llvm::cl::init(DUMMY_FUZZING_SOLVER));
 }
 
@@ -108,6 +112,9 @@ int main(int argc, char** argv) {
     break;
   case Z3_SOLVER:
     solver.reset(new jfs::z3Backend::Z3Solver(solverOptions));
+    break;
+  case CXX_FUZZING_SOLVER:
+    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(solverOptions));
     break;
   default:
     llvm_unreachable("unknown solver backend");

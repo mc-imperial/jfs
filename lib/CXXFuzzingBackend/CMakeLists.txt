@@ -8,9 +8,7 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-add_subdirectory(Support)
-add_subdirectory(Core)
-add_subdirectory(Transform)
-add_subdirectory(Z3Backend)
-add_subdirectory(FuzzingCommon)
-add_subdirectory(CXXFuzzingBackend)
+jfs_add_component(JFSCXXFuzzingBackend
+  CXXFuzzingSolver.cpp
+)
+target_link_libraries(JFSCXXFuzzingBackend PUBLIC JFSFuzzingCommon)

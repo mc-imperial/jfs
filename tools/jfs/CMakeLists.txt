@@ -24,6 +24,7 @@ target_link_libraries(
   JFSTransform
   JFSFuzzingCommon
   JFSZ3Backend
+  JFSCXXFuzzingBackend
 )
 
 # Give shortname

@@ -109,6 +109,8 @@ public:
   bool isBoolTy() const;
   bool isBitVectorTy() const;
   bool isFloatingPointTy() const;
+  // Return 0 if not a bitvector
+  unsigned getBitVectorWidth() const;
   Z3ASTHandle asAST() const;
 };
 
@@ -146,6 +148,7 @@ public:
   bool isFreeVariable() const;
   bool isAppOf(Z3_decl_kind) const;
   bool isStructurallyEqualTo(Z3ASTHandle other) const;
+  Z3SortHandle getSort() const;
 
   Z3AppHandle asApp() const;
   Z3FuncDeclHandle asFuncDecl() const;

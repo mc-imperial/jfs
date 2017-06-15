@@ -91,6 +91,13 @@ bool Z3SortHandle::isFloatingPointTy() const {
   return getKind() == Z3_FLOATING_POINT_SORT;
 }
 
+unsigned Z3SortHandle::getBitVectorWidth() const {
+  if (getKind() != Z3_BV_SORT)
+    return 0;
+  unsigned width = ::Z3_get_bv_sort_size(context, node);
+  return width;
+}
+
 Z3ASTHandle Z3SortHandle::asAST() const {
   return Z3ASTHandle(::Z3_sort_to_ast(context, node), context);
 }
@@ -171,6 +178,10 @@ bool Z3ASTHandle::isStructurallyEqualTo(Z3ASTHandle other) const {
 
   assert(this->context == other.context && "context mismatch");
   return ::Z3_is_eq_ast(context, *this, other);
+}
+
+Z3SortHandle Z3ASTHandle::getSort() const {
+  return Z3SortHandle(::Z3_get_sort(context, node), context);
 }
 
 Z3AppHandle Z3ASTHandle::asApp() const {
