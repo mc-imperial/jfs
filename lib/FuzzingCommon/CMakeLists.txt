@@ -10,7 +10,9 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSFuzzingCommon
   DummyFuzzingSolver.cpp
+  EqualityExtractionPass.cpp
   FuzzingSolver.cpp
+  FuzzingAnalysisInfo.cpp
   SortConformanceCheckPass.cpp
 )
 target_link_libraries(JFSFuzzingCommon
