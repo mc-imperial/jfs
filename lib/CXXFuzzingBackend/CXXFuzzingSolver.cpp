@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
+#include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 
@@ -80,6 +81,8 @@ public:
     }
 
     // TODO: Do fuzzing
+    CXXProgramBuilderPass pbp(info);
+    pbp.run(q);
     return std::unique_ptr<SolverResponse>(
         new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
   }
