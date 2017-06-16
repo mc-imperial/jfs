@@ -26,7 +26,7 @@ protected:
 public:
   DummyFuzzingSolver(const jfs::core::SolverOptions&);
   ~DummyFuzzingSolver();
-  llvm::StringRef getName() const;
+  llvm::StringRef getName() const override;
 };
 }
 }

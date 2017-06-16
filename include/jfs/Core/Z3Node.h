@@ -204,6 +204,8 @@ class Z3FuncDeclHandle : public Z3NodeHandle<Z3_func_decl> {
 public:
   using Z3NodeHandle<Z3_func_decl>::Z3NodeHandle;
   Z3_decl_kind getKind() const;
+  Z3SortHandle getSort() const;
+  std::string getName() const;
 };
 
 // Specialise for Z3_solver

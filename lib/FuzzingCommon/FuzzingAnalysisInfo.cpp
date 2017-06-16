@@ -14,7 +14,10 @@ namespace jfs {
 namespace fuzzingCommon {
 
 FuzzingAnalysisInfo::FuzzingAnalysisInfo()
-    : equalityExtraction(std::make_shared<EqualityExtractionPass>()) {}
+    : equalityExtraction(std::make_shared<EqualityExtractionPass>()) {
+  freeVariableAssignment =
+      std::make_shared<FreeVariableToBufferAssignmentPass>(*equalityExtraction);
+}
 
 FuzzingAnalysisInfo::~FuzzingAnalysisInfo() {}
 
@@ -23,9 +26,7 @@ void FuzzingAnalysisInfo::addTo(jfs::transform::QueryPassManager &pm) {
 
   // Look for equalities, extract them and remove them from the constraints
   pm.add(equalityExtraction);
-
-  // TODO: Add pass to extract free variables and assign them a position
-  // in the fuzzing buffer.
+  pm.add(freeVariableAssignment);
 }
 }
 }

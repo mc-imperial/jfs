@@ -238,6 +238,18 @@ Z3_decl_kind Z3FuncDeclHandle::getKind() const {
   return ::Z3_get_decl_kind(context, node);
 }
 
+Z3SortHandle Z3FuncDeclHandle::getSort() const {
+  return Z3SortHandle(::Z3_get_range(context, node), context);
+}
+
+std::string Z3FuncDeclHandle::getName() const {
+  Z3_symbol sym = ::Z3_get_decl_name(context, node);
+  // We have to allocate storage because ::Z3_get_decl_name uses
+  // a statically allocated buffer which is invalidated when the
+  // next call occurs.
+  return std::string(::Z3_get_symbol_string(context, sym));
+}
+
 // Z3GoalHandle
 
 template <> void Z3NodeHandle<Z3_goal>::dump() const {

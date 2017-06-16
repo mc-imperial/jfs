@@ -11,6 +11,7 @@
 #ifndef JFS_FUZZING_COMMON_FUZZING_ANALYSIS_INFO_H
 #define JFS_FUZZING_COMMON_FUZZING_ANALYSIS_INFO_H
 #include "jfs/FuzzingCommon/EqualityExtractionPass.h"
+#include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPass.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include <memory>
 
@@ -22,6 +23,7 @@ namespace fuzzingCommon {
 class FuzzingAnalysisInfo {
 public:
   std::shared_ptr<EqualityExtractionPass> equalityExtraction;
+  std::shared_ptr<FreeVariableToBufferAssignmentPass> freeVariableAssignment;
   void addTo(jfs::transform::QueryPassManager& pm);
   FuzzingAnalysisInfo();
   ~FuzzingAnalysisInfo();

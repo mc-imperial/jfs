@@ -28,7 +28,6 @@ public:
   ~FuzzingSolver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
-  llvm::StringRef getName() const = 0;
 };
 }
 }

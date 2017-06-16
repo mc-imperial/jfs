@@ -31,7 +31,7 @@ protected:
 public:
   CXXFuzzingSolver(const jfs::core::SolverOptions&);
   ~CXXFuzzingSolver();
-  llvm::StringRef getName() const;
+  llvm::StringRef getName() const override;
 };
 }
 }

@@ -11,6 +11,7 @@
 jfs_add_component(JFSFuzzingCommon
   DummyFuzzingSolver.cpp
   EqualityExtractionPass.cpp
+  FreeVariableToBufferAssignmentPass.cpp
   FuzzingSolver.cpp
   FuzzingAnalysisInfo.cpp
   SortConformanceCheckPass.cpp
