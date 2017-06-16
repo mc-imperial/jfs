@@ -45,9 +45,16 @@ void Query::print(llvm::raw_ostream& os) const {
   // Do DFS to collect variables
   // FIXME: Not collecting custom sorts or functions
   jfs::core::Z3FuncDeclSet variables; // Use a set to avoid duplicates
+  Z3ASTSet seenExpr;
   while (workList.size() != 0) {
     Z3ASTHandle node = workList.front();
     workList.pop_front();
+    if (seenExpr.count(node) > 0) {
+      // Already visited
+      continue;
+    }
+    seenExpr.insert(node);
+
     if (node.isFreeVariable()) {
       variables.insert(node.asApp().getFuncDecl());
       continue;
