@@ -73,6 +73,15 @@ std::unique_ptr<SolverResponse> FuzzingSolver::solve(const jfs::core::Query &q,
   QueryPassManager pm;
   fai->addTo(pm);
   pm.run(qCopy);
+
+  // Check for trivial SAT. This can happen if the query only consists
+  // of equalities.
+  if (qCopy.constraints.size() == 0) {
+    // Empty constraint set is trivially satisifiable
+    assert(!produceModel && "producing models not implemented");
+    return std::unique_ptr<SolverResponse>(
+        new TrivialFuzzingSolverResponse(SolverResponse::SAT));
+  }
   return fuzz(qCopy, produceModel, fai);
 }
 }
