@@ -15,4 +15,7 @@ jfs_add_component(JFSCore
   Solver.cpp
   Z3Node.cpp
 )
-target_link_libraries(JFSCore PUBLIC "${Z3_LIBRARIES}")
+# Needed for command line support
+jfs_get_llvm_components(llvm_components support)
+
+target_link_libraries(JFSCore PUBLIC "${Z3_LIBRARIES}" ${llvm_components})

@@ -19,6 +19,7 @@ add_subdirectory(
 
 # Unit Tests
 add_subdirectory(Dummy)
+add_subdirectory(FuzzingCommon)
 add_subdirectory(runtime)
 
 # Set up lit configuration

@@ -86,7 +86,7 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
         equalitySet = kv->second;
       }
     }
-    if (equalitySet.get() == nullptr) {
+    if (equalitySet.get() != nullptr) {
       for (auto ei = equalOperands.begin(), ee = equalOperands.end(); ei != ee;
            ++ei) {
         equalitySet->insert(*ei);
