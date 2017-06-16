@@ -19,16 +19,16 @@ namespace jfs {
 namespace core {
 class SMTLIB2Parser : public JFSContextErrorHandler {
 public:
-  SMTLIB2Parser(JFSContext &ctx);
+  SMTLIB2Parser(JFSContext& ctx);
   ~SMTLIB2Parser();
   std::shared_ptr<Query> parseFile(llvm::StringRef fileName);
   std::shared_ptr<Query> parseStr(llvm::StringRef str);
-  virtual ErrorAction handleZ3error(JFSContext &ctx, Z3_error_code ec);
+  virtual ErrorAction handleZ3error(JFSContext& ctx, Z3_error_code ec);
   unsigned getErrorCount() const;
   void resetErrorCount();
 
 private:
-  JFSContext &ctx;
+  JFSContext& ctx;
   unsigned errorCount;
 };
 }

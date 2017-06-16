@@ -33,7 +33,7 @@ public:
   std::unordered_set<std::shared_ptr<jfs::core::Z3ASTSet>> equalities;
   EqualityExtractionPass();
   ~EqualityExtractionPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
 };
 }

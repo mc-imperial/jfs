@@ -14,7 +14,7 @@
 
 namespace jfs {
 namespace transform {
-void AddStandardPasses(QueryPassManager &pm);
+void AddStandardPasses(QueryPassManager& pm);
 }
 }
 #endif

@@ -21,7 +21,7 @@ class BvBoundPropagationPass : public QueryPass {
 public:
   BvBoundPropagationPass() {}
   ~BvBoundPropagationPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
 };
 }

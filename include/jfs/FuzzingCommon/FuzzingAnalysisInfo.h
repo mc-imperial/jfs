@@ -22,7 +22,7 @@ namespace fuzzingCommon {
 class FuzzingAnalysisInfo {
 public:
   std::shared_ptr<EqualityExtractionPass> equalityExtraction;
-  void addTo(jfs::transform::QueryPassManager &pm);
+  void addTo(jfs::transform::QueryPassManager& pm);
   FuzzingAnalysisInfo();
   ~FuzzingAnalysisInfo();
 };

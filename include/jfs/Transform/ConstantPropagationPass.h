@@ -19,7 +19,7 @@ class ConstantPropagationPass : public QueryPass {
 public:
   ConstantPropagationPass() {}
   ~ConstantPropagationPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
 };
 }

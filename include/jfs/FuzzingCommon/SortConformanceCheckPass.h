@@ -24,7 +24,7 @@ public:
   SortConformanceCheckPass(
       std::function<bool(jfs::core::Z3SortHandle)> predicate);
   ~SortConformanceCheckPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
   bool predicateAlwaysHeld() const { return predicateHeld; }
   void reset() { predicateHeld = false; }

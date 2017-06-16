@@ -25,11 +25,11 @@ private:
 
 protected:
   std::unique_ptr<jfs::core::SolverResponse>
-  fuzz(jfs::core::Query &q, bool produceModel,
+  fuzz(jfs::core::Query& q, bool produceModel,
        std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info) override;
 
 public:
-  CXXFuzzingSolver(const jfs::core::SolverOptions &);
+  CXXFuzzingSolver(const jfs::core::SolverOptions&);
   ~CXXFuzzingSolver();
   llvm::StringRef getName() const;
 };

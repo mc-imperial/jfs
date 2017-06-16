@@ -19,7 +19,7 @@ class AndHoistingPass : public QueryPass {
 public:
   AndHoistingPass() {}
   ~AndHoistingPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
 };
 }

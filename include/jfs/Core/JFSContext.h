@@ -24,32 +24,32 @@ class JFSContext;
 class JFSContextErrorHandler {
 public:
   enum ErrorAction { STOP, CONTINUE };
-  virtual ErrorAction handleZ3error(JFSContext &ctx, Z3_error_code ec) = 0;
+  virtual ErrorAction handleZ3error(JFSContext& ctx, Z3_error_code ec) = 0;
 };
 
 class JFSContext {
 private:
-  std::list<JFSContextErrorHandler *> errorHandlers;
+  std::list<JFSContextErrorHandler*> errorHandlers;
   unsigned verbosity;
 
 public:
   Z3_context z3Ctx;
-  JFSContext(const JFSContextConfig &ctxCfg);
+  JFSContext(const JFSContextConfig& ctxCfg);
   ~JFSContext();
 
   // Don't allow copying
-  JFSContext(const JFSContext &) = delete;
-  JFSContext(const JFSContext &&) = delete;
-  JFSContext &operator=(const JFSContext &) = delete;
+  JFSContext(const JFSContext&) = delete;
+  JFSContext(const JFSContext&&) = delete;
+  JFSContext& operator=(const JFSContext&) = delete;
 
-  bool registerErrorHandler(JFSContextErrorHandler *h);
-  bool unRegisterErrorHandler(JFSContextErrorHandler *h);
+  bool registerErrorHandler(JFSContextErrorHandler* h);
+  bool unRegisterErrorHandler(JFSContextErrorHandler* h);
   // FIXME: Should not be public
   void z3ErrorHandler(Z3_error_code ec);
   unsigned getVerbosity() const { return verbosity; }
-  llvm::raw_ostream &getErrorStream();
-  llvm::raw_ostream &getWarningStream();
-  llvm::raw_ostream &getDebugStream();
+  llvm::raw_ostream& getErrorStream();
+  llvm::raw_ostream& getWarningStream();
+  llvm::raw_ostream& getDebugStream();
 };
 }
 }

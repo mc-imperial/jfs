@@ -29,7 +29,7 @@ public:
   // passes.  This means we can't have unique ownership (otherwise clients
   // would have to hold on to raw pointers which is dangerous).
   void add(std::shared_ptr<QueryPass> pass);
-  void run(jfs::core::Query &q);
+  void run(jfs::core::Query& q);
 };
 }
 }

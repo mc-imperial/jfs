@@ -12,8 +12,8 @@
 #define JFS_CORE_SOLVER_H
 #include "jfs/Core/Query.h"
 #include "llvm/ADT/StringRef.h"
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
 
 namespace jfs {
 namespace core {
@@ -34,7 +34,7 @@ class Model {
 class SolverResponse {
 public:
   enum SolverSatisfiability { SAT, UNSAT, UNKNOWN };
-  SolverResponse(SolverSatisfiability sat) : sat(sat) {};
+  SolverResponse(SolverSatisfiability sat) : sat(sat){};
   const SolverSatisfiability sat;
   virtual std::shared_ptr<Model> getModel() = 0;
   static llvm::StringRef getSatString(SolverSatisfiability);
@@ -42,7 +42,7 @@ public:
 
 class Solver {
 protected:
-  const SolverOptions &options;
+  const SolverOptions& options;
 
 public:
   Solver(const SolverOptions&);
@@ -53,7 +53,7 @@ public:
   // Determine the satisfiability of the query.
   // Iff `produceModel` is false then only satisfiability will
   // be available.
-  virtual std::unique_ptr<SolverResponse> solve(const Query &q,
+  virtual std::unique_ptr<SolverResponse> solve(const Query& q,
                                                 bool produceModel) = 0;
   const SolverOptions& getOptions() const;
   virtual llvm::StringRef getName() const = 0;

@@ -15,7 +15,7 @@ namespace jfs {
 
 namespace support {
 
-const char *getVersionString();
+const char* getVersionString();
 }
 }
 #endif

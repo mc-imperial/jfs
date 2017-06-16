@@ -20,7 +20,7 @@ public:
   QueryPass() {}
   virtual ~QueryPass() {}
   // returns `true` if changed, `false` otherwise.
-  virtual bool run(jfs::core::Query &) = 0;
+  virtual bool run(jfs::core::Query&) = 0;
   virtual llvm::StringRef getName() = 0;
 };
 }

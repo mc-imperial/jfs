@@ -19,7 +19,7 @@ class TrueConstraintEliminationPass : public QueryPass {
 public:
   TrueConstraintEliminationPass() {}
   ~TrueConstraintEliminationPass() {}
-  bool run(jfs::core::Query &q) override;
+  bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
 };
 }

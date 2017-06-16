@@ -18,7 +18,6 @@ namespace core {
 
 template <typename T>
 using Z3ASTMap = std::unordered_map<Z3ASTHandle, T, Z3ASTHashGet, Z3ASTCmp>;
-
 }
 }
 #endif

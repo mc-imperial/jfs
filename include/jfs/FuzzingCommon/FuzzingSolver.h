@@ -20,13 +20,13 @@ class FuzzingAnalysisInfo;
 class FuzzingSolver : public jfs::core::Solver {
 protected:
   virtual std::unique_ptr<jfs::core::SolverResponse>
-  fuzz(jfs::core::Query &q, bool produceModel,
+  fuzz(jfs::core::Query& q, bool produceModel,
        std::shared_ptr<FuzzingAnalysisInfo> info) = 0;
 
 public:
-  FuzzingSolver(const jfs::core::SolverOptions &);
+  FuzzingSolver(const jfs::core::SolverOptions&);
   ~FuzzingSolver();
-  std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query &q,
+  std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
   llvm::StringRef getName() const = 0;
 };

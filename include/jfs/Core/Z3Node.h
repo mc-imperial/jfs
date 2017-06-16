@@ -45,12 +45,12 @@ public:
       dec_ref(node);
     }
   }
-  Z3NodeHandle(const Z3NodeHandle &b) : node(b.node), context(b.context) {
+  Z3NodeHandle(const Z3NodeHandle& b) : node(b.node), context(b.context) {
     if (node && context) {
       inc_ref(node);
     }
   }
-  Z3NodeHandle &operator=(const Z3NodeHandle &b) {
+  Z3NodeHandle& operator=(const Z3NodeHandle& b) {
     if (node == NULL && context == NULL) {
       // Special case for when this object was constructed
       // using the default constructor. Try to inherit a non null
@@ -302,7 +302,7 @@ public:
   using Z3NodeHandle<Z3_apply_result>::Z3NodeHandle;
   unsigned getNumGoals() const;
   Z3GoalHandle getGoal(unsigned index) const;
-  void collectAllFormulas(std::vector<Z3ASTHandle> &) const;
+  void collectAllFormulas(std::vector<Z3ASTHandle>&) const;
 };
 }
 }

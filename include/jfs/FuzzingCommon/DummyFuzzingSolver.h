@@ -20,11 +20,11 @@ namespace fuzzingCommon {
 class DummyFuzzingSolver : public FuzzingSolver {
 protected:
   std::unique_ptr<jfs::core::SolverResponse>
-  fuzz(jfs::core::Query &q, bool produceModel,
+  fuzz(jfs::core::Query& q, bool produceModel,
        std::shared_ptr<FuzzingAnalysisInfo> info) override;
 
 public:
-  DummyFuzzingSolver(const jfs::core::SolverOptions &);
+  DummyFuzzingSolver(const jfs::core::SolverOptions&);
   ~DummyFuzzingSolver();
   llvm::StringRef getName() const;
 };

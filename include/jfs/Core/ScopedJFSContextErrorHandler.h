@@ -15,11 +15,11 @@ namespace jfs {
 namespace core {
 class ScopedJFSContextErrorHandler {
 private:
-  JFSContext &ctx;
-  JFSContextErrorHandler *handler;
+  JFSContext& ctx;
+  JFSContextErrorHandler* handler;
 
 public:
-  ScopedJFSContextErrorHandler(JFSContext &ctx, JFSContextErrorHandler *h)
+  ScopedJFSContextErrorHandler(JFSContext& ctx, JFSContextErrorHandler* h)
       : ctx(ctx), handler(h) {
     ctx.registerErrorHandler(handler);
   }
