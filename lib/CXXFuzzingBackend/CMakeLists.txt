@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSCXXFuzzingBackend
   CXXFuzzingSolver.cpp
+  CXXProgram.cpp
   CXXProgramBuilderPass.cpp
 )
 target_link_libraries(JFSCXXFuzzingBackend PUBLIC JFSFuzzingCommon)

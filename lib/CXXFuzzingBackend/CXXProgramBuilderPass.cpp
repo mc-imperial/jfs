@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
+#include "jfs/CXXFuzzingBackend/CXXProgram.h"
 
 using namespace jfs::core;
 using namespace jfs::fuzzingCommon;
@@ -25,7 +26,18 @@ CXXProgramBuilderPass::~CXXProgramBuilderPass() {}
 llvm::StringRef CXXProgramBuilderPass::getName() { return "CXXProgramBuilder"; }
 
 bool CXXProgramBuilderPass::run(Query& q) {
-  // TODO:
+  JFSContext& ctx = q.getContext();
+  program = std::make_shared<CXXProgram>();
+  // Runtime header include
+  CXXDeclRef include =
+      std::make_shared<CXXIncludeDecl>(program, "SMTLIB/BitVector.h", false);
+  program->appendDecl(include);
+
+  if (ctx.getVerbosity() >= 2) {
+    ctx.getDebugStream() << "(" << getName() << "\n\n";
+    program->print(ctx.getDebugStream());
+    ctx.getDebugStream() << "\n)\n";
+  }
   return false;
 }
 }
