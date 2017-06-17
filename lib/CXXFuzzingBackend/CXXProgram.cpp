@@ -33,6 +33,82 @@ void CXXIncludeDecl::print(llvm::raw_ostream& os) const {
      << (isSystemInclude ? ">" : "\"") << "\n";
 }
 
+// CXXStatement
+
+CXXStatement::~CXXStatement() {}
+
+// CXXCommentBlock
+
+void CXXCommentBlock::print(llvm::raw_ostream& os) const {
+  os << "// " << comment << "\n";
+}
+
+// CXXFunctionDecl
+
+CXXFunctionDecl::CXXFunctionDecl(CXXDeclRef parent, llvm::StringRef name,
+                                 CXXTypeRef returnTy,
+                                 std::vector<CXXFunctionArgumentRef>& arguments,
+                                 bool hasCVisibility)
+    : CXXDecl(parent), name(name.str()), returnTy(returnTy),
+      arguments(arguments), hasCVisibility(hasCVisibility), defn(nullptr) {}
+
+CXXFunctionDecl::~CXXFunctionDecl() {}
+
+void CXXFunctionDecl::print(llvm::raw_ostream& os) const {
+  if (hasCVisibility)
+    os << "extern \"C\" ";
+
+  returnTy->print(os);
+  os << " " << name << "(";
+  for (unsigned index = 0; index < arguments.size(); ++index) {
+    arguments[index]->print(os);
+    if (index != (arguments.size() - 1)) {
+      os << ", ";
+    }
+  }
+  os << ")";
+  if (defn.get() == nullptr) {
+    // Just a declaration
+    os << ";\n";
+    return;
+  }
+  // print block
+  os << "\n";
+  defn->print(os);
+}
+
+// CXXType
+CXXType::CXXType(CXXDeclRef parent, llvm::StringRef name)
+    : CXXDecl(parent), name(name.str()) {}
+CXXType::~CXXType() {}
+
+void CXXType::print(llvm::raw_ostream& os) const { os << name; }
+
+// CXXFunctionArgument
+CXXFunctionArgument::CXXFunctionArgument(CXXDeclRef parent,
+                                         llvm::StringRef name,
+                                         CXXTypeRef argType)
+    : CXXDecl(parent), name(name.str()), argType(argType) {}
+
+CXXFunctionArgument::~CXXFunctionArgument() {}
+
+void CXXFunctionArgument::print(llvm::raw_ostream& os) const {
+  argType->print(os);
+  os << " " << name;
+}
+
+// CXXCodeBlock
+CXXCodeBlock::CXXCodeBlock(CXXDeclRef parent) : CXXDecl(parent) {}
+CXXCodeBlock::~CXXCodeBlock() {}
+
+void CXXCodeBlock::print(llvm::raw_ostream& os) const {
+  os << "{\n";
+  for (const auto& st : statements) {
+    st->print(os);
+  }
+  os << "}\n";
+}
+
 // CXXProgram
 
 void CXXProgram::print(llvm::raw_ostream& os) const {

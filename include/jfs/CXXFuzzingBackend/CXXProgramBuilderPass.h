@@ -17,11 +17,11 @@ namespace jfs {
 namespace cxxfb {
 
 class CXXProgram;
+class CXXProgramBuilderPassImpl;
 
 class CXXProgramBuilderPass : public jfs::transform::QueryPass {
 private:
-  std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
-  std::shared_ptr<CXXProgram> program;
+  std::unique_ptr<CXXProgramBuilderPassImpl> impl;
 
 public:
   CXXProgramBuilderPass(
@@ -30,7 +30,7 @@ public:
   bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
   // FIXME: Should be a const CXXProgram
-  std::shared_ptr<CXXProgram> getProgram() { return program; }
+  std::shared_ptr<CXXProgram> getProgram();
 };
 }
 }
