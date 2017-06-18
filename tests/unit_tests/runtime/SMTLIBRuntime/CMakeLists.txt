@@ -110,3 +110,4 @@ add_subdirectory(
 include("${JFS_SRC_ROOT}/cmake/add_jfs_unit_test.cmake")
 
 add_subdirectory(BitVector)
+add_subdirectory(Core)
