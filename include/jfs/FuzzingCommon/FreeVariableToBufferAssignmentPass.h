@@ -31,18 +31,24 @@ public:
   void print(llvm::raw_ostream&) const;
   void dump() const;
   jfs::core::Z3FuncDeclHandle getDecl() const;
+  std::string getName() const;
+  jfs::core::Z3SortHandle getSort() const;
 };
 
 class BufferAssignment {
 private:
-  std::vector<BufferElement> chunks;
+  typedef std::vector<BufferElement> ChunksTy;
+  ChunksTy chunks;
 
 public:
   BufferAssignment() {}
   ~BufferAssignment() {}
   void appendElement(BufferElement&);
   unsigned computeWidth() const;
-  // TODO: Implement const iterators
+  ChunksTy::const_iterator cbegin() const { return chunks.begin(); }
+  ChunksTy::const_iterator cend() const { return chunks.end(); }
+  ChunksTy::const_iterator begin() const { return cbegin(); }
+  ChunksTy::const_iterator end() const { return cend(); }
   void print(llvm::raw_ostream&) const;
   void dump() const;
 };

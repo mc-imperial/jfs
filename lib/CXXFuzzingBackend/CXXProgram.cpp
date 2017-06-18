@@ -133,6 +133,18 @@ void CXXReturnIntStatement::print(llvm::raw_ostream& os) const {
   os << "return " << returnValue << ";\n";
 }
 
+// CXXDeclAndDefnVarStatement
+CXXDeclAndDefnVarStatement::CXXDeclAndDefnVarStatement(
+    CXXCodeBlockRef parent, CXXTypeRef ty, llvm::StringRef name,
+    llvm::StringRef valueExpr)
+    : CXXStatement(parent), ty(ty), name(name.str()),
+      valueExpr(valueExpr.str()) {}
+
+void CXXDeclAndDefnVarStatement::print(llvm::raw_ostream& os) const {
+  ty->print(os);
+  os << " " << name << " = " << valueExpr << ";\n";
+}
+
 // CXXProgram
 
 void CXXProgram::print(llvm::raw_ostream& os) const {

@@ -20,6 +20,9 @@ template <typename T>
 using Z3ASTMap = std::unordered_map<Z3ASTHandle, T, Z3ASTHashGet, Z3ASTCmp>;
 
 template <typename T>
+using Z3SortMap = std::unordered_map<Z3SortHandle, T, Z3SortHashGet, Z3SortCmp>;
+
+template <typename T>
 using Z3FuncDeclMap =
     std::unordered_map<Z3FuncDeclHandle, T, Z3FuncDeclHashGet, Z3FuncDeclCmp>;
 }

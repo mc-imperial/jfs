@@ -159,6 +159,20 @@ public:
   void print(llvm::raw_ostream&) const override;
 };
 
+// CXXDeclAndDefnVarStatement
+class CXXDeclAndDefnVarStatement : public CXXStatement {
+private:
+  CXXTypeRef ty;
+  std::string name;
+  std::string valueExpr;
+
+public:
+  CXXDeclAndDefnVarStatement(CXXCodeBlockRef parent, CXXTypeRef ty,
+                             llvm::StringRef name, llvm::StringRef valueExpr);
+  llvm::StringRef getName() const { return valueExpr; }
+  void print(llvm::raw_ostream&) const override;
+};
+
 class CXXProgram : public CXXDecl {
 private:
   typedef std::vector<CXXDeclRef> declStorageTy;

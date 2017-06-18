@@ -40,6 +40,14 @@ Z3FuncDeclHandle BufferElement::getDecl() const {
   return declApp.asApp().getFuncDecl();
 }
 
+std::string BufferElement::getName() const {
+  return getDecl().getName();
+}
+
+Z3SortHandle BufferElement::getSort() const {
+  return declApp.getSort();
+}
+
 void BufferElement::print(llvm::raw_ostream& os) const {
   os << "(" << getDecl().getName() << ":" << getBitWidth();
   if (equalities.size() > 0) {
