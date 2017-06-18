@@ -136,6 +136,29 @@ public:
   void print(llvm::raw_ostream&) const override;
 };
 
+// CXXIfStatement
+class CXXIfStatement : public CXXStatement {
+private:
+  std::string condition;
+
+public:
+  CXXIfStatement(CXXCodeBlockRef parent, llvm::StringRef condition);
+  void print(llvm::raw_ostream&) const override;
+  // FIXME: shouldn't be public
+  CXXCodeBlockRef trueBlock;
+  CXXCodeBlockRef falseBlock;
+};
+
+// CXXReturnIntStatement
+class CXXReturnIntStatement : public CXXStatement {
+private:
+  int returnValue;
+
+public:
+  CXXReturnIntStatement(CXXCodeBlockRef parent, int returnValue);
+  void print(llvm::raw_ostream&) const override;
+};
+
 class CXXProgram : public CXXDecl {
 private:
   typedef std::vector<CXXDeclRef> declStorageTy;

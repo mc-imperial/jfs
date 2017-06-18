@@ -109,6 +109,30 @@ void CXXCodeBlock::print(llvm::raw_ostream& os) const {
   os << "}\n";
 }
 
+// CXXIfStatement
+CXXIfStatement::CXXIfStatement(CXXCodeBlockRef parent,
+                               llvm::StringRef condition)
+    : CXXStatement(parent), condition(condition.str()), trueBlock(nullptr),
+      falseBlock(nullptr) {}
+
+void CXXIfStatement::print(llvm::raw_ostream& os) const {
+  os << "if (" << condition << ")\n";
+  trueBlock->print(os);
+  if (falseBlock) {
+    os << "else ";
+    falseBlock->print(os);
+  }
+}
+
+// CXXReturnIntStatement
+CXXReturnIntStatement::CXXReturnIntStatement(CXXCodeBlockRef parent,
+                                             int returnValue)
+    : CXXStatement(parent), returnValue(returnValue) {}
+
+void CXXReturnIntStatement::print(llvm::raw_ostream& os) const {
+  os << "return " << returnValue << ";\n";
+}
+
 // CXXProgram
 
 void CXXProgram::print(llvm::raw_ostream& os) const {

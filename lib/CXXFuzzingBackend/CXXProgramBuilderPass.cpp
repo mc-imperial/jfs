@@ -22,10 +22,16 @@ class CXXProgramBuilderPassImpl {
 public:
   std::shared_ptr<CXXProgram> program;
   std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
-  CXXFunctionDeclRef fuzzFn;
+  CXXCodeBlockRef earlyExitBlock;
   CXXProgramBuilderPassImpl(std::shared_ptr<FuzzingAnalysisInfo> info)
-      : info(info), fuzzFn(nullptr) {
+      : info(info) {
     program = std::make_shared<CXXProgram>();
+
+    // Setup early exit code block
+    earlyExitBlock = std::make_shared<CXXCodeBlock>(program);
+    auto returnStmt =
+        std::make_shared<CXXReturnIntStatement>(earlyExitBlock, 0);
+    earlyExitBlock->statements.push_front(returnStmt);
   }
 
   CXXFunctionDeclRef buildEntryPoint() {
@@ -57,8 +63,17 @@ public:
     return funcDefn;
   }
 
-  void insertBufferSizeGuard() {
-    // TODO:
+  void insertBufferSizeGuard(CXXFunctionDeclRef fuzzFn) {
+    std::string underlyingString;
+    llvm::raw_string_ostream condition(underlyingString);
+    unsigned bufferWidth =
+        info->freeVariableAssignment->bufferAssignment->computeWidth();
+    condition << "size < " << bufferWidth;
+    condition.flush();
+    auto ifStatement =
+        std::make_shared<CXXIfStatement>(fuzzFn->defn, underlyingString);
+    ifStatement->trueBlock = earlyExitBlock;
+    fuzzFn->defn->statements.push_back(ifStatement);
   }
 
   void insertFreeVariableConstruction() {
@@ -75,9 +90,9 @@ public:
 
   void build(const Query& q) {
     JFSContext& ctx = q.getContext();
-    fuzzFn = buildEntryPoint();
+    auto fuzzFn = buildEntryPoint();
 
-    insertBufferSizeGuard();
+    insertBufferSizeGuard(fuzzFn);
     insertFreeVariableConstruction();
 
     // Generate constraint branches
