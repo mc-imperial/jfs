@@ -23,13 +23,14 @@ namespace fuzzingCommon {
 
 class BufferElement {
 public:
-  const jfs::core::Z3FuncDeclHandle decl;
-  BufferElement(const jfs::core::Z3FuncDeclHandle decl);
+  const jfs::core::Z3ASTHandle declApp;
+  BufferElement(const jfs::core::Z3ASTHandle declApp);
   unsigned getBitWidth() const;
   // FIXME: put this behind an interface once we know the requirements
   std::vector<jfs::core::Z3ASTHandle> equalities;
   void print(llvm::raw_ostream&) const;
   void dump() const;
+  jfs::core::Z3FuncDeclHandle getDecl() const;
 };
 
 class BufferAssignment {

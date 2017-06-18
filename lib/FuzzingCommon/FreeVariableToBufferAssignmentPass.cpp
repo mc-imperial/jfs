@@ -19,10 +19,13 @@ using namespace jfs::core;
 namespace jfs {
 namespace fuzzingCommon {
 
-BufferElement::BufferElement(const Z3FuncDeclHandle decl) : decl(decl) {}
+BufferElement::BufferElement(const Z3ASTHandle declApp) : declApp(declApp) {
+  assert(declApp.isApp() && "should be an application");
+  assert(declApp.asApp().isFreeVariable() && "should be an application");
+}
 
 unsigned BufferElement::getBitWidth() const {
-  Z3SortHandle sort = decl.getSort();
+  Z3SortHandle sort = declApp.getSort();
   switch (sort.getKind()) {
   case Z3_BOOL_SORT:
     return 8;
@@ -33,8 +36,12 @@ unsigned BufferElement::getBitWidth() const {
   }
 }
 
+Z3FuncDeclHandle BufferElement::getDecl() const {
+  return declApp.asApp().getFuncDecl();
+}
+
 void BufferElement::print(llvm::raw_ostream& os) const {
-  os << "(" << decl.getName() << ":" << getBitWidth();
+  os << "(" << getDecl().getName() << ":" << getBitWidth();
   if (equalities.size() > 0) {
     os << " equalities: ";
     for (const auto& e : equalities) {
@@ -154,12 +161,11 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     alreadyAssigned.insert(freeVarApp);
 
     assert(freeVarApp.isFreeVariable());
-    Z3FuncDeclHandle decl = freeVarApp.asApp().getFuncDecl();
     // See if this variable belongs to a set of known equalities.
     const auto equalitySetsIt = eep.mapping.find(freeVarApp);
     if (equalitySetsIt == eep.mapping.end()) {
       // No equalites so append to buffer
-      BufferElement el(decl);
+      BufferElement el(freeVarApp);
       bufferAssignment->appendElement(el);
       continue;
     }
@@ -202,7 +208,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
 
     // The variable needs to be assigned to the buffer but there
     // are equalities that need to be enforced.
-    BufferElement el(decl);
+    BufferElement el(freeVarApp);
     for (const auto& e : equalitySet) {
       if (e == freeVarApp) {
         continue;
