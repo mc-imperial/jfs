@@ -67,10 +67,6 @@ public:
   BitVector() : BitVector(0) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
   }
-  BitVector(BufferRef<uint8_t> bufferRef) {
-    data = 0;
-    memcpy(&data, bufferRef, bufferRef.getSize());
-  }
   BitVector(const BitVector<N>& other) : data(other.data) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
   }
