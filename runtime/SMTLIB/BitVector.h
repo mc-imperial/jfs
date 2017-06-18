@@ -10,23 +10,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_RUNTIME_SMTLIB_BITVECTOR_H
 #define JFS_RUNTIME_SMTLIB_BITVECTOR_H
+#include "BufferRef.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <type_traits>
 
-template <typename T> class BufferRef {
-private:
-  T* data;
-  size_t size;
-
-public:
-  BufferRef(T* data, size_t size) : data(data), size(size) {}
-  T* get() const { return data; }
-  operator T*() const { return get(); }
-  size_t getSize() const { return size; }
-};
 
 // Arbitary precision bitvector of width N
 // that mimics the semantics of SMT-LIBv2
