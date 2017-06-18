@@ -47,7 +47,7 @@ private:
     if (N >= 64)
       return value;
     else
-      return value % (1 << N);
+      return value % (UINT64_C(1) << N);
   }
   constexpr dataTy mostSignificantBitMask() const {
     return (UINT64_C(1) << (N - 1));
@@ -598,4 +598,52 @@ public:
   }
   // TODO:
 };
+
+// Convenience function for creating a BitVector
+// from any arbitrary bit offset in a buffer. Offset
+// is [LOWBIT, HIGHBIT].
+// Implementation for native BitVector
+template <uint64_t LOWBIT, uint64_t HIGHBIT,
+          typename std::enable_if<(((HIGHBIT - LOWBIT) + 1) <= 64)>::type* = nullptr>
+BitVector<((HIGHBIT - LOWBIT) + 1)>
+makeBitVectorFrom(BufferRef<uint8_t> buffer) {
+  static_assert( HIGHBIT >= LOWBIT, "invalid LOWBIT and HIGHBIT");
+  size_t lowBitByte = LOWBIT / 8;
+  size_t highBitByte = HIGHBIT / 8;
+  size_t bitWidth = (HIGHBIT - LOWBIT) + 1;
+  assert(lowBitByte < buffer.getSize());
+  assert(highBitByte < buffer.getSize());
+  uint64_t data = 0;
+  uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
+  size_t shiftOffset = LOWBIT % 8;
+  uint64_t dataMask = 0;
+  if (bitWidth < 64) {
+    dataMask = (UINT64_C(1) << bitWidth) - 1;
+  } else {
+    dataMask = UINT64_MAX;
+  }
+  // Copy byte-by-byte shifting if necessary
+  for (size_t index = lowBitByte; index <= highBitByte; ++index) {
+    size_t viewIndex = index - lowBitByte;
+    uint8_t bufferByte = buffer.get()[index];
+    dataView[viewIndex] |= (bufferByte >> shiftOffset);
+    if (shiftOffset == 0) {
+      // If there is no shift offset then we didn't shift any bits
+      // out.
+      continue;
+    }
+    // Doing the shift means we added have zero bits in LSB rather
+    // than the actually bits we want.
+    uint8_t nextIterByteValue = 0;
+    if ((index + 1) <= highBitByte) {
+      // Avoid out of bounds access
+      nextIterByteValue = buffer.get()[index + 1];
+    }
+    dataView[viewIndex] |= (nextIterByteValue << (8 - shiftOffset));
+  }
+  // Now mask off the data
+  data &= dataMask;
+  return BitVector<((HIGHBIT - LOWBIT) + 1)>(data);
+}
+
 #endif
