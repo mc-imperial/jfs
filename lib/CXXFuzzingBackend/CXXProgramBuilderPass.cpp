@@ -167,8 +167,20 @@ public:
       // Build string `makeBitVectorFrom<a,b>(jfs_buffer_ref)`
       // where a is min bit and b is max bit from `jfs_buffer_ref`.
       underlyingString.clear();
-      ss << "makeBitVectorFrom<" << currentBufferBit << "," << endBufferBit
-         << ">(" << bufferRefName << ")";
+      switch (be.getSort().getKind()) {
+      case Z3_BOOL_SORT: {
+        ss << "makeBoolFrom";
+        break;
+      }
+      case Z3_BV_SORT: {
+        ss << "makeBitVectorFrom";
+        break;
+      }
+      default:
+        llvm_unreachable("Unhandled sort");
+      }
+      ss << "<" << currentBufferBit << "," << endBufferBit << ">("
+         << bufferRefName << ")";
       ss.flush();
       auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
           cb, assignmentTy, sanitizedSymbolName, underlyingString);
