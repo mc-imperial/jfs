@@ -144,10 +144,12 @@ public:
 
     std::string underlyingString;
     llvm::raw_string_ostream ss(underlyingString);
-    // insert bufferRef.
+    // Insert bufferRef.
+    // FIXME: We should probably just use C++'s constructor syntax
+    // BufferRef<uint8_t> jfs_buffer_ref<uint8_t>(data, size)
     auto bufferRefTy = std::make_shared<CXXType>(program, "BufferRef<uint8_t>");
-    // Build `BufferRef(data, size)` string.
-    ss << "BufferRef(" << entryPointFirstArgName << ", "
+    // Build `BufferRef<uint8_t>(data, size)` string.
+    ss << bufferRefTy->getName() << "(" << entryPointFirstArgName << ", "
        << entryPointSecondArgName << ")";
     ss.flush();
     auto bufferRefAssignment = std::make_shared<CXXDeclAndDefnVarStatement>(

@@ -111,6 +111,7 @@ public:
   CXXType(CXXDeclRef parent, llvm::StringRef name);
   ~CXXType();
   void print(llvm::raw_ostream&) const override;
+  llvm::StringRef getName() const { return name; }
 };
 
 // CXXFunctionArgument
