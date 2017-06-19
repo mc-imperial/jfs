@@ -106,10 +106,15 @@ public:
   }
 
   void insertBufferSizeGuard(CXXCodeBlockRef cb) {
-    std::string underlyingString;
-    llvm::raw_string_ostream condition(underlyingString);
     unsigned bufferWidthInBits =
         info->freeVariableAssignment->bufferAssignment->computeWidth();
+    if (bufferWidthInBits == 0) {
+      // Don't add guard to avoid Clang warning about
+      // checking `size < 0`
+      return;
+    }
+    std::string underlyingString;
+    llvm::raw_string_ostream condition(underlyingString);
     // Round up to the number of bytes needed
     unsigned bufferWidthInBytes = (bufferWidthInBits + 7) / 8;
     condition << "size < " << bufferWidthInBytes;
@@ -147,6 +152,11 @@ public:
     llvm::StringRef bufferRefName = insertSymbol("jfs_buffer_ref");
     const BufferAssignment& ba =
         *(info->freeVariableAssignment->bufferAssignment.get());
+    if (ba.size() == 0) {
+      // Don't emit anything if the buffer is empty to avoid
+      // clang warnings about unused variables.
+      return;
+    }
 
     std::string underlyingString;
     llvm::raw_string_ostream ss(underlyingString);
@@ -209,7 +219,9 @@ public:
         cb->statements.push_back(equalityAssignmentStmt);
       }
     }
+  }
 
+  void insertConstantAssignments(CXXCodeBlockRef cb) {
     // FIXME: Due to constant propagation constant assignments should not be
     // present. We probably should just remove this entirely. For now just
     // assert that they aren't present.
@@ -233,6 +245,7 @@ public:
 
     insertBufferSizeGuard(fuzzFn->defn);
     insertFreeVariableConstruction(fuzzFn->defn);
+    insertConstantAssignments(fuzzFn->defn);
 
     // Generate constraint branches
     for (const auto& constraint : q.constraints) {

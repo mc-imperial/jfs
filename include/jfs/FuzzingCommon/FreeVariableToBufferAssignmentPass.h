@@ -49,6 +49,7 @@ public:
   ChunksTy::const_iterator cend() const { return chunks.end(); }
   ChunksTy::const_iterator begin() const { return cbegin(); }
   ChunksTy::const_iterator end() const { return cend(); }
+  size_t size() const { return chunks.size(); }
   void print(llvm::raw_ostream&) const;
   void dump() const;
 };
