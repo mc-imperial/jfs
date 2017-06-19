@@ -72,12 +72,16 @@ public:
 
   CXXFunctionDeclRef buildEntryPoint() {
     program = std::make_shared<CXXProgram>();
-    // Runtime header include
-    program->appendDecl(
-        std::make_shared<CXXIncludeDecl>(program, "SMTLIB/BitVector.h", false));
-    // Int types header
-    program->appendDecl(
-        std::make_shared<CXXIncludeDecl>(program, "stdint.h", true));
+    // Runtime header includes
+    // FIXME: We should probe the query and only emit these header includes
+    // if we actually need them.
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program, "SMTLIB/Core.h", /*systemHeader=*/false));
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program, "SMTLIB/BitVector.h", /*systemHeader=*/false));
+    // Int types header for LibFuzzer entry point definition.
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program, "stdint.h", /*systemHeader=*/true));
 
     // Build entry point for LibFuzzer
     auto retTy = std::make_shared<CXXType>(program, "int");
