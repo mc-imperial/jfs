@@ -2,10 +2,13 @@
 # Do not edit!
 config.jfs_tool_path = "@JFS_TOOL_PATH@"
 config.jfs_opt_tool_path = "@JFS_OPT_TOOL_PATH@"
+config.jfs_smt_to_cxx_tool_path = "@JFS_SMT_TO_CXX_TOOL_PATH@"
 config.filecheck_tool_path = "@FILECHECK_BIN_PATH@"
 config.not_tool_path = "@NOT_BIN_PATH@"
 
 config.jfs_src_root = "@CMAKE_SOURCE_DIR@"
 config.jfs_bin_root = "@CMAKE_BINARY_DIR@"
+
+config.clang_tool_path = "@LLVM_CLANG_CXX_TOOL@"
 
 lit_config.load_config(config, "@CMAKE_CURRENT_SOURCE_DIR@/lit.cfg")
