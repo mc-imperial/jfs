@@ -22,7 +22,7 @@
 template <
     uint64_t LOWBIT, uint64_t HIGHBIT,
     typename std::enable_if<(((HIGHBIT - LOWBIT) + 1) <= 8)>::type* = nullptr>
-bool makeBoolFrom(BufferRef<uint8_t> buffer) {
+bool makeBoolFrom(BufferRef<const uint8_t> buffer) {
   static_assert(HIGHBIT >= LOWBIT, "invalid LOWBIT and HIGHBIT");
   constexpr size_t bitWidth = (HIGHBIT - LOWBIT) + 1;
   static_assert(bitWidth <= 8, "Too many bits");

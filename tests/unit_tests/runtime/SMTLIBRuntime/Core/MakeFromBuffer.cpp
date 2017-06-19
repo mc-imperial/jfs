@@ -14,7 +14,7 @@
 TEST(MakeFromBuffer, singleBitFromUniformBuffer) {
   uint8_t buffer[sizeof(uint64_t)];
   uint64_t* view = reinterpret_cast<uint64_t*>(buffer);
-  BufferRef<uint8_t> bufferRef(buffer, sizeof(uint64_t));
+  BufferRef<const uint8_t> bufferRef(buffer, sizeof(uint64_t));
 #define TEST_MAKE_BOOL(L, B, VALUE)                                            \
   bool test_##L##_##B = makeBoolFrom<L, B>(bufferRef);                         \
   ASSERT_EQ(test_##L##_##B, VALUE);
@@ -102,7 +102,7 @@ TEST(MakeFromBuffer, singleBitFromUniformBuffer) {
 TEST(MakeFromBuffer, IndividualBits) {
   uint8_t buffer[1];
   buffer[0] = 0b10000001;
-  BufferRef<uint8_t> bufferRef(buffer, 1);
+  BufferRef<const uint8_t> bufferRef(buffer, 1);
 #define CHECK_BIT(N, VALUE)                                                    \
   bool bit##N = makeBoolFrom<N, N>(bufferRef);                                 \
   ASSERT_EQ(bit##N, VALUE);
@@ -121,7 +121,7 @@ TEST(MakeFromBuffer, AcrossByteBoundaryFalse) {
   uint8_t buffer[2];
   buffer[0] = 0b00000000;
   buffer[1] = 0b11111110;
-  BufferRef<uint8_t> bufferRef(buffer, 2);
+  BufferRef<const uint8_t> bufferRef(buffer, 2);
   bool bits = makeBoolFrom<7, 7>(bufferRef);
   ASSERT_EQ(bits, false);
   bool bits2 = makeBoolFrom<7, 8>(bufferRef);

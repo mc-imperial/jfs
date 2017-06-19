@@ -16,7 +16,7 @@ TEST(MakeFromBuffer, WholeBuffer64) {
   uint8_t buffer[sizeof(uint64_t)];
   uint64_t* view = reinterpret_cast<uint64_t*>(buffer);
   *view = UINT64_MAX;
-  BufferRef<uint8_t> bufferRef(buffer, sizeof(uint64_t));
+  BufferRef<const uint8_t> bufferRef(buffer, sizeof(uint64_t));
   BitVector<64> x = makeBitVectorFrom<0,63>(bufferRef);
   ASSERT_EQ(x, UINT64_MAX);
 }
@@ -25,7 +25,7 @@ TEST(MakeFromBuffer, HalfBuffer64) {
   uint8_t buffer[sizeof(uint64_t)];
   uint64_t* view = reinterpret_cast<uint64_t*>(buffer);
   *view = (UINT64_MAX << 32); // Lower half is zero, upper half is all ones
-  BufferRef<uint8_t> bufferRef(buffer, sizeof(uint64_t));
+  BufferRef<const uint8_t> bufferRef(buffer, sizeof(uint64_t));
   BitVector<32> lower = makeBitVectorFrom<0, 31>(bufferRef);
   ASSERT_EQ(lower, 0);
   BitVector<32> upper = makeBitVectorFrom<32, 63>(bufferRef);
@@ -35,7 +35,7 @@ TEST(MakeFromBuffer, HalfBuffer64) {
 TEST(MakeFromBuffer, IndividualBits) {
   uint8_t buffer[1];
   buffer[0] = 0b10000001;
-  BufferRef<uint8_t> bufferRef(buffer, 1);
+  BufferRef<const uint8_t> bufferRef(buffer, 1);
 #define CHECK_BIT(N, VALUE) BitVector<1> bit ## N = makeBitVectorFrom<N, N>(bufferRef); \
   ASSERT_EQ(bit ## N, VALUE);
   CHECK_BIT(0, 1)
@@ -53,7 +53,7 @@ TEST(MakeFromBuffer, NonByteAlignedOffset) {
   uint8_t buffer[2];
   buffer[0] = 0b11111111;
   buffer[1] = 0b00000011;
-  BufferRef<uint8_t> bufferRef(buffer, 2);
+  BufferRef<const uint8_t> bufferRef(buffer, 2);
   BitVector<2> a = makeBitVectorFrom<7,8>(bufferRef);
   ASSERT_EQ(a, 3);
   BitVector<3> b = makeBitVectorFrom<7,9>(bufferRef);

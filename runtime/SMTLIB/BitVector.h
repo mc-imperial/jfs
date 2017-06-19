@@ -593,10 +593,11 @@ public:
 // from any arbitrary bit offset in a buffer. Offset
 // is [LOWBIT, HIGHBIT].
 // Implementation for native BitVector
-template <uint64_t LOWBIT, uint64_t HIGHBIT,
-          typename std::enable_if<(((HIGHBIT - LOWBIT) + 1) <= 64)>::type* = nullptr>
+template <
+    uint64_t LOWBIT, uint64_t HIGHBIT,
+    typename std::enable_if<(((HIGHBIT - LOWBIT) + 1) <= 64)>::type* = nullptr>
 BitVector<((HIGHBIT - LOWBIT) + 1)>
-makeBitVectorFrom(BufferRef<uint8_t> buffer) {
+makeBitVectorFrom(BufferRef<const uint8_t> buffer) {
   static_assert( HIGHBIT >= LOWBIT, "invalid LOWBIT and HIGHBIT");
   size_t lowBitByte = LOWBIT / 8;
   size_t highBitByte = HIGHBIT / 8;
