@@ -82,6 +82,8 @@ public:
     // Int types header for LibFuzzer entry point definition.
     program->appendDecl(std::make_shared<CXXIncludeDecl>(
         program, "stdint.h", /*systemHeader=*/true));
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program, "stdlib.h", /*systemHeader=*/true));
 
     // Build entry point for LibFuzzer
     auto retTy = std::make_shared<CXXType>(program, "int");
@@ -235,8 +237,13 @@ public:
     // TODO:
   }
 
-  void insertFuzzingTarget() {
-    // TODO:
+  void insertFuzzingTarget(CXXCodeBlockRef cb) {
+    // FIXME: Replace this with something that we can use to
+    // communicate LibFuzzer's outcome
+    cb->statements.push_back(
+        std::make_shared<CXXCommentBlock>(cb, "Fuzzing target"));
+    cb->statements.push_back(
+        std::make_shared<CXXGenericStatement>(cb, "abort()"));
   }
 
   void build(const Query& q) {
@@ -251,7 +258,7 @@ public:
     for (const auto& constraint : q.constraints) {
       insertBranchForConstraint(constraint);
     }
-    insertFuzzingTarget();
+    insertFuzzingTarget(fuzzFn->defn);
   }
 };
 

@@ -174,6 +174,17 @@ public:
   void print(llvm::raw_ostream&) const override;
 };
 
+// This is a hack
+// CXXGenericStatement
+class CXXGenericStatement : public CXXStatement {
+private:
+  std::string statement;
+
+public:
+  CXXGenericStatement(CXXCodeBlockRef parent, llvm::StringRef statement);
+  void print(llvm::raw_ostream&) const override;
+};
+
 class CXXProgram : public CXXDecl {
 private:
   typedef std::vector<CXXDeclRef> declStorageTy;

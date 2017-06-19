@@ -145,6 +145,15 @@ void CXXDeclAndDefnVarStatement::print(llvm::raw_ostream& os) const {
   os << " " << name << " = " << valueExpr << ";\n";
 }
 
+// CXXGenericStatement
+CXXGenericStatement::CXXGenericStatement(CXXCodeBlockRef parent,
+                                         llvm::StringRef statement)
+    : CXXStatement(parent), statement(statement.str()) {}
+
+void CXXGenericStatement::print(llvm::raw_ostream& os) const {
+  os << statement << ";\n";
+}
+
 // CXXProgram
 
 void CXXProgram::print(llvm::raw_ostream& os) const {
