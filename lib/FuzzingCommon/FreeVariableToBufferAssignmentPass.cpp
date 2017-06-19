@@ -28,7 +28,8 @@ unsigned BufferElement::getBitWidth() const {
   Z3SortHandle sort = declApp.getSort();
   switch (sort.getKind()) {
   case Z3_BOOL_SORT:
-    return 8;
+    // TODO: Investigate whether 1 or 8 is a better choice
+    return 1;
   case Z3_BV_SORT:
     return sort.getBitVectorWidth();
   default:
