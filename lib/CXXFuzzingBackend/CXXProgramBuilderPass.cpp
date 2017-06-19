@@ -104,9 +104,11 @@ public:
   void insertBufferSizeGuard(CXXCodeBlockRef cb) {
     std::string underlyingString;
     llvm::raw_string_ostream condition(underlyingString);
-    unsigned bufferWidth =
+    unsigned bufferWidthInBits =
         info->freeVariableAssignment->bufferAssignment->computeWidth();
-    condition << "size < " << bufferWidth;
+    // Round up to the number of bytes needed
+    unsigned bufferWidthInBytes = (bufferWidthInBits + 7) / 8;
+    condition << "size < " << bufferWidthInBytes;
     condition.flush();
     auto ifStatement = std::make_shared<CXXIfStatement>(cb, underlyingString);
     ifStatement->trueBlock = earlyExitBlock;
