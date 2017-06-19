@@ -8,6 +8,17 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-add_subdirectory(jfs)
-add_subdirectory(jfs-opt)
-add_subdirectory(jfs-smt2cxx)
+add_executable(jfs-smt2cxx
+  main.cpp
+)
+
+# Needed for command line support
+jfs_get_llvm_components(llvm_components support)
+
+target_link_libraries(
+  jfs-smt2cxx
+  PRIVATE
+  ${llvm_components}
+  JFSSupport
+  JFSCXXFuzzingBackend
+)
