@@ -9,7 +9,7 @@ set -o pipefail
 : ${Z3_BUILD_TYPE?"Z3_BUILD_TYPE must be specified"}
 
 # Set values if not already set externally
-Z3_GIT_REVISION="${Z3_GIT_REVISION:-efd5727676e8475c053a42661758a6b96d268a10}"
+Z3_GIT_REVISION="${Z3_GIT_REVISION:-77ffa9f32fa5a202b95a7b2b745e608969ec9309}"
 Z3_GIT_URL="${Z3_GIT_URL:-https://github.com/Z3Prover/z3.git}"
 Z3_CMAKE_GENERATOR="${Z3_CMAKE_GENERATOR:-Ninja}"
 
@@ -27,7 +27,6 @@ mkdir -p "${Z3_SRC_DIR}"
 git clone "${Z3_GIT_URL}" "${Z3_SRC_DIR}"
 cd "${Z3_SRC_DIR}"
 git checkout "${Z3_GIT_REVISION}"
-contrib/cmake/bootstrap.py create -H
 
 # Make build tree
 mkdir -p "${Z3_BUILD_DIR}"
