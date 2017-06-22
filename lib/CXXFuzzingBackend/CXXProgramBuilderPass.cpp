@@ -225,12 +225,14 @@ public:
 
   void insertConstantAssignments(CXXCodeBlockRef cb) {
     // FIXME: Due to constant propagation constant assignments should not be
-    // present. We probably should just remove this entirely. For now just
-    // assert that they aren't present.
-    assert(
-        info->freeVariableAssignment->constantAssignments->assignments.size() ==
-            0 &&
-        "not supported");
+    // present. We probably should just remove this entirely.
+    const ConstantAssignment& ca =
+        *(info->freeVariableAssignment->constantAssignments);
+    for (const auto& keyPair : ca.assignments) {
+      // FIXME: Can't implement this until we have support for emitting
+      // SSA for constants.
+      assert(false && "not supported");
+    }
   }
 
   void insertBranchForConstraint(Z3ASTHandle constraint) {
