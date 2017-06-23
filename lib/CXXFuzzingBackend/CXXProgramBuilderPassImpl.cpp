@@ -12,6 +12,8 @@
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
+#include "llvm/ADT/Twine.h"
+#include <list>
 
 using namespace jfs::core;
 using namespace jfs::fuzzingCommon;
@@ -244,7 +246,24 @@ void CXXProgramBuilderPassImpl::insertConstantAssignments(CXXCodeBlockRef cb) {
 
 void CXXProgramBuilderPassImpl::insertBranchForConstraint(
     Z3ASTHandle constraint) {
-  // TODO:
+  assert(constraint.getSort().isBoolTy());
+  // TODO: investigate whether it is better to construct
+  // if (!e) { return 0; }
+  //
+  // or
+  //
+  // if (e) {} else { return 0;}
+
+  // Construct all SSA variables to get the constraint as a symbol
+  doDFSPostOrderTraversal(constraint);
+  assert(exprToSymbolName.count(constraint) > 0);
+
+  llvm::StringRef symbolForConstraint = exprToSymbolName[constraint];
+  auto ifStatement =
+      std::make_shared<CXXIfStatement>(getCurrentBlock(), symbolForConstraint);
+  ifStatement->trueBlock = nullptr;
+  ifStatement->falseBlock = earlyExitBlock;
+  getCurrentBlock()->statements.push_back(ifStatement);
 }
 
 void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
@@ -337,7 +356,71 @@ void CXXProgramBuilderPassImpl::insertSSAStmt(
   getCurrentBlock()->statements.push_back(assignmentStmt);
 }
 
+void CXXProgramBuilderPassImpl::visitIfNeccesary(jfs::core::Z3ASTHandle e) {
+  if (exprToSymbolName.count(e) == 0)
+    visit(e);
+}
+
+void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
+  // Do post-order DFS traversal. We do this non-recursively to avoid
+  // hitting any recursion bounds.
+  std::list<Z3ASTHandle> queue;
+  // Used to keep track of when we examine a node with children
+  // for a second time. This indicates that the children have been
+  // travsersed so that we can now do the "post order" visit
+  std::list<Z3ASTHandle> traversingBackUpQueue;
+  queue.push_front(e);
+  while (queue.size() > 0) {
+    Z3ASTHandle node = queue.front();
+    assert(node.isApp());
+
+    // Check for leaf node
+    if (node.asApp().getNumKids() == 0) {
+      queue.pop_front();
+      // Do "post order" visit
+      visitIfNeccesary(node);
+      continue;
+    }
+
+    // Must be an internal node
+    if (!traversingBackUpQueue.empty() &&
+        traversingBackUpQueue.front() == node) {
+      // We are visiting the node for a second time. Do "post order" visit
+      queue.pop_front();
+      traversingBackUpQueue.pop_front();
+      visitIfNeccesary(node);
+      continue;
+    }
+    // Visit an internal node for the first time. Add the children to the front
+    // of the queue but don't pop this node from the stack so we can visit it a
+    // second time when are walking back up the tree.
+    traversingBackUpQueue.push_front(node);
+    Z3AppHandle nodeAsApp = node.asApp();
+    const unsigned numKids = nodeAsApp.getNumKids();
+    for (unsigned index = 0; index < numKids; ++index) {
+      // Add the operands from right to left so that they popped
+      // off in left to right order
+      queue.push_front(nodeAsApp.getKid((numKids - 1) - index));
+    }
+  }
+  assert(traversingBackUpQueue.size() == 0);
+}
+
 // Visitor methods
+void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  auto arg0 = e.getKid(0);
+  auto arg1 = e.getKid(1);
+  assert(exprToSymbolName.count(arg0) > 0);
+  assert(exprToSymbolName.count(arg1) > 0);
+  llvm::Twine exprAsStringTwine = llvm::Twine(exprToSymbolName[arg0])
+                                      .concat(".bvugt(")
+                                      .concat(exprToSymbolName[arg1])
+                                      .concat(")");
+  auto exprAsString = exprAsStringTwine.str();
+  insertSSAStmt(e.asAST(), exprAsString);
+}
+
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getboolConstantStr(e));
 }

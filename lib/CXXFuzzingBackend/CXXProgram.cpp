@@ -116,8 +116,13 @@ CXXIfStatement::CXXIfStatement(CXXCodeBlockRef parent,
       falseBlock(nullptr) {}
 
 void CXXIfStatement::print(llvm::raw_ostream& os) const {
-  os << "if (" << condition << ")\n";
-  trueBlock->print(os);
+  os << "if (" << condition << ")";
+  if (trueBlock) {
+    os << "\n";
+    trueBlock->print(os);
+  } else {
+    os << " {}\n";
+  }
   if (falseBlock) {
     os << "else ";
     falseBlock->print(os);

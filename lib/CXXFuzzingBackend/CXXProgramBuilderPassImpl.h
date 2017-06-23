@@ -64,9 +64,14 @@ private:
     insertSSAStmt(e, expr, llvm::StringRef());
     return;
   }
+  void doDFSPostOrderTraversal(jfs::core::Z3ASTHandle e);
+  void visitIfNeccesary(jfs::core::Z3ASTHandle e);
   CXXCodeBlockRef getCurrentBlock() { return entryPointMainBlock; }
 
   // Visitor methods
+
+  // BitVector operations
+  void visitBvUGt(jfs::core::Z3AppHandle e);
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
