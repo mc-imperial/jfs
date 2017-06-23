@@ -221,9 +221,24 @@ void CXXProgramBuilderPassImpl::insertConstantAssignments(CXXCodeBlockRef cb) {
   const ConstantAssignment& ca =
       *(info->freeVariableAssignment->constantAssignments);
   for (const auto& keyPair : ca.assignments) {
-    // FIXME: Can't implement this until we have support for emitting
-    // SSA for constants.
-    assert(false && "not supported");
+    Z3ASTHandle key = keyPair.first;
+    Z3ASTHandle constantExpr = keyPair.second;
+    assert(key.isFreeVariable());
+    assert(constantExpr.isConstant());
+    llvm::StringRef symbolName = key.asApp().getFuncDecl().getName();
+    std::string exprAsStr;
+    Z3AppHandle constantExprAsApp = constantExpr.asApp();
+    switch (constantExprAsApp.getSort().getKind()) {
+    case Z3_BOOL_SORT:
+      exprAsStr = getboolConstantStr(constantExprAsApp);
+      break;
+    case Z3_BV_SORT:
+      exprAsStr = getBitVectorConstantStr(constantExprAsApp);
+      break;
+    default:
+      llvm_unreachable("Unhandled sort");
+    }
+    insertSSAStmt(key, exprAsStr, symbolName);
   }
 }
 
@@ -303,12 +318,20 @@ std::string CXXProgramBuilderPassImpl::getFreshSymbol() {
   return underlyingString;
 }
 
-void CXXProgramBuilderPassImpl::insertSSAStmt(jfs::core::Z3ASTHandle e,
-                                              llvm::StringRef expr) {
+void CXXProgramBuilderPassImpl::insertSSAStmt(
+    jfs::core::Z3ASTHandle e, llvm::StringRef expr,
+    llvm::StringRef preferredSymbolName) {
   auto assignmentTy = getOrInsertTy(e.getSort());
-  std::string freshSymbolName = getFreshSymbol();
-  llvm::StringRef usedSymbol = insertSSASymbolForExpr(e, freshSymbolName);
-  assert(usedSymbol == freshSymbolName);
+  std::string requestedSymbolName;
+  if (preferredSymbolName.data() == nullptr) {
+    requestedSymbolName = getFreshSymbol();
+  } else {
+    requestedSymbolName = preferredSymbolName;
+    if (usedSymbols.count(requestedSymbolName) > 0) {
+      requestedSymbolName = getFreshSymbol();
+    }
+  }
+  llvm::StringRef usedSymbol = insertSSASymbolForExpr(e, requestedSymbolName);
   auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
       getCurrentBlock(), assignmentTy, usedSymbol, expr);
   getCurrentBlock()->statements.push_back(assignmentStmt);

@@ -92,7 +92,10 @@ void ConstantAssignment::print(llvm::raw_ostream& os) const {
   if (assignments.size() > 0)
     os << "\n";
   for (const auto& kvp : assignments) {
-    os << "  [" << kvp.first.getName() << "] = " << kvp.second.toStr() << "\n";
+    assert(kvp.first.isApp() && "key must be application");
+    assert(kvp.first.isFreeVariable() && "key must be free variable");
+    os << "  [" << kvp.first.asApp().getFuncDecl().getName()
+       << "] = " << kvp.second.toStr() << "\n";
   }
   os << ")\n";
 }
@@ -208,7 +211,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
         // casts we will need to figure out how to handle this.
         assert(e.isFreeVariable() && "key must be free variable");
         auto itSuc = constantAssignments->assignments.insert(
-            std::make_pair(e.asApp().getFuncDecl(), foundConstant));
+            std::make_pair(e, foundConstant));
         assert(itSuc.second && "constant table cannot already have assignment");
         alreadyAssigned.insert(e);
       }

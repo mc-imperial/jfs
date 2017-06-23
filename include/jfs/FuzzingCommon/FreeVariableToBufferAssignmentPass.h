@@ -57,7 +57,7 @@ public:
 class ConstantAssignment {
 public:
   // TODO: Put this behind an interface
-  jfs::core::Z3FuncDeclMap<jfs::core::Z3ASTHandle> assignments;
+  jfs::core::Z3ASTMap<jfs::core::Z3ASTHandle> assignments;
   void print(llvm::raw_ostream&) const;
   void dump() const;
 };

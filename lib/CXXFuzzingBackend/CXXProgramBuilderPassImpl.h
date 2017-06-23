@@ -58,7 +58,12 @@ private:
   const char* getboolConstantStr(jfs::core::Z3AppHandle e) const;
   std::string getBitVectorConstantStr(jfs::core::Z3AppHandle e) const;
   std::string getFreshSymbol();
-  void insertSSAStmt(jfs::core::Z3ASTHandle e, llvm::StringRef expr);
+  void insertSSAStmt(jfs::core::Z3ASTHandle e, llvm::StringRef expr,
+                     llvm::StringRef preferredSymbolName);
+  void insertSSAStmt(jfs::core::Z3ASTHandle e, llvm::StringRef expr) {
+    insertSSAStmt(e, expr, llvm::StringRef());
+    return;
+  }
   CXXCodeBlockRef getCurrentBlock() { return entryPointMainBlock; }
 
   // Visitor methods
