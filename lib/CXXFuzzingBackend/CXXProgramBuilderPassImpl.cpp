@@ -12,7 +12,6 @@
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
-#include "llvm/ADT/Twine.h"
 #include <list>
 
 using namespace jfs::core;
@@ -413,12 +412,10 @@ void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
   auto arg1 = e.getKid(1);
   assert(exprToSymbolName.count(arg0) > 0);
   assert(exprToSymbolName.count(arg1) > 0);
-  llvm::Twine exprAsStringTwine = llvm::Twine(exprToSymbolName[arg0])
-                                      .concat(".bvugt(")
-                                      .concat(exprToSymbolName[arg1])
-                                      .concat(")");
-  auto exprAsString = exprAsStringTwine.str();
-  insertSSAStmt(e.asAST(), exprAsString);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << exprToSymbolName[arg0] << ".bvugt(" << exprToSymbolName[arg1] << ")";
+  insertSSAStmt(e.asAST(), ss.str());
 }
 
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
