@@ -232,6 +232,12 @@ bool Z3AppHandle::isFreeVariable() const {
   return true;
 }
 
+Z3ASTHandle Z3AppHandle::asAST() const {
+  return Z3ASTHandle(::Z3_app_to_ast(context, node), context);
+}
+
+Z3SortHandle Z3AppHandle::getSort() const { return asAST().getSort(); }
+
 // Z3FuncDeclHandle helpers
 
 Z3_decl_kind Z3FuncDeclHandle::getKind() const {

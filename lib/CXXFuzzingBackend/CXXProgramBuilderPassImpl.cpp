@@ -28,6 +28,7 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
   earlyExitBlock = std::make_shared<CXXCodeBlock>(program);
   auto returnStmt = std::make_shared<CXXReturnIntStatement>(earlyExitBlock, 0);
   earlyExitBlock->statements.push_front(returnStmt);
+  entryPointMainBlock = nullptr;
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
@@ -243,6 +244,7 @@ void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
 void CXXProgramBuilderPassImpl::build(const Query& q) {
   JFSContext& ctx = q.getContext();
   auto fuzzFn = buildEntryPoint();
+  entryPointMainBlock = fuzzFn->defn;
 
   insertBufferSizeGuard(fuzzFn->defn);
   insertFreeVariableConstruction(fuzzFn->defn);
@@ -253,6 +255,72 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
     insertBranchForConstraint(constraint);
   }
   insertFuzzingTarget(fuzzFn->defn);
+}
+
+const char* CXXProgramBuilderPassImpl::getboolConstantStr(Z3AppHandle e) const {
+  switch (e.getKind()) {
+  case Z3_OP_TRUE:
+    return "true";
+  case Z3_OP_FALSE:
+    return "false";
+  default:
+    llvm_unreachable("Unexpected expr");
+  }
+}
+
+std::string
+CXXProgramBuilderPassImpl::getBitVectorConstantStr(Z3AppHandle e) const {
+  assert(e.isConstant());
+  Z3SortHandle sort = e.getSort();
+  assert(sort.isBitVectorTy());
+  unsigned bitWidth = sort.getBitVectorWidth();
+  assert(bitWidth <= 64 && "Support for wide bitvectors not implemented");
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+
+  ss << "BitVector<" << bitWidth << ">(UINT64_C(";
+  // Get constant
+  __uint64 value = 0; // Eurgh: Z3's API, can't use uint64_t
+  static_assert(sizeof(__uint64) == sizeof(uint64_t), "size mismatch");
+  bool success = Z3_get_numeral_uint64(e.getContext(), e.asAST(), &value);
+  assert(success && "Failed to get numeral value");
+  ss << value;
+  ss << "))";
+  ss.flush();
+  return underlyingString;
+}
+
+std::string CXXProgramBuilderPassImpl::getFreshSymbol() {
+  // TODO: Do something more sophisticatd
+  static uint64_t counter = 0;
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "jfs_ssa_" << counter;
+  ss.flush();
+  ++counter;
+  assert(getSanitizedVariableName(underlyingString) == underlyingString);
+  assert(usedSymbols.count(underlyingString) == 0);
+  return underlyingString;
+}
+
+void CXXProgramBuilderPassImpl::insertSSAStmt(jfs::core::Z3ASTHandle e,
+                                              llvm::StringRef expr) {
+  auto assignmentTy = getOrInsertTy(e.getSort());
+  std::string freshSymbolName = getFreshSymbol();
+  llvm::StringRef usedSymbol = insertSSASymbolForExpr(e, freshSymbolName);
+  assert(usedSymbol == freshSymbolName);
+  auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
+      getCurrentBlock(), assignmentTy, usedSymbol, expr);
+  getCurrentBlock()->statements.push_back(assignmentStmt);
+}
+
+// Visitor methods
+void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
+  insertSSAStmt(e.asAST(), getboolConstantStr(e));
+}
+
+void CXXProgramBuilderPassImpl::visitBitVector(Z3AppHandle e) {
+  insertSSAStmt(e.asAST(), getBitVectorConstantStr(e));
 }
 }
 }

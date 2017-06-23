@@ -182,6 +182,8 @@ public:
 
   bool isConstant() const;
   bool isFreeVariable() const;
+  Z3ASTHandle asAST() const;
+  Z3SortHandle getSort() const;
 };
 
 // Specialise for Z3_func_decl

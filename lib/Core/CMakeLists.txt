@@ -13,6 +13,7 @@ jfs_add_component(JFSCore
   Query.cpp
   SMTLIB2Parser.cpp
   Solver.cpp
+  Z3ASTVisitor.cpp
   Z3Node.cpp
 )
 # Needed for command line support
