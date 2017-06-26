@@ -72,6 +72,7 @@ private:
 
   // Boolean operations
   virtual void visitAnd(jfs::core::Z3AppHandle e) override;
+  virtual void visitOr(jfs::core::Z3AppHandle e) override;
 
   // BitVector operations
   void visitBvUGt(jfs::core::Z3AppHandle e) override;
