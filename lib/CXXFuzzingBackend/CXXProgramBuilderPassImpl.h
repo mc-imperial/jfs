@@ -70,6 +70,9 @@ private:
 
   // Visitor methods
 
+  // Overloaded operations
+  virtual void visitEqual(jfs::core::Z3AppHandle e) override;
+
   // Boolean operations
   virtual void visitAnd(jfs::core::Z3AppHandle e) override;
   virtual void visitOr(jfs::core::Z3AppHandle e) override;
