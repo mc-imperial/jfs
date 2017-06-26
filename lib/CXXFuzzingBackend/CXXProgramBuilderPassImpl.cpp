@@ -406,6 +406,21 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
 }
 
 // Visitor methods
+void CXXProgramBuilderPassImpl::visitAnd(Z3AppHandle e) {
+  const unsigned numArgs = e.getNumKids();
+  assert(numArgs >= 2);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  for (unsigned index = 0; index < numArgs; ++index) {
+    if (index != 0)
+      ss << " && ";
+    auto arg = e.getKid(index);
+    assert(exprToSymbolName.count(arg) > 0);
+    ss << exprToSymbolName[arg];
+  }
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);

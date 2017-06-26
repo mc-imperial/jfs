@@ -30,6 +30,10 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_BNUM:
     visitBitVector(asApp);
     return;
+  // Boolean operations
+  case Z3_OP_AND:
+    visitAnd(asApp);
+    return;
   // BitVector operations
   case Z3_OP_UGT:
     visitBvUGt(asApp);

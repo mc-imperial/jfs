@@ -31,6 +31,9 @@ protected:
   virtual void visitBoolConstant(Z3AppHandle e) = 0;
   virtual void visitBitVector(Z3AppHandle e) = 0;
 
+  // Boolean operations
+  virtual void visitAnd(Z3AppHandle e) = 0;
+
   // BitVector operations
   virtual void visitBvUGt(Z3AppHandle e) = 0;
 };

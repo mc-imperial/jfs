@@ -70,8 +70,11 @@ private:
 
   // Visitor methods
 
+  // Boolean operations
+  virtual void visitAnd(jfs::core::Z3AppHandle e) override;
+
   // BitVector operations
-  void visitBvUGt(jfs::core::Z3AppHandle e);
+  void visitBvUGt(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
