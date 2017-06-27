@@ -235,7 +235,7 @@ void CXXProgramBuilderPassImpl::insertConstantAssignments(CXXCodeBlockRef cb) {
     Z3ASTHandle constantExpr = keyPair.second;
     assert(key.isFreeVariable());
     assert(constantExpr.isConstant());
-    llvm::StringRef symbolName = key.asApp().getFuncDecl().getName();
+    std::string symbolName = key.asApp().getFuncDecl().getName();
     std::string exprAsStr;
     Z3AppHandle constantExprAsApp = constantExpr.asApp();
     switch (constantExprAsApp.getSort().getKind()) {
