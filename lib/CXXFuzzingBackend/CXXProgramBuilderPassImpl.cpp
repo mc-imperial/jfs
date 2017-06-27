@@ -572,6 +572,7 @@ void CXXProgramBuilderPassImpl::visitBvNeg(Z3AppHandle e) {
 
 BV_BIN_OP(visitBvAdd, bvadd)
 BV_BIN_OP(visitBvSub, bvsub)
+BV_BIN_OP(visitBvMul, bvmul)
 BV_BIN_OP(visitBvUGt, bvugt)
 
 #undef BV_BIN_OP
