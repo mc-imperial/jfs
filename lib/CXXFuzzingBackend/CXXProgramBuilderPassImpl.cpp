@@ -488,6 +488,17 @@ void CXXProgramBuilderPassImpl::visitImplies(jfs::core::Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitIff(jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  auto arg0 = e.getKid(0);
+  auto arg1 = e.getKid(1);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  // (a <=> b) === (a == b)
+  ss << getSymbolFor(arg0) << " == " << getSymbolFor(arg1);
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitAnd(Z3AppHandle e) {
   const unsigned numArgs = e.getNumKids();
   assert(numArgs >= 2);

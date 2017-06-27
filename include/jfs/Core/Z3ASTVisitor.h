@@ -36,6 +36,8 @@ protected:
   virtual void visitDistinct(Z3AppHandle e) = 0;
   virtual void visitIfThenElse(Z3AppHandle e) = 0;
   virtual void visitImplies(Z3AppHandle e) = 0;
+  // This isn't part of the core SMT-LIBv2 theory. Is this a Z3 extension?
+  virtual void visitIff(Z3AppHandle e) = 0;
 
   // Boolean operations
   virtual void visitAnd(Z3AppHandle e) = 0;
