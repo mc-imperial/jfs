@@ -18,49 +18,47 @@ Z3ASTVisitor::Z3ASTVisitor() {}
 
 Z3ASTVisitor::~Z3ASTVisitor() {}
 
+// Macro to avoid accidental drop through and typos
+#define ACTION(X)                                                              \
+  {                                                                            \
+    X;                                                                         \
+    return;                                                                    \
+  }
 // Dispatch to appropriate visitor method
 void Z3ASTVisitor::visit(Z3ASTHandle e) {
   assert(e.isApp() && "expr should be an application");
   Z3AppHandle asApp = e.asApp();
   switch (asApp.getKind()) {
   case Z3_OP_TRUE:
+    ACTION(visitBoolConstant(asApp))
   case Z3_OP_FALSE:
-    visitBoolConstant(asApp);
-    return;
+    ACTION(visitBoolConstant(asApp))
   case Z3_OP_BNUM:
-    visitBitVector(asApp);
-    return;
+    ACTION(visitBitVector(asApp))
   // Overloaded operations
   case Z3_OP_EQ:
-    visitEqual(asApp);
-    return;
+    ACTION(visitEqual(asApp))
   case Z3_OP_DISTINCT:
-    visitDistinct(asApp);
-    return;
+    ACTION(visitDistinct(asApp))
   case Z3_OP_ITE:
-    visitIfThenElse(asApp);
-    return;
+    ACTION(visitIfThenElse(asApp))
   // Boolean operations
   case Z3_OP_AND:
-    visitAnd(asApp);
-    return;
+    ACTION(visitAnd(asApp))
   case Z3_OP_OR:
-    visitOr(asApp);
-    return;
+    ACTION(visitOr(asApp))
   case Z3_OP_XOR:
-    visitXor(asApp);
-    return;
+    ACTION(visitXor(asApp))
   case Z3_OP_NOT:
-    visitNot(asApp);
-    return;
+    ACTION(visitNot(asApp))
   // BitVector operations
   case Z3_OP_UGT:
-    visitBvUGt(asApp);
-    return;
+    ACTION(visitBvUGt(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");
   }
+#undef ACTION
 }
 }
 }
