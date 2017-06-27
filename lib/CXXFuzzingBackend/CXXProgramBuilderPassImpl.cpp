@@ -577,6 +577,7 @@ BV_BIN_OP(visitBvSDiv, bvsdiv)
 BV_BIN_OP(visitBvUDiv, bvudiv)
 BV_BIN_OP(visitBvSRem, bvsrem)
 BV_BIN_OP(visitBvURem, bvurem)
+BV_BIN_OP(visitBvSMod, bvsmod)
 BV_BIN_OP(visitBvUGt, bvugt)
 
 #undef BV_BIN_OP

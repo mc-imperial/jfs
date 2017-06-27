@@ -72,6 +72,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvSRem(asApp))
   case Z3_OP_BUREM:
     ACTION(visitBvURem(asApp))
+  case Z3_OP_BSMOD:
+    ACTION(visitBvSMod(asApp))
   case Z3_OP_UGT:
     ACTION(visitBvUGt(asApp))
   // TODO: Add more application kinds

@@ -54,6 +54,7 @@ protected:
   virtual void visitBvUDiv(Z3AppHandle e) = 0;
   virtual void visitBvSRem(Z3AppHandle e) = 0;
   virtual void visitBvURem(Z3AppHandle e) = 0;
+  virtual void visitBvSMod(Z3AppHandle e) = 0;
   virtual void visitBvUGt(Z3AppHandle e) = 0;
 };
 }
