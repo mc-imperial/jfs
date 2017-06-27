@@ -76,7 +76,7 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvSMod(asApp))
   // Comparison BitVector operations
   case Z3_OP_UGT:
-    ACTION(visitBvUGt(asApp))
+    ACTION(visitBvUGT(asApp))
   case Z3_OP_ULEQ:
     ACTION(visitBvULE(asApp))
   // TODO: Add more application kinds
