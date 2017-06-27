@@ -557,15 +557,23 @@ void CXXProgramBuilderPassImpl::visitBvNeg(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
-  assert(e.getNumKids() == 2);
-  auto arg0 = e.getKid(0);
-  auto arg1 = e.getKid(1);
-  std::string underlyingString;
-  llvm::raw_string_ostream ss(underlyingString);
-  ss << getSymbolFor(arg0) << ".bvugt(" << getSymbolFor(arg1) << ")";
-  insertSSAStmt(e.asAST(), ss.str());
-}
+// Convenience macro to avoid writing lots of duplicate code
+#define BV_BIN_OP(NAME, CALL_NAME)                                             \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 2);                                               \
+    auto arg0 = e.getKid(0);                                                   \
+    auto arg1 = e.getKid(1);                                                   \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(arg0) << "." #CALL_NAME "(" << getSymbolFor(arg1)       \
+       << ")";                                                                 \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+
+BV_BIN_OP(visitBvAdd, bvadd)
+BV_BIN_OP(visitBvUGt, bvugt)
+
+#undef BV_BIN_OP
 
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getboolConstantStr(e));

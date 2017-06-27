@@ -89,6 +89,7 @@ private:
 
   // BitVector operations
   void visitBvNeg(jfs::core::Z3AppHandle e) override;
+  void visitBvAdd(jfs::core::Z3AppHandle e) override;
   void visitBvUGt(jfs::core::Z3AppHandle e) override;
 
   // Constants
