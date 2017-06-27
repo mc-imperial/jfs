@@ -48,6 +48,7 @@ protected:
   // BitVector operations
   virtual void visitBvNeg(Z3AppHandle e) = 0;
   virtual void visitBvAdd(Z3AppHandle e) = 0;
+  virtual void visitBvSub(Z3AppHandle e) = 0;
   virtual void visitBvUGt(Z3AppHandle e) = 0;
 };
 }
