@@ -495,6 +495,18 @@ void CXXProgramBuilderPassImpl::visitOr(jfs::core::Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitXor(jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto arg0 = e.getKid(0);
+  auto arg1 = e.getKid(1);
+  assert(exprToSymbolName.count(arg0) > 0);
+  assert(exprToSymbolName.count(arg1) > 0);
+  ss << exprToSymbolName[arg0] << " ^ " << exprToSymbolName[arg1];
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);
