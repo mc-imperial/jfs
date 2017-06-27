@@ -69,6 +69,7 @@ protected:
   // Bitwise BitVector operations
   virtual void visitBvAnd(Z3AppHandle e) = 0;
   virtual void visitBvOr(Z3AppHandle e) = 0;
+  virtual void visitBvNot(Z3AppHandle e) = 0;
 };
 }
 }

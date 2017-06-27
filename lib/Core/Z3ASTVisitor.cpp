@@ -96,6 +96,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvAnd(asApp))
   case Z3_OP_BOR:
     ACTION(visitBvOr(asApp))
+  case Z3_OP_BNOT:
+    ACTION(visitBvNot(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");

@@ -548,14 +548,18 @@ void CXXProgramBuilderPassImpl::visitNot(jfs::core::Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-void CXXProgramBuilderPassImpl::visitBvNeg(Z3AppHandle e) {
-  assert(e.getNumKids() == 1);
-  auto arg0 = e.getKid(0);
-  std::string underlyingString;
-  llvm::raw_string_ostream ss(underlyingString);
-  ss << getSymbolFor(arg0) << ".bvneg()";
-  insertSSAStmt(e.asAST(), ss.str());
-}
+#define BV_UNARY_OP(NAME, CALL_NAME)                                           \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 1);                                               \
+    auto arg0 = e.getKid(0);                                                   \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(arg0) << "." #CALL_NAME "()";                           \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+BV_UNARY_OP(visitBvNeg, bvneg)
+BV_UNARY_OP(visitBvNot, bvnot)
+#undef BV_UNARY_OP
 
 // Convenience macro to avoid writing lots of duplicate code
 #define BV_BIN_OP(NAME, CALL_NAME)                                             \
