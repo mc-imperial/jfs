@@ -82,6 +82,9 @@ protected:
   virtual void visitBvAShr(Z3AppHandle e) = 0;
   virtual void visitBvRotateLeft(Z3AppHandle e) = 0;
   virtual void visitBvRotateRight(Z3AppHandle e) = 0;
+
+  // Sort changing BitVector operations
+  virtual void visitBvConcat(Z3AppHandle e) = 0;
 };
 }
 }

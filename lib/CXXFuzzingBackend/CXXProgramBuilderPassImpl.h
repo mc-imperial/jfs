@@ -125,6 +125,9 @@ private:
   void visitBvRotateLeft(jfs::core::Z3AppHandle e) override;
   void visitBvRotateRight(jfs::core::Z3AppHandle e) override;
 
+  // Sort changing BitVector operations
+  void visitBvConcat(jfs::core::Z3AppHandle e) override;
+
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
   void visitBitVector(jfs::core::Z3AppHandle e) override;

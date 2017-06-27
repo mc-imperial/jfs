@@ -639,6 +639,32 @@ void CXXProgramBuilderPassImpl::visitBvRotateRight(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitBvConcat(jfs::core::Z3AppHandle e) {
+  const unsigned numArgs = e.getNumKids();
+  assert(numArgs >= 2);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto arg0 = e.getKid(0);
+
+  // Correct number of opening braces
+  for (unsigned index = 2; index < numArgs; ++index) {
+    ss << "(";
+  }
+
+  for (unsigned index = 1; index < numArgs; ++index) {
+    if (index == 1) {
+      ss << getSymbolFor(arg0);
+    }
+    auto argN = e.getKid(index);
+    if (index > 1) {
+      // Closing brace for previous concat
+      ss << ")";
+    }
+    ss << ".concat(" << getSymbolFor(argN) << ")";
+  }
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getboolConstantStr(e));
 }

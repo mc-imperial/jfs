@@ -119,6 +119,9 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvRotateLeft(asApp))
   case Z3_OP_ROTATE_RIGHT:
     ACTION(visitBvRotateRight(asApp))
+  // Sort changing BitVector operations
+  case Z3_OP_CONCAT:
+    ACTION(visitBvConcat(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");
