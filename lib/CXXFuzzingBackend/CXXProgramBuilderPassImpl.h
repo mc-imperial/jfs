@@ -122,6 +122,7 @@ private:
   void visitBvShl(jfs::core::Z3AppHandle e) override;
   void visitBvLShr(jfs::core::Z3AppHandle e) override;
   void visitBvAShr(jfs::core::Z3AppHandle e) override;
+  void visitBvRotateLeft(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;

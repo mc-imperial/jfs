@@ -208,6 +208,11 @@ public:
   Z3_decl_kind getKind() const;
   Z3SortHandle getSort() const;
   std::string getName() const;
+
+  // Parameters
+  unsigned getNumParams() const;
+  Z3_parameter_kind getParamKind(unsigned index) const;
+  int getIntParam(unsigned index) const;
 };
 
 // Specialise for Z3_solver

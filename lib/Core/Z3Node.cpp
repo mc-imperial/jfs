@@ -256,6 +256,20 @@ std::string Z3FuncDeclHandle::getName() const {
   return std::string(::Z3_get_symbol_string(context, sym));
 }
 
+unsigned Z3FuncDeclHandle::getNumParams() const {
+  return ::Z3_get_decl_num_parameters(context, node);
+}
+
+Z3_parameter_kind Z3FuncDeclHandle::getParamKind(unsigned index) const {
+  assert(index < getNumParams());
+  return ::Z3_get_decl_parameter_kind(context, node, index);
+}
+
+int Z3FuncDeclHandle::getIntParam(unsigned index) const {
+  assert(getParamKind(index) == Z3_PARAMETER_INT);
+  return ::Z3_get_decl_int_parameter(context, node, index);
+}
+
 // Z3GoalHandle
 
 template <> void Z3NodeHandle<Z3_goal>::dump() const {

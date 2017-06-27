@@ -80,6 +80,7 @@ protected:
   virtual void visitBvShl(Z3AppHandle e) = 0;
   virtual void visitBvLShr(Z3AppHandle e) = 0;
   virtual void visitBvAShr(Z3AppHandle e) = 0;
+  virtual void visitBvRotateLeft(Z3AppHandle e) = 0;
 };
 }
 }
