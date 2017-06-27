@@ -87,6 +87,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvSGE(asApp))
   case Z3_OP_ULT:
     ACTION(visitBvULT(asApp))
+  case Z3_OP_SLT:
+    ACTION(visitBvSLT(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");

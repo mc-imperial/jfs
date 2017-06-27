@@ -62,6 +62,7 @@ protected:
   virtual void visitBvUGE(Z3AppHandle e) = 0;
   virtual void visitBvSGE(Z3AppHandle e) = 0;
   virtual void visitBvULT(Z3AppHandle e) = 0;
+  virtual void visitBvSLT(Z3AppHandle e) = 0;
   virtual void visitBvUGT(Z3AppHandle e) = 0;
 };
 }

@@ -104,6 +104,7 @@ private:
   void visitBvUGE(jfs::core::Z3AppHandle e) override;
   void visitBvSGE(jfs::core::Z3AppHandle e) override;
   void visitBvULT(jfs::core::Z3AppHandle e) override;
+  void visitBvSLT(jfs::core::Z3AppHandle e) override;
   void visitBvUGT(jfs::core::Z3AppHandle e) override;
 
   // Constants
