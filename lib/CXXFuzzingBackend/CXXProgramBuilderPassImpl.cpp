@@ -578,13 +578,13 @@ BV_BIN_OP(visitBvUDiv, bvudiv)
 BV_BIN_OP(visitBvSRem, bvsrem)
 BV_BIN_OP(visitBvURem, bvurem)
 BV_BIN_OP(visitBvSMod, bvsmod)
-BV_BIN_OP(visitBvUGT, bvugt)
 BV_BIN_OP(visitBvULE, bvule)
 BV_BIN_OP(visitBvSLE, bvsle)
 BV_BIN_OP(visitBvUGE, bvuge)
 BV_BIN_OP(visitBvSGE, bvsge)
 BV_BIN_OP(visitBvULT, bvult)
 BV_BIN_OP(visitBvSLT, bvslt)
+BV_BIN_OP(visitBvUGT, bvugt)
 
 #undef BV_BIN_OP
 
