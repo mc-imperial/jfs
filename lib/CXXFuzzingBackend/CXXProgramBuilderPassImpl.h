@@ -87,7 +87,7 @@ private:
   void visitXor(jfs::core::Z3AppHandle e) override;
   void visitNot(jfs::core::Z3AppHandle e) override;
 
-  // BitVector operations
+  // Arithmetic BitVector operations
   void visitBvNeg(jfs::core::Z3AppHandle e) override;
   void visitBvAdd(jfs::core::Z3AppHandle e) override;
   void visitBvSub(jfs::core::Z3AppHandle e) override;
@@ -97,6 +97,9 @@ private:
   void visitBvSRem(jfs::core::Z3AppHandle e) override;
   void visitBvURem(jfs::core::Z3AppHandle e) override;
   void visitBvSMod(jfs::core::Z3AppHandle e) override;
+
+  // Comparison BitVector operations
+  void visitBvULE(jfs::core::Z3AppHandle e) override;
   void visitBvUGt(jfs::core::Z3AppHandle e) override;
 
   // Constants

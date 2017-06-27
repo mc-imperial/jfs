@@ -55,7 +55,7 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitImplies(asApp))
   case Z3_OP_IFF:
     ACTION(visitIff(asApp))
-  // BitVector operations
+  // Arithmetic BitVector operations
   case Z3_OP_BNEG:
     ACTION(visitBvNeg(asApp))
   case Z3_OP_BADD:
@@ -74,8 +74,11 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvURem(asApp))
   case Z3_OP_BSMOD:
     ACTION(visitBvSMod(asApp))
+  // Comparison BitVector operations
   case Z3_OP_UGT:
     ACTION(visitBvUGt(asApp))
+  case Z3_OP_ULEQ:
+    ACTION(visitBvULE(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");

@@ -45,7 +45,7 @@ protected:
   virtual void visitXor(Z3AppHandle e) = 0;
   virtual void visitNot(Z3AppHandle e) = 0;
 
-  // BitVector operations
+  // Arithmetic BitVector operations
   virtual void visitBvNeg(Z3AppHandle e) = 0;
   virtual void visitBvAdd(Z3AppHandle e) = 0;
   virtual void visitBvSub(Z3AppHandle e) = 0;
@@ -55,6 +55,9 @@ protected:
   virtual void visitBvSRem(Z3AppHandle e) = 0;
   virtual void visitBvURem(Z3AppHandle e) = 0;
   virtual void visitBvSMod(Z3AppHandle e) = 0;
+
+  // Comparison BitVector operations
+  virtual void visitBvULE(Z3AppHandle e) = 0;
   virtual void visitBvUGt(Z3AppHandle e) = 0;
 };
 }
