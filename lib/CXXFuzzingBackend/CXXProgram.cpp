@@ -16,15 +16,15 @@ namespace cxxfb {
 // CXXDecl
 void CXXDecl::dump() const { print(llvm::errs()); }
 
-CXXDeclRef CXXDecl::getParent() const { return parent; }
+CXXDecl* CXXDecl::getParent() const { return parent; }
 
-CXXDecl::CXXDecl(CXXDeclRef parent) : parent(parent) {}
+CXXDecl::CXXDecl(CXXDecl* parent) : parent(parent) {}
 
 CXXDecl::~CXXDecl() {}
 
 // CXXIncludeDecl
 
-CXXIncludeDecl::CXXIncludeDecl(CXXDeclRef parent, llvm::StringRef path,
+CXXIncludeDecl::CXXIncludeDecl(CXXDecl* parent, llvm::StringRef path,
                                bool systemHeader)
     : CXXDecl(parent), path(path.str()), isSystemInclude(systemHeader) {}
 
@@ -45,7 +45,7 @@ void CXXCommentBlock::print(llvm::raw_ostream& os) const {
 
 // CXXFunctionDecl
 
-CXXFunctionDecl::CXXFunctionDecl(CXXDeclRef parent, llvm::StringRef name,
+CXXFunctionDecl::CXXFunctionDecl(CXXDecl* parent, llvm::StringRef name,
                                  CXXTypeRef returnTy,
                                  std::vector<CXXFunctionArgumentRef>& arguments,
                                  bool hasCVisibility)
@@ -78,10 +78,10 @@ void CXXFunctionDecl::print(llvm::raw_ostream& os) const {
 }
 
 // CXXType
-CXXType::CXXType(CXXDeclRef parent, llvm::StringRef name, bool isConst)
+CXXType::CXXType(CXXDecl* parent, llvm::StringRef name, bool isConst)
     : CXXDecl(parent), name(name.str()), isConst(isConst) {}
 
-CXXType::CXXType(CXXDeclRef parent, llvm::StringRef name)
+CXXType::CXXType(CXXDecl* parent, llvm::StringRef name)
     : CXXType(parent, name, /*isConst=*/false) {}
 
 CXXType::~CXXType() {}
@@ -94,8 +94,7 @@ void CXXType::print(llvm::raw_ostream& os) const {
 }
 
 // CXXFunctionArgument
-CXXFunctionArgument::CXXFunctionArgument(CXXDeclRef parent,
-                                         llvm::StringRef name,
+CXXFunctionArgument::CXXFunctionArgument(CXXDecl* parent, llvm::StringRef name,
                                          CXXTypeRef argType)
     : CXXDecl(parent), name(name.str()), argType(argType) {}
 
@@ -107,7 +106,7 @@ void CXXFunctionArgument::print(llvm::raw_ostream& os) const {
 }
 
 // CXXCodeBlock
-CXXCodeBlock::CXXCodeBlock(CXXDeclRef parent) : CXXDecl(parent) {}
+CXXCodeBlock::CXXCodeBlock(CXXDecl* parent) : CXXDecl(parent) {}
 CXXCodeBlock::~CXXCodeBlock() {}
 
 void CXXCodeBlock::print(llvm::raw_ostream& os) const {
@@ -119,8 +118,7 @@ void CXXCodeBlock::print(llvm::raw_ostream& os) const {
 }
 
 // CXXIfStatement
-CXXIfStatement::CXXIfStatement(CXXCodeBlockRef parent,
-                               llvm::StringRef condition)
+CXXIfStatement::CXXIfStatement(CXXCodeBlock* parent, llvm::StringRef condition)
     : CXXStatement(parent), condition(condition.str()), trueBlock(nullptr),
       falseBlock(nullptr) {}
 
@@ -139,7 +137,7 @@ void CXXIfStatement::print(llvm::raw_ostream& os) const {
 }
 
 // CXXReturnIntStatement
-CXXReturnIntStatement::CXXReturnIntStatement(CXXCodeBlockRef parent,
+CXXReturnIntStatement::CXXReturnIntStatement(CXXCodeBlock* parent,
                                              int returnValue)
     : CXXStatement(parent), returnValue(returnValue) {}
 
@@ -149,7 +147,7 @@ void CXXReturnIntStatement::print(llvm::raw_ostream& os) const {
 
 // CXXDeclAndDefnVarStatement
 CXXDeclAndDefnVarStatement::CXXDeclAndDefnVarStatement(
-    CXXCodeBlockRef parent, CXXTypeRef ty, llvm::StringRef name,
+    CXXCodeBlock* parent, CXXTypeRef ty, llvm::StringRef name,
     llvm::StringRef valueExpr)
     : CXXStatement(parent), ty(ty), name(name.str()),
       valueExpr(valueExpr.str()) {}
@@ -160,7 +158,7 @@ void CXXDeclAndDefnVarStatement::print(llvm::raw_ostream& os) const {
 }
 
 // CXXGenericStatement
-CXXGenericStatement::CXXGenericStatement(CXXCodeBlockRef parent,
+CXXGenericStatement::CXXGenericStatement(CXXCodeBlock* parent,
                                          llvm::StringRef statement)
     : CXXStatement(parent), statement(statement.str()) {}
 

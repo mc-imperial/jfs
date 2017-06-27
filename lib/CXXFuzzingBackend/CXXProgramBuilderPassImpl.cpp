@@ -26,8 +26,9 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
   program = std::make_shared<CXXProgram>();
 
   // Setup early exit code block
-  earlyExitBlock = std::make_shared<CXXCodeBlock>(program);
-  auto returnStmt = std::make_shared<CXXReturnIntStatement>(earlyExitBlock, 0);
+  earlyExitBlock = std::make_shared<CXXCodeBlock>(program.get());
+  auto returnStmt =
+      std::make_shared<CXXReturnIntStatement>(earlyExitBlock.get(), 0);
   earlyExitBlock->statements.push_front(returnStmt);
   entryPointMainBlock = nullptr;
 }
@@ -41,7 +42,8 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
   switch (sort.getKind()) {
   case Z3_BOOL_SORT: {
     // Make const type so that Compiler enforces SSA.
-    auto ty = std::make_shared<CXXType>(program, "bool", /*isConst=*/true);
+    auto ty =
+        std::make_shared<CXXType>(program.get(), "bool", /*isConst=*/true);
     sortToCXXTypeCache.insert(std::make_pair(sort, ty));
     return ty;
   }
@@ -52,8 +54,8 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
     ss << "BitVector<" << width << ">";
     ss.flush();
     // Make const type so that Compiler enforces SSA.
-    auto ty =
-        std::make_shared<CXXType>(program, underlyingString, /*isConst=*/true);
+    auto ty = std::make_shared<CXXType>(program.get(), underlyingString,
+                                        /*isConst=*/true);
     sortToCXXTypeCache.insert(std::make_pair(sort, ty));
     return ty;
   }
@@ -67,33 +69,36 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
   // Runtime header includes
   // FIXME: We should probe the query and only emit these header includes
   // if we actually need them.
-  program->appendDecl(std::make_shared<CXXIncludeDecl>(program, "SMTLIB/Core.h",
+  program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
+                                                       "SMTLIB/Core.h",
                                                        /*systemHeader=*/false));
   program->appendDecl(std::make_shared<CXXIncludeDecl>(
-      program, "SMTLIB/BitVector.h", /*systemHeader=*/false));
+      program.get(), "SMTLIB/BitVector.h", /*systemHeader=*/false));
   // Int types header for LibFuzzer entry point definition.
-  program->appendDecl(std::make_shared<CXXIncludeDecl>(program, "stdint.h",
+  program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
+                                                       "stdint.h",
                                                        /*systemHeader=*/true));
-  program->appendDecl(std::make_shared<CXXIncludeDecl>(program, "stdlib.h",
+  program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
+                                                       "stdlib.h",
                                                        /*systemHeader=*/true));
 
   // Build entry point for LibFuzzer
-  auto retTy = std::make_shared<CXXType>(program, "int");
-  auto firstArgTy = std::make_shared<CXXType>(program, "const uint8_t*");
-  auto secondArgTy = std::make_shared<CXXType>(program, "size_t");
+  auto retTy = std::make_shared<CXXType>(program.get(), "int");
+  auto firstArgTy = std::make_shared<CXXType>(program.get(), "const uint8_t*");
+  auto secondArgTy = std::make_shared<CXXType>(program.get(), "size_t");
   entryPointFirstArgName = insertSymbol("data");
   auto firstArg = std::make_shared<CXXFunctionArgument>(
-      program, entryPointFirstArgName, firstArgTy);
+      program.get(), entryPointFirstArgName, firstArgTy);
   entryPointSecondArgName = insertSymbol("size");
   auto secondArg = std::make_shared<CXXFunctionArgument>(
-      program, entryPointSecondArgName, secondArgTy);
+      program.get(), entryPointSecondArgName, secondArgTy);
   auto funcArguments = std::vector<CXXFunctionArgumentRef>();
   funcArguments.push_back(firstArg);
   funcArguments.push_back(secondArg);
   auto funcDefn = std::make_shared<CXXFunctionDecl>(
-      program, "LLVMFuzzerTestOneInput", retTy, funcArguments,
+      program.get(), "LLVMFuzzerTestOneInput", retTy, funcArguments,
       /*hasCVisibility=*/true);
-  auto funcBody = std::make_shared<CXXCodeBlock>(funcDefn);
+  auto funcBody = std::make_shared<CXXCodeBlock>(funcDefn.get());
   funcDefn->defn = funcBody; // FIXME: shouldn't be done like this
   program->appendDecl(funcDefn);
   return funcDefn;
@@ -113,7 +118,8 @@ void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
   unsigned bufferWidthInBytes = (bufferWidthInBits + 7) / 8;
   condition << "size < " << bufferWidthInBytes;
   condition.flush();
-  auto ifStatement = std::make_shared<CXXIfStatement>(cb, underlyingString);
+  auto ifStatement =
+      std::make_shared<CXXIfStatement>(cb.get(), underlyingString);
   ifStatement->trueBlock = earlyExitBlock;
   cb->statements.push_back(ifStatement);
 }
@@ -161,13 +167,13 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
   // FIXME: We should probably just use C++'s constructor syntax
   // BufferRef<const uint8_t> jfs_buffer_ref<const uint8_t>(data, size)
   auto bufferRefTy =
-      std::make_shared<CXXType>(program, "BufferRef<const uint8_t>");
+      std::make_shared<CXXType>(program.get(), "BufferRef<const uint8_t>");
   // Build `BufferRef<uint8_t>(data, size)` string.
   ss << bufferRefTy->getName() << "(" << entryPointFirstArgName << ", "
      << entryPointSecondArgName << ")";
   ss.flush();
   auto bufferRefAssignment = std::make_shared<CXXDeclAndDefnVarStatement>(
-      cb, bufferRefTy, bufferRefName, underlyingString);
+      cb.get(), bufferRefTy, bufferRefName, underlyingString);
   cb->statements.push_back(bufferRefAssignment);
   unsigned currentBufferBit = 0;
 
@@ -199,7 +205,7 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
        << bufferRefName << ")";
     ss.flush();
     auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
-        cb, assignmentTy, sanitizedSymbolName, underlyingString);
+        cb.get(), assignmentTy, sanitizedSymbolName, underlyingString);
     cb->statements.push_back(assignmentStmt);
 
     currentBufferBit += be.getBitWidth();
@@ -213,7 +219,7 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
       assert(e.getSort() == be.getSort() && "sorts don't match");
       auto equalityAssignmentStmt =
           std::make_shared<CXXDeclAndDefnVarStatement>(
-              cb, assignmentTy, otherVarName, sanitizedSymbolName);
+              cb.get(), assignmentTy, otherVarName, sanitizedSymbolName);
       cb->statements.push_back(equalityAssignmentStmt);
     }
   }
@@ -261,8 +267,8 @@ void CXXProgramBuilderPassImpl::insertBranchForConstraint(
   assert(exprToSymbolName.count(constraint) > 0);
 
   llvm::StringRef symbolForConstraint = getSymbolFor(constraint);
-  auto ifStatement =
-      std::make_shared<CXXIfStatement>(getCurrentBlock(), symbolForConstraint);
+  auto ifStatement = std::make_shared<CXXIfStatement>(getCurrentBlock().get(),
+                                                      symbolForConstraint);
   ifStatement->trueBlock = nullptr;
   ifStatement->falseBlock = earlyExitBlock;
   getCurrentBlock()->statements.push_back(ifStatement);
@@ -272,9 +278,9 @@ void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
   // FIXME: Replace this with something that we can use to
   // communicate LibFuzzer's outcome
   cb->statements.push_back(
-      std::make_shared<CXXCommentBlock>(cb, "Fuzzing target"));
+      std::make_shared<CXXCommentBlock>(cb.get(), "Fuzzing target"));
   cb->statements.push_back(
-      std::make_shared<CXXGenericStatement>(cb, "abort()"));
+      std::make_shared<CXXGenericStatement>(cb.get(), "abort()"));
 }
 
 void CXXProgramBuilderPassImpl::build(const Query& q) {
@@ -354,7 +360,7 @@ void CXXProgramBuilderPassImpl::insertSSAStmt(
   }
   llvm::StringRef usedSymbol = insertSSASymbolForExpr(e, requestedSymbolName);
   auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
-      getCurrentBlock(), assignmentTy, usedSymbol, expr);
+      getCurrentBlock().get(), assignmentTy, usedSymbol, expr);
   getCurrentBlock()->statements.push_back(assignmentStmt);
 }
 

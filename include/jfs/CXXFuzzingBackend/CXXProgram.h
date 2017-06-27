@@ -35,13 +35,16 @@ using CXXFunctionDeclRef = std::shared_ptr<CXXFunctionDecl>;
 // Base class for all declarations
 class CXXDecl {
 protected:
-  CXXDeclRef parent;
+  // CXXDecl's form a tree with parents owning the children.
+  // Therefore we don't need to partcipate in ownership (like
+  // CXXDeclRef would) and raw pointers are fine.
+  CXXDecl* parent;
 
 public:
-  CXXDecl(CXXDeclRef parent);
+  CXXDecl(CXXDecl* parent);
   virtual ~CXXDecl();
   virtual void print(llvm::raw_ostream&) const = 0;
-  CXXDeclRef getParent() const;
+  CXXDecl* getParent() const;
   void dump() const;
 };
 
@@ -52,7 +55,7 @@ private:
   bool isSystemInclude;
 
 public:
-  CXXIncludeDecl(CXXDeclRef parent, llvm::StringRef path, bool systemHeader);
+  CXXIncludeDecl(CXXDecl* parent, llvm::StringRef path, bool systemHeader);
   ~CXXIncludeDecl() {}
   void print(llvm::raw_ostream&) const override;
   const std::string& getPath() const { return path; }
@@ -61,7 +64,7 @@ public:
 // Statement (for use inside code blocks)
 class CXXStatement : public CXXDecl {
 public:
-  CXXStatement(CXXDeclRef parent) : CXXDecl(parent) {}
+  CXXStatement(CXXDecl* parent) : CXXDecl(parent) {}
   ~CXXStatement();
 };
 
@@ -71,7 +74,7 @@ private:
   std::string comment;
 
 public:
-  CXXCommentBlock(CXXDeclRef parent, llvm::StringRef comment)
+  CXXCommentBlock(CXXDecl* parent, llvm::StringRef comment)
       : CXXStatement(parent), comment(comment) {}
   void print(llvm::raw_ostream&) const override;
   const std::string& getComment() const { return comment; }
@@ -92,7 +95,7 @@ public:
   // FIXME: shouldn't be public
   CXXCodeBlockRef defn;
   // Declaration
-  CXXFunctionDecl(CXXDeclRef parent, llvm::StringRef name, CXXTypeRef returnTy,
+  CXXFunctionDecl(CXXDecl* parent, llvm::StringRef name, CXXTypeRef returnTy,
                   std::vector<CXXFunctionArgumentRef>& arguments,
                   bool hasCVisibility);
   // Definition
@@ -109,8 +112,8 @@ private:
   bool isConst;
 
 public:
-  CXXType(CXXDeclRef parent, llvm::StringRef name, bool isConst);
-  CXXType(CXXDeclRef parent, llvm::StringRef name);
+  CXXType(CXXDecl* parent, llvm::StringRef name, bool isConst);
+  CXXType(CXXDecl* parent, llvm::StringRef name);
   ~CXXType();
   void print(llvm::raw_ostream&) const override;
   llvm::StringRef getName() const { return name; }
@@ -123,7 +126,7 @@ private:
   CXXTypeRef argType;
 
 public:
-  CXXFunctionArgument(CXXDeclRef parent, llvm::StringRef name,
+  CXXFunctionArgument(CXXDecl* parent, llvm::StringRef name,
                       CXXTypeRef argType);
   ~CXXFunctionArgument();
   void print(llvm::raw_ostream&) const override;
@@ -134,7 +137,7 @@ class CXXCodeBlock : public CXXDecl {
 public:
   // FIXME: shouldn't be public but its easier to just write to this
   std::list<CXXStatementRef> statements;
-  CXXCodeBlock(CXXDeclRef parent);
+  CXXCodeBlock(CXXDecl* parent);
   ~CXXCodeBlock();
   void print(llvm::raw_ostream&) const override;
 };
@@ -145,7 +148,7 @@ private:
   std::string condition;
 
 public:
-  CXXIfStatement(CXXCodeBlockRef parent, llvm::StringRef condition);
+  CXXIfStatement(CXXCodeBlock* parent, llvm::StringRef condition);
   void print(llvm::raw_ostream&) const override;
   // FIXME: shouldn't be public
   CXXCodeBlockRef trueBlock;
@@ -158,7 +161,7 @@ private:
   int returnValue;
 
 public:
-  CXXReturnIntStatement(CXXCodeBlockRef parent, int returnValue);
+  CXXReturnIntStatement(CXXCodeBlock* parent, int returnValue);
   void print(llvm::raw_ostream&) const override;
 };
 
@@ -170,7 +173,7 @@ private:
   std::string valueExpr;
 
 public:
-  CXXDeclAndDefnVarStatement(CXXCodeBlockRef parent, CXXTypeRef ty,
+  CXXDeclAndDefnVarStatement(CXXCodeBlock* parent, CXXTypeRef ty,
                              llvm::StringRef name, llvm::StringRef valueExpr);
   llvm::StringRef getName() const { return valueExpr; }
   void print(llvm::raw_ostream&) const override;
@@ -183,7 +186,7 @@ private:
   std::string statement;
 
 public:
-  CXXGenericStatement(CXXCodeBlockRef parent, llvm::StringRef statement);
+  CXXGenericStatement(CXXCodeBlock* parent, llvm::StringRef statement);
   void print(llvm::raw_ostream&) const override;
 };
 
