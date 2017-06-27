@@ -407,7 +407,7 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
 
 // Visitor methods
 void CXXProgramBuilderPassImpl::visitEqual(jfs::core::Z3AppHandle e) {
-  assert(e.getNumKids() >= 2);
+  assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);
   auto arg1 = e.getKid(1);
   assert(exprToSymbolName.count(arg0) > 0);
@@ -415,6 +415,34 @@ void CXXProgramBuilderPassImpl::visitEqual(jfs::core::Z3AppHandle e) {
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
   ss << exprToSymbolName[arg0] << " == " << exprToSymbolName[arg1];
+  insertSSAStmt(e.asAST(), ss.str());
+}
+void CXXProgramBuilderPassImpl::visitDistinct(Z3AppHandle e) {
+  const unsigned numArgs = e.getNumKids();
+  assert(numArgs >= 2);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+
+  // FIXME: This is terrible and quadratically explodes.  It also doesn't look
+  // like the rest of our "three address code" style statements.
+  // Output pairwise `!=` combinations.
+  bool isFirst = true;
+  for (unsigned firstArgIndex = 0; firstArgIndex < numArgs; ++firstArgIndex) {
+    for (unsigned secondArgIndex = firstArgIndex + 1; secondArgIndex < numArgs;
+         ++secondArgIndex) {
+      auto arg0 = e.getKid(firstArgIndex);
+      auto arg1 = e.getKid(secondArgIndex);
+      assert(exprToSymbolName.count(arg0) > 0);
+      assert(exprToSymbolName.count(arg1) > 0);
+      if (isFirst) {
+        isFirst = false;
+      } else {
+        ss << " && ";
+      }
+      ss << "( " << exprToSymbolName[arg0] << " != " << exprToSymbolName[arg1]
+         << " )";
+    }
+  }
   insertSSAStmt(e.asAST(), ss.str());
 }
 
