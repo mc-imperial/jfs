@@ -446,6 +446,22 @@ void CXXProgramBuilderPassImpl::visitDistinct(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitIfThenElse(jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 3);
+  auto condition = e.getKid(0);
+  auto trueExpr = e.getKid(1);
+  auto falseExpr = e.getKid(2);
+  assert(exprToSymbolName.count(condition) > 0);
+  assert(exprToSymbolName.count(trueExpr) > 0);
+  assert(exprToSymbolName.count(falseExpr) > 0);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "(" << exprToSymbolName[condition] << ")?("
+     << exprToSymbolName[trueExpr] << "):(" << exprToSymbolName[falseExpr]
+     << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitAnd(Z3AppHandle e) {
   const unsigned numArgs = e.getNumKids();
   assert(numArgs >= 2);

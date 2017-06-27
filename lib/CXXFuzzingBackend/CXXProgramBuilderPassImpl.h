@@ -73,6 +73,7 @@ private:
   // Overloaded operations
   void visitEqual(jfs::core::Z3AppHandle e) override;
   void visitDistinct(jfs::core::Z3AppHandle e) override;
+  void visitIfThenElse(jfs::core::Z3AppHandle e) override;
 
   // Boolean operations
   virtual void visitAnd(jfs::core::Z3AppHandle e) override;

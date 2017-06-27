@@ -37,6 +37,9 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_DISTINCT:
     visitDistinct(asApp);
     return;
+  case Z3_OP_ITE:
+    visitIfThenElse(asApp);
+    return;
   // Boolean operations
   case Z3_OP_AND:
     visitAnd(asApp);

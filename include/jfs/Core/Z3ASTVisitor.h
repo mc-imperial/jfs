@@ -34,6 +34,7 @@ protected:
   // Overloaded operations
   virtual void visitEqual(Z3AppHandle e) = 0;
   virtual void visitDistinct(Z3AppHandle e) = 0;
+  virtual void visitIfThenElse(Z3AppHandle e) = 0;
 
   // Boolean operations
   virtual void visitAnd(Z3AppHandle e) = 0;
