@@ -110,6 +110,7 @@ private:
 
   // Bitwise BitVector operations
   void visitBvAnd(jfs::core::Z3AppHandle e) override;
+  void visitBvOr(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
