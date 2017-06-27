@@ -117,6 +117,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvAShr(asApp))
   case Z3_OP_ROTATE_LEFT:
     ACTION(visitBvRotateLeft(asApp))
+  case Z3_OP_ROTATE_RIGHT:
+    ACTION(visitBvRotateRight(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");
