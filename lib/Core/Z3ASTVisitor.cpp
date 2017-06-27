@@ -64,6 +64,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvSub(asApp))
   case Z3_OP_BMUL:
     ACTION(visitBvMul(asApp))
+  case Z3_OP_BSDIV:
+    ACTION(visitBvSDiv(asApp))
   case Z3_OP_UGT:
     ACTION(visitBvUGt(asApp))
   // TODO: Add more application kinds
