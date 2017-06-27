@@ -101,6 +101,7 @@ private:
   // Comparison BitVector operations
   void visitBvULE(jfs::core::Z3AppHandle e) override;
   void visitBvSLE(jfs::core::Z3AppHandle e) override;
+  void visitBvUGE(jfs::core::Z3AppHandle e) override;
   void visitBvUGT(jfs::core::Z3AppHandle e) override;
 
   // Constants

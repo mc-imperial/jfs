@@ -59,6 +59,7 @@ protected:
   // Comparison BitVector operations
   virtual void visitBvULE(Z3AppHandle e) = 0;
   virtual void visitBvSLE(Z3AppHandle e) = 0;
+  virtual void visitBvUGE(Z3AppHandle e) = 0;
   virtual void visitBvUGT(Z3AppHandle e) = 0;
 };
 }
