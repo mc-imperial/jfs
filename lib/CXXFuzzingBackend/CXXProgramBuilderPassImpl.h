@@ -119,6 +119,7 @@ private:
 
   // Shift and rotation BitVector operations
   void visitBvShl(jfs::core::Z3AppHandle e) override;
+  void visitBvLShr(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;

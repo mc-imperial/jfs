@@ -597,6 +597,7 @@ BV_BIN_OP(visitBvNand, bvnand)
 BV_BIN_OP(visitBvNor, bvnor)
 BV_BIN_OP(visitBvXnor, bvxnor)
 BV_BIN_OP(visitBvShl, bvshl)
+BV_BIN_OP(visitBvLShr, bvlshr)
 
 #undef BV_BIN_OP
 
