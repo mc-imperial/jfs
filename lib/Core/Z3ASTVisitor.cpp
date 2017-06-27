@@ -56,6 +56,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_IFF:
     ACTION(visitIff(asApp))
   // BitVector operations
+  case Z3_OP_BNEG:
+    ACTION(visitBvNeg(asApp))
   case Z3_OP_UGT:
     ACTION(visitBvUGt(asApp))
   // TODO: Add more application kinds

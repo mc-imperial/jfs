@@ -548,6 +548,15 @@ void CXXProgramBuilderPassImpl::visitNot(jfs::core::Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitBvNeg(Z3AppHandle e) {
+  assert(e.getNumKids() == 1);
+  auto arg0 = e.getKid(0);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(arg0) << ".bvneg()";
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);
