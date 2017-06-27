@@ -106,8 +106,10 @@ public:
 class CXXType : public CXXDecl {
 private:
   std::string name;
+  bool isConst;
 
 public:
+  CXXType(CXXDeclRef parent, llvm::StringRef name, bool isConst);
   CXXType(CXXDeclRef parent, llvm::StringRef name);
   ~CXXType();
   void print(llvm::raw_ostream&) const override;

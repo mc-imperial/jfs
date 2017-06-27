@@ -78,11 +78,20 @@ void CXXFunctionDecl::print(llvm::raw_ostream& os) const {
 }
 
 // CXXType
+CXXType::CXXType(CXXDeclRef parent, llvm::StringRef name, bool isConst)
+    : CXXDecl(parent), name(name.str()), isConst(isConst) {}
+
 CXXType::CXXType(CXXDeclRef parent, llvm::StringRef name)
-    : CXXDecl(parent), name(name.str()) {}
+    : CXXType(parent, name, /*isConst=*/false) {}
+
 CXXType::~CXXType() {}
 
-void CXXType::print(llvm::raw_ostream& os) const { os << name; }
+void CXXType::print(llvm::raw_ostream& os) const {
+  if (isConst) {
+    os << "const ";
+  }
+  os << name;
+}
 
 // CXXFunctionArgument
 CXXFunctionArgument::CXXFunctionArgument(CXXDeclRef parent,

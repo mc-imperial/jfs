@@ -40,7 +40,8 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
   // Don't have the sort cached. Construct the matching CXXType.
   switch (sort.getKind()) {
   case Z3_BOOL_SORT: {
-    auto ty = std::make_shared<CXXType>(program, "bool");
+    // Make const type so that Compiler enforces SSA.
+    auto ty = std::make_shared<CXXType>(program, "bool", /*isConst=*/true);
     sortToCXXTypeCache.insert(std::make_pair(sort, ty));
     return ty;
   }
@@ -50,7 +51,9 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
     llvm::raw_string_ostream ss(underlyingString);
     ss << "BitVector<" << width << ">";
     ss.flush();
-    auto ty = std::make_shared<CXXType>(program, underlyingString);
+    // Make const type so that Compiler enforces SSA.
+    auto ty =
+        std::make_shared<CXXType>(program, underlyingString, /*isConst=*/true);
     sortToCXXTypeCache.insert(std::make_pair(sort, ty));
     return ty;
   }
