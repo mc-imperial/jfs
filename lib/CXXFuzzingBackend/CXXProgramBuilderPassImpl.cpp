@@ -701,6 +701,28 @@ void CXXProgramBuilderPassImpl::visitBvZeroExtend(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitBvExtract(Z3AppHandle e) {
+  // The bit indices are not arguments
+  assert(e.getNumKids() == 1);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto arg0 = e.getKid(0);
+  auto funcDecl = e.getFuncDecl();
+
+  // Get the indicies
+  // Get the extension count. This is a paramter on the function
+  // declaration rather an argument in the application
+  assert(funcDecl.getNumParams() == 2);
+  assert(funcDecl.getParamKind(0) == Z3_PARAMETER_INT);
+  assert(funcDecl.getParamKind(1) == Z3_PARAMETER_INT);
+  int highBit = funcDecl.getIntParam(0);
+  int lowBit = funcDecl.getIntParam(1);
+  assert(highBit >= lowBit);
+
+  ss << getSymbolFor(arg0) << ".extract<" << highBit << "," << lowBit << ">()";
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getboolConstantStr(e));
 }

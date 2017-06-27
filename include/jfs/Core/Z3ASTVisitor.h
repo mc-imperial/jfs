@@ -87,6 +87,7 @@ protected:
   virtual void visitBvConcat(Z3AppHandle e) = 0;
   virtual void visitBvSignExtend(Z3AppHandle e) = 0;
   virtual void visitBvZeroExtend(Z3AppHandle e) = 0;
+  virtual void visitBvExtract(Z3AppHandle e) = 0;
 };
 }
 }
