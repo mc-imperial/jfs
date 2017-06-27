@@ -51,6 +51,7 @@ protected:
   virtual void visitBvSub(Z3AppHandle e) = 0;
   virtual void visitBvMul(Z3AppHandle e) = 0;
   virtual void visitBvSDiv(Z3AppHandle e) = 0;
+  virtual void visitBvUDiv(Z3AppHandle e) = 0;
   virtual void visitBvUGt(Z3AppHandle e) = 0;
 };
 }

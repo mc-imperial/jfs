@@ -93,6 +93,7 @@ private:
   void visitBvSub(jfs::core::Z3AppHandle e) override;
   void visitBvMul(jfs::core::Z3AppHandle e) override;
   void visitBvSDiv(jfs::core::Z3AppHandle e) override;
+  void visitBvUDiv(jfs::core::Z3AppHandle e) override;
   void visitBvUGt(jfs::core::Z3AppHandle e) override;
 
   // Constants
