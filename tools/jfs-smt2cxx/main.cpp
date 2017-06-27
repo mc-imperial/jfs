@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
   QueryPassManager pm;
   auto info = std::make_shared<FuzzingAnalysisInfo>();
   info->addTo(pm);
-  auto programBuilder = std::make_shared<CXXProgramBuilderPass>(info);
+  auto programBuilder = std::make_shared<CXXProgramBuilderPass>(info, ctx);
   pm.add(programBuilder);
   pm.run(*query);
 

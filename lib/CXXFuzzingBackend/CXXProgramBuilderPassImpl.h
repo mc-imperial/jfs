@@ -12,6 +12,7 @@
 #define JFS_CXX_FUZZING_BACKEND_CXX_PROGRAM_BUILDER_PASS_IMPL_H
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
+#include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Z3ASTVisitor.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
@@ -20,6 +21,7 @@ namespace cxxfb {
 
 class CXXProgramBuilderPassImpl : public jfs::core::Z3ASTVisitor {
 private:
+  jfs::core::JFSContext& ctx;
   std::shared_ptr<CXXProgram> program;
   std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
   CXXCodeBlockRef earlyExitBlock;
@@ -33,7 +35,8 @@ private:
   llvm::StringRef entryPointSecondArgName;
 
   CXXProgramBuilderPassImpl(
-      std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info);
+      std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
+      jfs::core::JFSContext& ctx);
 
   void build(const jfs::core::Query& q);
 
@@ -67,6 +70,7 @@ private:
   void doDFSPostOrderTraversal(jfs::core::Z3ASTHandle e);
   void visitIfNeccesary(jfs::core::Z3ASTHandle e);
   CXXCodeBlockRef getCurrentBlock() { return entryPointMainBlock; }
+  llvm::StringRef getSymbolFor(jfs::core::Z3ASTHandle e) const;
 
   // Visitor methods
 

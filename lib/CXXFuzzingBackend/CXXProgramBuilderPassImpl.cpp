@@ -21,8 +21,8 @@ namespace jfs {
 namespace cxxfb {
 
 CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
-    std::shared_ptr<FuzzingAnalysisInfo> info)
-    : info(info) {
+    std::shared_ptr<FuzzingAnalysisInfo> info, JFSContext& ctx)
+    : ctx(ctx), info(info) {
   program = std::make_shared<CXXProgram>();
 
   // Setup early exit code block
@@ -260,7 +260,7 @@ void CXXProgramBuilderPassImpl::insertBranchForConstraint(
   doDFSPostOrderTraversal(constraint);
   assert(exprToSymbolName.count(constraint) > 0);
 
-  llvm::StringRef symbolForConstraint = exprToSymbolName[constraint];
+  llvm::StringRef symbolForConstraint = getSymbolFor(constraint);
   auto ifStatement =
       std::make_shared<CXXIfStatement>(getCurrentBlock(), symbolForConstraint);
   ifStatement->trueBlock = nullptr;
@@ -408,16 +408,29 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
   assert(traversingBackUpQueue.size() == 0);
 }
 
+llvm::StringRef
+CXXProgramBuilderPassImpl::getSymbolFor(jfs::core::Z3ASTHandle e) const {
+  // This is a helper for visitor methods so they can grab symbols without
+  // having to check themselves that the key is present. Due to the post
+  // order DFS traversal the abort should never be called unless there's
+  // a bug in the DFS traversal or visitor methods.
+  auto it = exprToSymbolName.find(e);
+  if (it == exprToSymbolName.end()) {
+    ctx.getErrorStream()
+        << "(error attempt to use symbol before it has been defined)\n";
+    abort();
+  }
+  return it->second;
+}
+
 // Visitor methods
 void CXXProgramBuilderPassImpl::visitEqual(jfs::core::Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);
   auto arg1 = e.getKid(1);
-  assert(exprToSymbolName.count(arg0) > 0);
-  assert(exprToSymbolName.count(arg1) > 0);
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
-  ss << exprToSymbolName[arg0] << " == " << exprToSymbolName[arg1];
+  ss << getSymbolFor(arg0) << " == " << getSymbolFor(arg1);
   insertSSAStmt(e.asAST(), ss.str());
 }
 void CXXProgramBuilderPassImpl::visitDistinct(Z3AppHandle e) {
@@ -435,15 +448,12 @@ void CXXProgramBuilderPassImpl::visitDistinct(Z3AppHandle e) {
          ++secondArgIndex) {
       auto arg0 = e.getKid(firstArgIndex);
       auto arg1 = e.getKid(secondArgIndex);
-      assert(exprToSymbolName.count(arg0) > 0);
-      assert(exprToSymbolName.count(arg1) > 0);
       if (isFirst) {
         isFirst = false;
       } else {
         ss << " && ";
       }
-      ss << "( " << exprToSymbolName[arg0] << " != " << exprToSymbolName[arg1]
-         << " )";
+      ss << "( " << getSymbolFor(arg0) << " != " << getSymbolFor(arg1) << " )";
     }
   }
   insertSSAStmt(e.asAST(), ss.str());
@@ -454,14 +464,10 @@ void CXXProgramBuilderPassImpl::visitIfThenElse(jfs::core::Z3AppHandle e) {
   auto condition = e.getKid(0);
   auto trueExpr = e.getKid(1);
   auto falseExpr = e.getKid(2);
-  assert(exprToSymbolName.count(condition) > 0);
-  assert(exprToSymbolName.count(trueExpr) > 0);
-  assert(exprToSymbolName.count(falseExpr) > 0);
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
-  ss << "(" << exprToSymbolName[condition] << ")?("
-     << exprToSymbolName[trueExpr] << "):(" << exprToSymbolName[falseExpr]
-     << ")";
+  ss << "(" << getSymbolFor(condition) << ")?(" << getSymbolFor(trueExpr)
+     << "):(" << getSymbolFor(falseExpr) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
 
@@ -474,8 +480,7 @@ void CXXProgramBuilderPassImpl::visitAnd(Z3AppHandle e) {
     if (index != 0)
       ss << " && ";
     auto arg = e.getKid(index);
-    assert(exprToSymbolName.count(arg) > 0);
-    ss << exprToSymbolName[arg];
+    ss << getSymbolFor(arg);
   }
   insertSSAStmt(e.asAST(), ss.str());
 }
@@ -490,7 +495,7 @@ void CXXProgramBuilderPassImpl::visitOr(jfs::core::Z3AppHandle e) {
       ss << " || ";
     auto arg = e.getKid(index);
     assert(exprToSymbolName.count(arg) > 0);
-    ss << exprToSymbolName[arg];
+    ss << getSymbolFor(arg);
   }
   insertSSAStmt(e.asAST(), ss.str());
 }
@@ -501,9 +506,7 @@ void CXXProgramBuilderPassImpl::visitXor(jfs::core::Z3AppHandle e) {
   llvm::raw_string_ostream ss(underlyingString);
   auto arg0 = e.getKid(0);
   auto arg1 = e.getKid(1);
-  assert(exprToSymbolName.count(arg0) > 0);
-  assert(exprToSymbolName.count(arg1) > 0);
-  ss << exprToSymbolName[arg0] << " ^ " << exprToSymbolName[arg1];
+  ss << getSymbolFor(arg0) << " ^ " << getSymbolFor(arg1);
   insertSSAStmt(e.asAST(), ss.str());
 }
 
@@ -513,7 +516,7 @@ void CXXProgramBuilderPassImpl::visitNot(jfs::core::Z3AppHandle e) {
   llvm::raw_string_ostream ss(underlyingString);
   auto arg0 = e.getKid(0);
   assert(exprToSymbolName.count(arg0) > 0);
-  ss << "!(" << exprToSymbolName[arg0] << ")";
+  ss << "!(" << getSymbolFor(arg0) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
 
@@ -521,11 +524,9 @@ void CXXProgramBuilderPassImpl::visitBvUGt(Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);
   auto arg1 = e.getKid(1);
-  assert(exprToSymbolName.count(arg0) > 0);
-  assert(exprToSymbolName.count(arg1) > 0);
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
-  ss << exprToSymbolName[arg0] << ".bvugt(" << exprToSymbolName[arg1] << ")";
+  ss << getSymbolFor(arg0) << ".bvugt(" << getSymbolFor(arg1) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
 

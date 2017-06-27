@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_CXX_FUZZING_BACKEND_CXX_PROGRAM_BUILDER_PASS_H
 #define JFS_CXX_FUZZING_BACKEND_CXX_PROGRAM_BUILDER_PASS_H
+#include "jfs/Core/JFSContext.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/Transform/QueryPass.h"
 
@@ -25,7 +26,8 @@ private:
 
 public:
   CXXProgramBuilderPass(
-      std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info);
+      std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
+      jfs::core::JFSContext& ctx);
   ~CXXProgramBuilderPass();
   bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;

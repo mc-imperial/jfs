@@ -81,7 +81,7 @@ public:
     }
 
     // TODO: Do fuzzing
-    CXXProgramBuilderPass pbp(info);
+    CXXProgramBuilderPass pbp(info, ctx);
     pbp.run(q);
     return std::unique_ptr<SolverResponse>(
         new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
