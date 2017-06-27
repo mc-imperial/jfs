@@ -91,6 +91,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvUGT(asApp))
   case Z3_OP_SGT:
     ACTION(visitBvSGT(asApp))
+  case Z3_OP_BCOMP:
+    ACTION(visitBvComp(asApp))
   // Bitwise BitVector operations
   case Z3_OP_BAND:
     ACTION(visitBvAnd(asApp))

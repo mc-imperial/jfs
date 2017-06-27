@@ -65,6 +65,7 @@ protected:
   virtual void visitBvSLT(Z3AppHandle e) = 0;
   virtual void visitBvUGT(Z3AppHandle e) = 0;
   virtual void visitBvSGT(Z3AppHandle e) = 0;
+  virtual void visitBvComp(Z3AppHandle e) = 0;
 
   // Bitwise BitVector operations
   virtual void visitBvAnd(Z3AppHandle e) = 0;

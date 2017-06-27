@@ -107,6 +107,7 @@ private:
   void visitBvSLT(jfs::core::Z3AppHandle e) override;
   void visitBvUGT(jfs::core::Z3AppHandle e) override;
   void visitBvSGT(jfs::core::Z3AppHandle e) override;
+  void visitBvComp(jfs::core::Z3AppHandle e) override;
 
   // Bitwise BitVector operations
   void visitBvAnd(jfs::core::Z3AppHandle e) override;
