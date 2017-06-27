@@ -122,6 +122,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   // Sort changing BitVector operations
   case Z3_OP_CONCAT:
     ACTION(visitBvConcat(asApp))
+  case Z3_OP_SIGN_EXT:
+    ACTION(visitBvSignExtend(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");

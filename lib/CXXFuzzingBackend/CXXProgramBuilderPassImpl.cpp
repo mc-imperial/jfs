@@ -665,6 +665,24 @@ void CXXProgramBuilderPassImpl::visitBvConcat(jfs::core::Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
+void CXXProgramBuilderPassImpl::visitBvSignExtend(Z3AppHandle e) {
+  // The extension amount is not an argument
+  assert(e.getNumKids() == 1);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto arg0 = e.getKid(0);
+  auto funcDecl = e.getFuncDecl();
+
+  // Get the extension count. This is a paramter on the function
+  // declaration rather an argument in the application
+  assert(funcDecl.getNumParams() == 1);
+  assert(funcDecl.getParamKind(0) == Z3_PARAMETER_INT);
+  int numberOfNewBits = funcDecl.getIntParam(0);
+
+  ss << getSymbolFor(arg0) << ".signExtend<" << numberOfNewBits << ">()";
+  insertSSAStmt(e.asAST(), ss.str());
+}
+
 void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getboolConstantStr(e));
 }

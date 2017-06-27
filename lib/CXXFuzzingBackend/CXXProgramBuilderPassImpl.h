@@ -127,6 +127,7 @@ private:
 
   // Sort changing BitVector operations
   void visitBvConcat(jfs::core::Z3AppHandle e) override;
+  void visitBvSignExtend(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
