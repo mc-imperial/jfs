@@ -40,6 +40,7 @@ protected:
   virtual void visitAnd(Z3AppHandle e) = 0;
   virtual void visitOr(Z3AppHandle e) = 0;
   virtual void visitXor(Z3AppHandle e) = 0;
+  virtual void visitNot(Z3AppHandle e) = 0;
 
   // BitVector operations
   virtual void visitBvUGt(Z3AppHandle e) = 0;
