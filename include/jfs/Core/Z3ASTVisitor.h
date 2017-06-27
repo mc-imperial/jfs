@@ -86,6 +86,7 @@ protected:
   // Sort changing BitVector operations
   virtual void visitBvConcat(Z3AppHandle e) = 0;
   virtual void visitBvSignExtend(Z3AppHandle e) = 0;
+  virtual void visitBvZeroExtend(Z3AppHandle e) = 0;
 };
 }
 }
