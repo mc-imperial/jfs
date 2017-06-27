@@ -106,6 +106,9 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBvNor(asApp))
   case Z3_OP_BXNOR:
     ACTION(visitBvXnor(asApp))
+  // Shift and rotation BitVector operations
+  case Z3_OP_BSHL:
+    ACTION(visitBvShl(asApp))
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");

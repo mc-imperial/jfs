@@ -74,6 +74,9 @@ protected:
   virtual void visitBvNand(Z3AppHandle e) = 0;
   virtual void visitBvNor(Z3AppHandle e) = 0;
   virtual void visitBvXnor(Z3AppHandle e) = 0;
+
+  // Shift and rotation BitVector operations
+  virtual void visitBvShl(Z3AppHandle e) = 0;
 };
 }
 }
