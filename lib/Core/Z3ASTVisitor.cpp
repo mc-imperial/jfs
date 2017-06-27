@@ -56,7 +56,7 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   // BitVector operations
   case Z3_OP_UGT:
     visitBvUGt(asApp);
-    break;
+    return;
   // TODO: Add more application kinds
   default:
     llvm_unreachable("unsupported kind");
