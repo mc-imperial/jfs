@@ -73,6 +73,7 @@ protected:
   virtual void visitBvXor(Z3AppHandle e) = 0;
   virtual void visitBvNand(Z3AppHandle e) = 0;
   virtual void visitBvNor(Z3AppHandle e) = 0;
+  virtual void visitBvXnor(Z3AppHandle e) = 0;
 };
 }
 }

@@ -115,6 +115,7 @@ private:
   void visitBvXor(jfs::core::Z3AppHandle e) override;
   void visitBvNand(jfs::core::Z3AppHandle e) override;
   void visitBvNor(jfs::core::Z3AppHandle e) override;
+  void visitBvXnor(jfs::core::Z3AppHandle e) override;
 
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
