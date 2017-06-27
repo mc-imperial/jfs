@@ -108,6 +108,9 @@ private:
   void visitBvUGT(jfs::core::Z3AppHandle e) override;
   void visitBvSGT(jfs::core::Z3AppHandle e) override;
 
+  // Bitwise BitVector operations
+  void visitBvAnd(jfs::core::Z3AppHandle e) override;
+
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
   void visitBitVector(jfs::core::Z3AppHandle e) override;
