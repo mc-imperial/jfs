@@ -51,6 +51,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitXor(asApp))
   case Z3_OP_NOT:
     ACTION(visitNot(asApp))
+  case Z3_OP_IMPLIES:
+    ACTION(visitImplies(asApp))
   // BitVector operations
   case Z3_OP_UGT:
     ACTION(visitBvUGt(asApp))
