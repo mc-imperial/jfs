@@ -364,9 +364,8 @@ void CXXProgramBuilderPassImpl::insertSSAStmt(
   getCurrentBlock()->statements.push_back(assignmentStmt);
 }
 
-void CXXProgramBuilderPassImpl::visitIfNeccesary(jfs::core::Z3ASTHandle e) {
-  if (exprToSymbolName.count(e) == 0)
-    visit(e);
+bool CXXProgramBuilderPassImpl::hasBeenVisited(jfs::core::Z3ASTHandle e) const {
+  return exprToSymbolName.count(e) > 0;
 }
 
 void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
@@ -386,7 +385,9 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
     if (node.asApp().getNumKids() == 0) {
       queue.pop_front();
       // Do "post order" visit
-      visitIfNeccesary(node);
+      if (!hasBeenVisited(node)) {
+        visit(node);
+      }
       continue;
     }
 
@@ -396,7 +397,9 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
       // We are visiting the node for a second time. Do "post order" visit
       queue.pop_front();
       traversingBackUpQueue.pop_front();
-      visitIfNeccesary(node);
+      if (!hasBeenVisited(node)) {
+        visit(node);
+      }
       continue;
     }
     // Visit an internal node for the first time. Add the children to the front
@@ -412,8 +415,9 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
       // Only add the child expr to the queue if it has not been visited
       // before. This is to avoid traversing down a large AST subtree
       // that we've visited before.
-      if (exprToSymbolName.count(childExpr) == 0)
+      if (!hasBeenVisited(childExpr)) {
         queue.push_front(childExpr);
+      }
     }
   }
   assert(traversingBackUpQueue.size() == 0);

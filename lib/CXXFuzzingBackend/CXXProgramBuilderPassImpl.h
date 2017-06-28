@@ -68,7 +68,7 @@ private:
     return;
   }
   void doDFSPostOrderTraversal(jfs::core::Z3ASTHandle e);
-  void visitIfNeccesary(jfs::core::Z3ASTHandle e);
+  bool hasBeenVisited(jfs::core::Z3ASTHandle e) const;
   CXXCodeBlockRef getCurrentBlock() { return entryPointMainBlock; }
   llvm::StringRef getSymbolFor(jfs::core::Z3ASTHandle e) const;
 
