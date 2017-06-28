@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSFuzzingCommon
+  CommandLineCategory.cpp
   DummyFuzzingSolver.cpp
   EqualityExtractionPass.cpp
   FreeVariableToBufferAssignmentPass.cpp

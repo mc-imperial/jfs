@@ -10,11 +10,31 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPass.h"
 #include "jfs/Core/Z3NodeSet.h"
+#include "jfs/FuzzingCommon/CommandLineCategory.h"
+#include "llvm/Support/CommandLine.h"
 #include <algorithm>
 #include <list>
 #include <vector>
 
 using namespace jfs::core;
+
+namespace {
+// TODO: Once we figure out a good strategy we can make picking
+// them part of the API rather than a command line option.
+enum FreeVariableSortStrategyTy {
+  ALPHABETICAL,
+  NONE, // Warning: Will likely be non-deterministic
+};
+llvm::cl::opt<FreeVariableSortStrategyTy> FreeVariableSortStrategy(
+    "sort-free-variable-strategy",
+    llvm::cl::desc("Ordering of free variables in fuzzing buffer"),
+    llvm::cl::values(clEnumValN(ALPHABETICAL, "alphabetical",
+                                "Sort free variables alphabetically (default)"),
+                     clEnumValN(NONE, "none",
+                                "Do not order. This is non-deterministic")),
+    llvm::cl::init(ALPHABETICAL),
+    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+}
 
 namespace jfs {
 namespace fuzzingCommon {
@@ -150,11 +170,27 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   std::vector<Z3ASTHandle> orderedFreeVariableApps(freeVariableApps.cbegin(),
                                                    freeVariableApps.cend());
   // Now sort them
-  std::sort(orderedFreeVariableApps.begin(), orderedFreeVariableApps.end(),
-            [](const Z3ASTHandle& a, const Z3ASTHandle& b) {
-              return a.asApp().getFuncDecl().toStr() <
-                     b.asApp().getFuncDecl().toStr();
-            });
+
+  // Apply sort strategy.
+  // FIXME: This should be refactored so it can be changed by an API. Not
+  // on the command line.
+  switch (FreeVariableSortStrategy) {
+  case ALPHABETICAL: {
+    // This strategy scales very poorly with a large number of free variables.
+    std::sort(orderedFreeVariableApps.begin(), orderedFreeVariableApps.end(),
+              [](const Z3ASTHandle& a, const Z3ASTHandle& b) {
+                return a.asApp().getFuncDecl().toStr() <
+                       b.asApp().getFuncDecl().toStr();
+              });
+    break;
+  }
+  case NONE: {
+    // Do nothing. Warning this will lead to non-deterministic results
+    break;
+  }
+  default:
+    llvm_unreachable("Unknown sort strategy");
+  }
 
   // Now record the buffer assignment taking into account equalities
   // NOTE: This approach means that equalities that aren't used in
