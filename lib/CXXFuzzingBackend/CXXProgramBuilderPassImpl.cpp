@@ -408,7 +408,12 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
     for (unsigned index = 0; index < numKids; ++index) {
       // Add the operands from right to left so that they popped
       // off in left to right order
-      queue.push_front(nodeAsApp.getKid((numKids - 1) - index));
+      Z3ASTHandle childExpr = nodeAsApp.getKid((numKids - 1) - index);
+      // Only add the child expr to the queue if it has not been visited
+      // before. This is to avoid traversing down a large AST subtree
+      // that we've visited before.
+      if (exprToSymbolName.count(childExpr) == 0)
+        queue.push_front(childExpr);
     }
   }
   assert(traversingBackUpQueue.size() == 0);
