@@ -20,6 +20,7 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
   # so that we can use the runtime compiler rather than
   # the host compiler.
   include(ExternalProject)
+  include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
   option(BUILD_RUNTIME_TESTS_WITH_UBSAN "Build runtime tests with UBSan" ON)
   option(BUILD_RUNTIME_TESTS_WITH_ASAN "Build runtime tests with ASan" ON)
   # TODO: Validate this option is Release, Debug, or RelWithDebInfo
@@ -27,22 +28,8 @@ if (BUILD_RUNTIME_TESTS_WITH_RUNTIME_COMPILER)
   message(STATUS "Building runtime tests with runtime compiler")
 
   set(RUNTIME_TEST_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntime")
-  if ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
-    # HACK: This hack means that if the build generator for JFS
-    # is Make then `-j` value will passed through to make run
-    # to build the external project.
-    # See
-    # http://cmake.3232098.n2.nabble.com/How-would-I-use-parallel-make-on-ExternalProjects-td5609078.html
-    #
-    set(JFS_EXTERNAL_PROJECT_BUILD_COMMAND "BUILD_COMMAND" "$(MAKE)")
-  else()
-    include(ProcessorCount)
-    ProcessorCount(NUM_CPUS)
-    message(STATUS "Detected ${NUM_CPUS} CPUS. Will run this many jobs when building runtime tests")
-    set(JFS_EXTERNAL_PROJECT_BUILD_COMMAND
-      "BUILD_COMMAND" "${CMAKE_COMMAND}" "--build" "${RUNTIME_TEST_BUILD_DIR}" "--" "-j${NUM_CPUS}")
-  endif()
 
+  jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND)
 
   ExternalProject_Add(SMTLIBRuntimeTests
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIBRuntime"
