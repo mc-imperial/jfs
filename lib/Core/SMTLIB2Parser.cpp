@@ -12,6 +12,7 @@
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/Z3Node.h"
 #include "z3.h"
+#include "llvm/Support/MemoryBuffer.h"
 #include <assert.h>
 
 using namespace jfs::core;
@@ -87,6 +88,12 @@ JFSContextErrorHandler::ErrorAction
 SMTLIB2Parser::handleZ3error(JFSContext &ctx, Z3_error_code ec) {
   ++errorCount;
   return JFSContextErrorHandler::CONTINUE;
+}
+
+std::shared_ptr<Query>
+SMTLIB2Parser::parseMemoryBuffer(std::unique_ptr<llvm::MemoryBuffer> buffer) {
+  llvm::StringRef strRef = buffer->getBuffer();
+  return parseStr(strRef);
 }
 
 unsigned SMTLIB2Parser::getErrorCount() const { return errorCount; }

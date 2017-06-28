@@ -15,6 +15,10 @@
 #include "llvm/ADT/StringRef.h"
 #include <memory>
 
+namespace llvm {
+class MemoryBuffer;
+}
+
 namespace jfs {
 namespace core {
 class SMTLIB2Parser : public JFSContextErrorHandler {
@@ -23,6 +27,8 @@ public:
   ~SMTLIB2Parser();
   std::shared_ptr<Query> parseFile(llvm::StringRef fileName);
   std::shared_ptr<Query> parseStr(llvm::StringRef str);
+  std::shared_ptr<Query>
+  parseMemoryBuffer(std::unique_ptr<llvm::MemoryBuffer> buffer);
   virtual ErrorAction handleZ3error(JFSContext& ctx, Z3_error_code ec);
   unsigned getErrorCount() const;
   void resetErrorCount();

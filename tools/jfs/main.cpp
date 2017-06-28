@@ -14,12 +14,14 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
+#include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
 #include "jfs/Z3Backend/Z3Solver.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/raw_ostream.h"
 #include <string>
 
@@ -29,8 +31,8 @@ using namespace jfs::transform;
 
 namespace {
 llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
-                                    llvm::cl::desc("<input file>"),
-                                    llvm::cl::Required);
+                                         llvm::cl::desc("<input file>"),
+                                         llvm::cl::init("-"));
 llvm::cl::opt<unsigned> Verbosity("v", llvm::cl::desc("Verbosity level"),
                                   llvm::cl::init(0));
 
@@ -81,16 +83,18 @@ int main(int argc, char** argv) {
   JFSContextConfig ctxCfg;
   ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
-  if (!llvm::sys::fs::exists(InputFilename)) {
-    ctx.getErrorStream() << "(error \"" << InputFilename
-                         << " does not exist\")\n";
+  auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
+  if (auto error = bufferOrError.getError()) {
+    ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
+        InputFilename, error);
     return 1;
   }
+  auto buffer(std::move(bufferOrError.get()));
 
   ToolErrorHandler toolHandler;
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
-  auto query = parser.parseFile(InputFilename);
+  auto query = parser.parseMemoryBuffer(std::move(buffer));
   if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
