@@ -23,16 +23,19 @@ namespace {
 // them part of the API rather than a command line option.
 enum FreeVariableSortStrategyTy {
   ALPHABETICAL,
+  FIRST_OBSERVED,
   NONE, // Warning: Will likely be non-deterministic
 };
 llvm::cl::opt<FreeVariableSortStrategyTy> FreeVariableSortStrategy(
     "sort-free-variable-strategy",
     llvm::cl::desc("Ordering of free variables in fuzzing buffer"),
-    llvm::cl::values(clEnumValN(ALPHABETICAL, "alphabetical",
-                                "Sort free variables alphabetically (default)"),
-                     clEnumValN(NONE, "none",
-                                "Do not order. This is non-deterministic")),
-    llvm::cl::init(ALPHABETICAL),
+    llvm::cl::values(
+        clEnumValN(ALPHABETICAL, "alphabetical",
+                   "Sort free variables alphabetically (slow)"),
+        clEnumValN(FIRST_OBSERVED, "first_observed",
+                   "sort free variables by observation order (default)"),
+        clEnumValN(NONE, "none", "Do not order. This is non-deterministic")),
+    llvm::cl::init(FIRST_OBSERVED),
     llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 }
 
@@ -138,6 +141,9 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   // store the applications of it and assume that Z3, "uniques"
   // these for us.
   Z3ASTSet freeVariableApps;
+  // This contains the same ASTs as `freeVariableApps` but gives
+  // a deterministic ordering.
+  std::vector<Z3ASTHandle> orderedFreeVariableApps;
 
   std::list<Z3ASTHandle> workList;
   for (const auto& c : q.constraints) {
@@ -152,7 +158,13 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     }
     seenExpr.insert(node);
     if (node.isFreeVariable()) {
-      freeVariableApps.insert(node);
+      auto itSucPair = freeVariableApps.insert(node);
+      if (itSucPair.second && FreeVariableSortStrategy == FIRST_OBSERVED) {
+        // This is the first time we've observed this free variable
+        // and we are using the "first observed" ordering strategy
+        // so add the free variable to the ordered list.
+        orderedFreeVariableApps.push_back(node);
+      }
       continue;
     }
     if (!node.isApp()) {
@@ -167,8 +179,6 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
 
   // Now pick a deterministic ordering
   // TODO: We should think about what strategy is the best here.
-  std::vector<Z3ASTHandle> orderedFreeVariableApps(freeVariableApps.cbegin(),
-                                                   freeVariableApps.cend());
   // Now sort them
 
   // Apply sort strategy.
@@ -177,6 +187,10 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   switch (FreeVariableSortStrategy) {
   case ALPHABETICAL: {
     // This strategy scales very poorly with a large number of free variables.
+    assert(orderedFreeVariableApps.size() == 0);
+    orderedFreeVariableApps.insert(orderedFreeVariableApps.end(),
+                                   freeVariableApps.cbegin(),
+                                   freeVariableApps.cend());
     std::sort(orderedFreeVariableApps.begin(), orderedFreeVariableApps.end(),
               [](const Z3ASTHandle& a, const Z3ASTHandle& b) {
                 return a.asApp().getFuncDecl().toStr() <
@@ -185,7 +199,16 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     break;
   }
   case NONE: {
-    // Do nothing. Warning this will lead to non-deterministic results
+    assert(orderedFreeVariableApps.size() == 0);
+    orderedFreeVariableApps.insert(orderedFreeVariableApps.end(),
+                                   freeVariableApps.cbegin(),
+                                   freeVariableApps.cend());
+    // Add with non-deterministic ordering
+    break;
+  }
+  case FIRST_OBSERVED: {
+    // Nothing to do
+    assert(orderedFreeVariableApps.size() == freeVariableApps.size());
     break;
   }
   default:
