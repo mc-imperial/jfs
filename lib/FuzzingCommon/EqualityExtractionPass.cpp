@@ -108,19 +108,26 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
     return false;
   }
 
-  // Modify constraints
-  q.constraints = std::move(newConstraints);
-#ifndef NDEBUG
-  // Sanity check the equality sets
+  // Do we really want this? Preprocessing steps will probably mean
+  // we don't hit this case.
+  // Sanity check the equality sets. If there are multiple constants
+  // in an equality set we've found an inconsistency.
   for (auto mi = mapping.cbegin(), me = mapping.cend(); mi != me; ++mi) {
     auto equalitySet = mi->second;
     unsigned constantCount =
         std::count_if(equalitySet->cbegin(), equalitySet->cend(),
                       [](Z3ASTHandle e) { return e.isConstant(); });
-    assert(constantCount <= 1 &&
-           "Can't assert equality over multiple constants");
+    if (constantCount > 1) {
+      // Found inconsistency. Replace constraints with false
+      q.constraints.clear();
+      q.constraints.push_back(Z3ASTHandle(::Z3_mk_false(ctx.z3Ctx), ctx.z3Ctx));
+      return true;
+    }
   }
-#endif
+
+  // Modify constraints
+  q.constraints = std::move(newConstraints);
+
   if (ctx.getVerbosity() > 0) {
     auto &ss = ctx.getDebugStream();
     ss << "(" << getName() << "\n";

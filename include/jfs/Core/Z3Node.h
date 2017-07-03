@@ -184,6 +184,8 @@ public:
   bool isFreeVariable() const;
   Z3ASTHandle asAST() const;
   Z3SortHandle getSort() const;
+
+  bool getConstantAsUInt64(uint64_t* out) const;
 };
 
 // Specialise for Z3_func_decl

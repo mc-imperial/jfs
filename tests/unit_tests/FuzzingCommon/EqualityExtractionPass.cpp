@@ -103,3 +103,45 @@ TEST(EqualityExtractionPass, ThreeEqualVars) {
   // Check that remaining constraints are as expected
   ASSERT_EQ(query->constraints[0].toStr(), "(bvugt a #x03)");
 }
+
+TEST(EqualityExtractionPass, singleInconsistency) {
+  ParserHelper h;
+  auto query = h.getParser().parseStr(
+      R"(
+    (declare-const a (_ BitVec 8))
+    (assert (= a #x03))
+    (assert (= a #x04))
+    )");
+  ASSERT_EQ(h.getParser().getErrorCount(), 0UL);
+  ASSERT_NE(query.get(), nullptr);
+  ASSERT_EQ(query->constraints.size(), 2UL);
+  EqualityExtractionPass eep;
+  eep.run(*query);
+  ASSERT_EQ(query->constraints.size(), 1UL);
+  ASSERT_EQ(eep.equalities.size(), 1UL);
+  auto es = *(eep.equalities.cbegin());
+  // Expect that a, #x03, and #x04 are in equality set
+  ASSERT_EQ(es->size(), 3UL);
+  bool foundA = false;
+  bool found3 = false;
+  bool found4 = false;
+  for (const auto& e : *es) {
+    if (e.toStr() == "a")
+      foundA = true;
+    if (e.isConstant()) {
+      uint64_t value = 0;
+      bool success = e.asApp().getConstantAsUInt64(&value);
+      ASSERT_TRUE(success);
+      if (value == UINT64_C(3))
+        found3 = true;
+      if (value == UINT64_C(4))
+        found4 = true;
+    }
+  }
+  ASSERT_TRUE(foundA);
+  ASSERT_TRUE(found3);
+  ASSERT_TRUE(found4);
+  // Check that the constraints got replaced with false
+  ASSERT_EQ(query->constraints.size(), UINT64_C(1));
+  ASSERT_TRUE(query->constraints[0].isFalse());
+}

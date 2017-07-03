@@ -238,6 +238,19 @@ Z3ASTHandle Z3AppHandle::asAST() const {
 
 Z3SortHandle Z3AppHandle::getSort() const { return asAST().getSort(); }
 
+bool Z3AppHandle::getConstantAsUInt64(uint64_t* out) const {
+  if (!isConstant())
+    return false;
+
+  __uint64 value = 0;
+  static_assert(sizeof(__uint64) == sizeof(uint64_t), "size mismatch");
+  bool success =
+      Z3_get_numeral_uint64(context, ::Z3_app_to_ast(context, node), &value);
+  if (success && out)
+    *out = value;
+  return success;
+}
+
 // Z3FuncDeclHandle helpers
 
 Z3_decl_kind Z3FuncDeclHandle::getKind() const {

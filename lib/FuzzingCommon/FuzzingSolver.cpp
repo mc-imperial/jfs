@@ -82,6 +82,12 @@ std::unique_ptr<SolverResponse> FuzzingSolver::solve(const jfs::core::Query &q,
     return std::unique_ptr<SolverResponse>(
         new TrivialFuzzingSolverResponse(SolverResponse::SAT));
   }
+
+  // Check if equalities simplified to false
+  if (qCopy.constraints.size() == 1 && qCopy.constraints[0].isFalse()) {
+    return std::unique_ptr<SolverResponse>(
+        new TrivialFuzzingSolverResponse(SolverResponse::UNSAT));
+  }
   return fuzz(qCopy, produceModel, fai);
 }
 }

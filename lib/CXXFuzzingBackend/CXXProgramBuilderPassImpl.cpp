@@ -322,9 +322,8 @@ CXXProgramBuilderPassImpl::getBitVectorConstantStr(Z3AppHandle e) const {
 
   ss << "BitVector<" << bitWidth << ">(UINT64_C(";
   // Get constant
-  __uint64 value = 0; // Eurgh: Z3's API, can't use uint64_t
-  static_assert(sizeof(__uint64) == sizeof(uint64_t), "size mismatch");
-  bool success = Z3_get_numeral_uint64(e.getContext(), e.asAST(), &value);
+  uint64_t value = 0;
+  bool success = e.getConstantAsUInt64(&value);
   assert(success && "Failed to get numeral value");
   ss << value;
   ss << "))";
