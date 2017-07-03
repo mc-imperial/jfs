@@ -2,7 +2,9 @@
 ; RUN: %cxx-rt-syntax %t.cpp
 ; RUN: %FileCheck -input-file=%t.cpp %s
 (declare-fun a () Bool)
-; CHECK: bool [[SSA0:[a-z_0-9]+]] = !(a);
-; CHECK-NEXT: if ([[SSA0]]) {}
-(assert (not a))
+(declare-fun b () Bool)
+(assert (not (or a b)))
+; CHECK: bool [[SSA0:[a-z_0-9]+]] = a || b;
+; CHECK: bool [[SSA1:[a-z_0-9]+]] = !([[SSA0]]);
+; CHECK-NEXT: if ([[SSA1]]) {}
 (check-sat)

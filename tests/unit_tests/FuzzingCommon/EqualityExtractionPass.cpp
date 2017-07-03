@@ -104,6 +104,64 @@ TEST(EqualityExtractionPass, ThreeEqualVars) {
   ASSERT_EQ(query->constraints[0].toStr(), "(bvugt a #x03)");
 }
 
+TEST(EqualityExtractionPass, boolAssignmentTrue) {
+  ParserHelper h;
+  auto query = h.getParser().parseStr(
+      R"(
+    (declare-const a Bool)
+    (assert a)
+    )");
+  ASSERT_EQ(h.getParser().getErrorCount(), 0UL);
+  ASSERT_NE(query.get(), nullptr);
+  ASSERT_EQ(query->constraints.size(), 1UL);
+  EqualityExtractionPass eep;
+  eep.run(*query);
+  ASSERT_EQ(query->constraints.size(), 0UL);
+  ASSERT_EQ(eep.equalities.size(), 1UL);
+  auto es = *(eep.equalities.cbegin());
+  // Expect that a and true
+  ASSERT_EQ(es->size(), 2UL);
+  bool foundA = false;
+  bool foundTrue = false;
+  for (const auto& e : *es) {
+    if (e.toStr() == "a")
+      foundA = true;
+    if (e.isTrue())
+      foundTrue = true;
+  }
+  ASSERT_TRUE(foundA);
+  ASSERT_TRUE(foundTrue);
+}
+
+TEST(EqualityExtractionPass, boolAssignmentFalse) {
+  ParserHelper h;
+  auto query = h.getParser().parseStr(
+      R"(
+    (declare-const a Bool)
+    (assert (not a))
+    )");
+  ASSERT_EQ(h.getParser().getErrorCount(), 0UL);
+  ASSERT_NE(query.get(), nullptr);
+  ASSERT_EQ(query->constraints.size(), 1UL);
+  EqualityExtractionPass eep;
+  eep.run(*query);
+  ASSERT_EQ(query->constraints.size(), 0UL);
+  ASSERT_EQ(eep.equalities.size(), 1UL);
+  auto es = *(eep.equalities.cbegin());
+  // Expect that a and false
+  ASSERT_EQ(es->size(), 2UL);
+  bool foundA = false;
+  bool foundFalse = false;
+  for (const auto& e : *es) {
+    if (e.toStr() == "a")
+      foundA = true;
+    if (e.isFalse())
+      foundFalse = true;
+  }
+  ASSERT_TRUE(foundA);
+  ASSERT_TRUE(foundFalse);
+}
+
 TEST(EqualityExtractionPass, singleInconsistency) {
   ParserHelper h;
   auto query = h.getParser().parseStr(

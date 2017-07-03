@@ -35,42 +35,57 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
   for (auto bi = q.constraints.begin(), be = q.constraints.end(); bi != be;
        ++bi) {
     Z3ASTHandle node = *bi;
-    if (!node.isAppOf(Z3_OP_EQ)) {
-      // Not an equality. Keep this constraint
-      newConstraints.push_back(node);
-      continue;
-    }
     // Now pattern match the equality for the cases we
     // know we can help the fuzzer
     std::vector<Z3ASTHandle> equalOperands;
     equalOperands.reserve(2);
 
-    // Match
-    // `(= <variable> <variable>)`
-    // `(= <variable> <constant>)`
-    // TODO: Match `(= <variable> <sort cast of variable>)`
-    // TODO: Match `(= <sort cast of variable> <sort cast of variable>)`
-    Z3AppHandle eqApp = node.asApp();
-    assert(eqApp.getKind() == Z3_OP_EQ);
-    for (unsigned index = 0; index < eqApp.getNumKids(); ++index) {
-      Z3ASTHandle kid = eqApp.getKid(index);
-      if (kid.isFreeVariable()) {
-        // free variable
-        equalOperands.push_back(kid);
-        continue;
-      } else if (kid.isConstant()) {
-        // constant operand
-        equalOperands.push_back(kid);
-        continue;
+    if (node.isFreeVariable() && node.getSort().isBoolTy()) {
+      // Match
+      // `<variable>` where <variable> has boolean sort
+      // this is equivalent to
+      // `(= <variable> true)`
+      equalOperands.push_back(node);
+      equalOperands.push_back(Z3ASTHandle(::Z3_mk_true(ctx.z3Ctx), ctx.z3Ctx));
+    } else if (node.isAppOf(Z3_OP_NOT)) {
+      // Match
+      // `(not <variable>)` where <variable> has boolean sort
+      // this is equivalent to
+      // `(= <variable> false)`
+      Z3ASTHandle child = node.asApp().getKid(0);
+      if (child.isFreeVariable() && child.getSort().isBoolTy()) {
+        equalOperands.push_back(child);
+        equalOperands.push_back(
+            Z3ASTHandle(::Z3_mk_false(ctx.z3Ctx), ctx.z3Ctx));
       }
-      // Operand is not accepted.
-      // Failed to match the pattern
-      equalOperands.clear();
-      break;
+    } else if (node.isAppOf(Z3_OP_EQ)) {
+      // Match
+      // `(= <variable> <variable>)`
+      // `(= <variable> <constant>)`
+      // TODO: Match `(= <variable> <sort cast of variable>)`
+      // TODO: Match `(= <sort cast of variable> <sort cast of variable>)`
+      Z3AppHandle eqApp = node.asApp();
+      assert(eqApp.getKind() == Z3_OP_EQ);
+      for (unsigned index = 0; index < eqApp.getNumKids(); ++index) {
+        Z3ASTHandle kid = eqApp.getKid(index);
+        if (kid.isFreeVariable()) {
+          // free variable
+          equalOperands.push_back(kid);
+          continue;
+        } else if (kid.isConstant()) {
+          // constant operand
+          equalOperands.push_back(kid);
+          continue;
+        }
+        // Operand is not accepted.
+        // Failed to match the pattern
+        equalOperands.clear();
+        break;
+      }
     }
 
     if (equalOperands.size() == 0) {
-      // Equality didn't match pattern. Keep the constraint
+      // Equality didn't match patterns. Keep the constraint
       newConstraints.push_back(node);
       continue;
     }
@@ -78,7 +93,7 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
     // Pattern is matched. We won't keep this constraint
     // and will instead record this equality
 
-    // See if we have existing equality set
+    // See if we have an existing equality set
     std::shared_ptr<Z3ASTSet> equalitySet = nullptr;
     for (const auto &e : equalOperands) {
       auto kv = mapping.find(e);
