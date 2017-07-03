@@ -23,8 +23,8 @@ llvm::StringRef EqualityExtractionPass::getName() {
   return "EqualityExtractionPass";
 }
 
-bool EqualityExtractionPass::run(jfs::core::Query &q) {
-  JFSContext &ctx = q.getContext();
+bool EqualityExtractionPass::run(jfs::core::Query& q) {
+  JFSContext& ctx = q.getContext();
   mapping.clear();
   equalities.clear();
   // Maps from expr to set of equivalent expressions.
@@ -93,28 +93,67 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
     // Pattern is matched. We won't keep this constraint
     // and will instead record this equality
 
-    // See if we have an existing equality set
-    std::shared_ptr<Z3ASTSet> equalitySet = nullptr;
-    for (const auto &e : equalOperands) {
+    // See if we have an existing equality sets.
+    // If we match more than one equality set we need to destory
+    // one of the existing sets and do a union
+    std::vector<std::shared_ptr<Z3ASTSet>> matchingEqualitySets;
+    for (const auto& e : equalOperands) {
       auto kv = mapping.find(e);
       if (kv != mapping.end()) {
-        equalitySet = kv->second;
+        matchingEqualitySets.push_back(kv->second);
       }
     }
-    if (equalitySet.get() == nullptr) {
-      // Need to create new equality set
-      equalitySet = std::make_shared<Z3ASTSet>();
-      equalities.insert(equalitySet);
-    }
+    std::shared_ptr<Z3ASTSet> equalitySet = nullptr;
+    if (matchingEqualitySets.size() <= 1) {
+      if (matchingEqualitySets.size() == 0) {
+        // Simple case there are no existing equality sets
+        // that match. Need to create new equality set
+        equalitySet = std::make_shared<Z3ASTSet>();
+        equalities.insert(equalitySet);
+      } else {
+        // Simple case there is just one matching equality set
+        equalitySet = matchingEqualitySets[0];
+      }
+      for (auto ei = equalOperands.begin(), ee = equalOperands.end(); ei != ee;
+           ++ei) {
+        equalitySet->insert(*ei);
+      }
+      // Now insert the keys into the mapping
+      for (auto ei = equalOperands.begin(), ee = equalOperands.end(); ei != ee;
+           ++ei) {
+        mapping.insert(std::make_pair(*ei, equalitySet));
+      }
+    } else if (matchingEqualitySets.size() > 1) {
+      // Complex case. There are multiple existing equality
+      // sets that match. That means we need to union them
+      // and remove all the old mappings.
 
-    for (auto ei = equalOperands.begin(), ee = equalOperands.end(); ei != ee;
-         ++ei) {
-      equalitySet->insert(*ei);
-    }
-    // Now insert the keys into the mapping
-    for (auto ei = equalOperands.begin(), ee = equalOperands.end(); ei != ee;
-         ++ei) {
-      mapping.insert(std::make_pair(*ei, equalitySet));
+      // Find the largest set and make that the set which will
+      // become the union of the other sets.
+      equalitySet = *(std::max_element(matchingEqualitySets.begin(),
+                                       matchingEqualitySets.end(),
+                                       [](const std::shared_ptr<Z3ASTSet>& a,
+                                          const std::shared_ptr<Z3ASTSet>& b) {
+                                         return a->size() < b->size();
+                                       }));
+
+      // Add the equal operands
+      equalitySet->insert(equalOperands.begin(), equalOperands.end());
+
+      // Now union with other sets
+      for (const auto& otherEqualitySet : matchingEqualitySets) {
+        if (otherEqualitySet.get() == equalitySet.get()) {
+          continue;
+        }
+        // Union otherEqualitySet and equalitySet
+        equalitySet->insert(otherEqualitySet->begin(), otherEqualitySet->end());
+        // Erase the old equality set
+        equalities.erase(otherEqualitySet);
+      }
+      // Now update all mappings.
+      for (const auto& expr : *equalitySet) {
+        mapping[expr] = equalitySet;
+      }
     }
   }
 
@@ -144,15 +183,15 @@ bool EqualityExtractionPass::run(jfs::core::Query &q) {
   q.constraints = std::move(newConstraints);
 
   if (ctx.getVerbosity() > 0) {
-    auto &ss = ctx.getDebugStream();
+    auto& ss = ctx.getDebugStream();
     ss << "(" << getName() << "\n";
     ss << "  equality sets: " << equalities.size() << "\n";
     if (equalities.size() > 0) {
       ss << "  (\n";
-      for (auto &es : equalities) {
+      for (auto& es : equalities) {
         ss << "    (\n";
-        const Z3ASTSet &eqSet = *(es.get());
-        for (auto &ee : eqSet) {
+        const Z3ASTSet& eqSet = *(es.get());
+        for (auto& ee : eqSet) {
           ss << "      " << ee.toStr() << "\n";
         }
         ss << "    )\n";

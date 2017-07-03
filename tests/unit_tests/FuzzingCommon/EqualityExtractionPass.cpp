@@ -203,3 +203,47 @@ TEST(EqualityExtractionPass, singleInconsistency) {
   ASSERT_EQ(query->constraints.size(), UINT64_C(1));
   ASSERT_TRUE(query->constraints[0].isFalse());
 }
+
+TEST(EqualityExtractionPass, mergeSets) {
+  ParserHelper h;
+  auto query = h.getParser().parseStr(
+      R"(
+    (declare-const a Bool)
+    (declare-const b Bool)
+    (declare-const c Bool)
+    (declare-const d Bool)
+    ; The transitive closure of equalities
+    ; should be a single set
+    (assert (= a b))
+    (assert (= c d))
+    (assert (= a c))
+    )");
+  ASSERT_EQ(h.getParser().getErrorCount(), 0UL);
+  ASSERT_NE(query.get(), nullptr);
+  ASSERT_EQ(query->constraints.size(), 3UL);
+  EqualityExtractionPass eep;
+  eep.run(*query);
+  ASSERT_EQ(query->constraints.size(), 0UL);
+  ASSERT_EQ(eep.equalities.size(), 1UL);
+  auto es = *(eep.equalities.cbegin());
+  // Expect that a,b,c,d
+  ASSERT_EQ(es->size(), 4UL);
+  bool foundA = false;
+  bool foundB = false;
+  bool foundC = false;
+  bool foundD = false;
+  for (const auto& e : *es) {
+    if (e.toStr() == "a")
+      foundA = true;
+    if (e.toStr() == "b")
+      foundB = true;
+    if (e.toStr() == "c")
+      foundC = true;
+    if (e.toStr() == "d")
+      foundD = true;
+  }
+  ASSERT_TRUE(foundA);
+  ASSERT_TRUE(foundB);
+  ASSERT_TRUE(foundC);
+  ASSERT_TRUE(foundD);
+}
