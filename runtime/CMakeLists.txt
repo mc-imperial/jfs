@@ -13,13 +13,13 @@
 # build it in different configurations.
 include(ExternalProject)
 include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
-jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND)
 
 # TODO: Add more
 set(LibFuzzerBuildTypes RelWithDebInfo)
 
 foreach (buildType ${LibFuzzerBuildTypes})
   set(buildDir "${CMAKE_CURRENT_BINARY_DIR}/LibFuzzer_${buildType}")
+  jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
   ExternalProject_Add(BuildLibFuzzerRuntime_${buildType}
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/LibFuzzer"
     # FIXME: We should allow other generators
