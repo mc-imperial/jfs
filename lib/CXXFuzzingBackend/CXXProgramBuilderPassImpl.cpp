@@ -197,9 +197,9 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
       break;
     }
     case Z3_BV_SORT: {
-      ss << "makeBitVectorFrom";
-      ss << "<" << currentBufferBit << "," << endBufferBit << ">("
-         << bufferRefName << ")";
+      ss << "makeBitVectorFrom"
+         << "<" << be.getBitWidth() << ">(" << bufferRefName << ", "
+         << currentBufferBit << ", " << endBufferBit << ")";
       break;
     }
     default:

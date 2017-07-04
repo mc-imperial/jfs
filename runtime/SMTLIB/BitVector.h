@@ -591,25 +591,23 @@ public:
 
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
-// is [LOWBIT, HIGHBIT].
+// is [lowbit, highbit].
 // Implementation for native BitVector
-template <
-    uint64_t LOWBIT, uint64_t HIGHBIT,
-    typename std::enable_if<(((HIGHBIT - LOWBIT) + 1) <= 64)>::type* = nullptr>
-BitVector<((HIGHBIT - LOWBIT) + 1)>
-makeBitVectorFrom(BufferRef<const uint8_t> buffer) {
-  static_assert( HIGHBIT >= LOWBIT, "invalid LOWBIT and HIGHBIT");
-  size_t lowBitByte = LOWBIT / 8;
-  size_t highBitByte = HIGHBIT / 8;
-  size_t bitWidth = (HIGHBIT - LOWBIT) + 1;
+template <uint64_t BITWIDTH,
+          typename std::enable_if<(BITWIDTH <= 64)>::type* = nullptr>
+BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
+                                      uint64_t lowBit, uint64_t highBit) {
+  assert(highBit >= lowBit && "invalid lowBit and highBit");
+  const size_t lowBitByte = lowBit / 8;
+  const size_t highBitByte = highBit / 8;
   assert(lowBitByte < buffer.getSize());
   assert(highBitByte < buffer.getSize());
   uint64_t data = 0;
   uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
-  size_t shiftOffset = LOWBIT % 8;
+  const size_t shiftOffset = lowBit % 8;
   uint64_t dataMask = 0;
-  if (bitWidth < 64) {
-    dataMask = (UINT64_C(1) << bitWidth) - 1;
+  if (BITWIDTH < 64) {
+    dataMask = (UINT64_C(1) << BITWIDTH) - 1;
   } else {
     dataMask = UINT64_MAX;
   }
@@ -634,7 +632,7 @@ makeBitVectorFrom(BufferRef<const uint8_t> buffer) {
   }
   // Now mask off the data
   data &= dataMask;
-  return BitVector<((HIGHBIT - LOWBIT) + 1)>(data);
+  return BitVector<BITWIDTH>(data);
 }
 
 #endif

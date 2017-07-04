@@ -17,7 +17,7 @@ TEST(MakeFromBuffer, WholeBuffer64) {
   uint64_t* view = reinterpret_cast<uint64_t*>(buffer);
   *view = UINT64_MAX;
   BufferRef<const uint8_t> bufferRef(buffer, sizeof(uint64_t));
-  BitVector<64> x = makeBitVectorFrom<0,63>(bufferRef);
+  BitVector<64> x = makeBitVectorFrom<64>(bufferRef, 0, 63);
   ASSERT_EQ(x, UINT64_MAX);
 }
 
@@ -26,9 +26,9 @@ TEST(MakeFromBuffer, HalfBuffer64) {
   uint64_t* view = reinterpret_cast<uint64_t*>(buffer);
   *view = (UINT64_MAX << 32); // Lower half is zero, upper half is all ones
   BufferRef<const uint8_t> bufferRef(buffer, sizeof(uint64_t));
-  BitVector<32> lower = makeBitVectorFrom<0, 31>(bufferRef);
+  BitVector<32> lower = makeBitVectorFrom<32>(bufferRef, 0, 31);
   ASSERT_EQ(lower, 0);
-  BitVector<32> upper = makeBitVectorFrom<32, 63>(bufferRef);
+  BitVector<32> upper = makeBitVectorFrom<32>(bufferRef, 32, 63);
   ASSERT_EQ(upper, (UINT64_MAX >> 32));
 }
 
@@ -36,8 +36,9 @@ TEST(MakeFromBuffer, IndividualBits) {
   uint8_t buffer[1];
   buffer[0] = 0b10000001;
   BufferRef<const uint8_t> bufferRef(buffer, 1);
-#define CHECK_BIT(N, VALUE) BitVector<1> bit ## N = makeBitVectorFrom<N, N>(bufferRef); \
-  ASSERT_EQ(bit ## N, VALUE);
+#define CHECK_BIT(N, VALUE)                                                    \
+  BitVector<1> bit##N = makeBitVectorFrom<1>(bufferRef, N, N);                 \
+  ASSERT_EQ(bit##N, VALUE);
   CHECK_BIT(0, 1)
   CHECK_BIT(1, 0)
   CHECK_BIT(2, 0)
@@ -54,12 +55,12 @@ TEST(MakeFromBuffer, NonByteAlignedOffset) {
   buffer[0] = 0b11111111;
   buffer[1] = 0b00000011;
   BufferRef<const uint8_t> bufferRef(buffer, 2);
-  BitVector<2> a = makeBitVectorFrom<7,8>(bufferRef);
+  BitVector<2> a = makeBitVectorFrom<2>(bufferRef, 7, 8);
   ASSERT_EQ(a, 3);
-  BitVector<3> b = makeBitVectorFrom<7,9>(bufferRef);
+  BitVector<3> b = makeBitVectorFrom<3>(bufferRef, 7, 9);
   ASSERT_EQ(b, 7);
-  BitVector<4> c = makeBitVectorFrom<7,10>(bufferRef);
+  BitVector<4> c = makeBitVectorFrom<4>(bufferRef, 7, 10);
   ASSERT_EQ(c, 7);
-  BitVector<6> d = makeBitVectorFrom<10,15>(bufferRef);
+  BitVector<6> d = makeBitVectorFrom<6>(bufferRef, 10, 15);
   ASSERT_EQ(d, 0);
 }
