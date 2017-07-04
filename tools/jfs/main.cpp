@@ -47,14 +47,13 @@ enum BackendTy {
   CXX_FUZZING_SOLVER,
 };
 
-llvm::cl::opt<BackendTy>
-    SolverBackend(llvm::cl::desc("Solver backend"),
-                  llvm::cl::values(clEnumValN(DUMMY_FUZZING_SOLVER, "dummy",
-                                              "dummy solver (default)"),
-                                   clEnumValN(Z3_SOLVER, "z3", "Z3 backend"),
-                                   clEnumValN(CXX_FUZZING_SOLVER, "cxx",
-                                              "CXX fuzzing backend")),
-                  llvm::cl::init(DUMMY_FUZZING_SOLVER));
+llvm::cl::opt<BackendTy> SolverBackend(
+    llvm::cl::desc("Solver backend"),
+    llvm::cl::values(clEnumValN(DUMMY_FUZZING_SOLVER, "dummy", "dummy solver"),
+                     clEnumValN(Z3_SOLVER, "z3", "Z3 backend"),
+                     clEnumValN(CXX_FUZZING_SOLVER, "cxx",
+                                "CXX fuzzing backend (default)")),
+    llvm::cl::init(CXX_FUZZING_SOLVER));
 }
 
 void printVersion() {
