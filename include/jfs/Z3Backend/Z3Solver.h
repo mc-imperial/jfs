@@ -16,12 +16,17 @@
 namespace jfs {
 namespace z3Backend {
 class Z3Solver : public jfs::core::Solver {
+private:
+  Z3_context z3Ctx;
+  bool cancelled;
+
 public:
   Z3Solver(const jfs::core::SolverOptions&);
   ~Z3Solver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
   llvm::StringRef getName() const override;
+  void cancel() override;
 };
 }
 }

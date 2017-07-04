@@ -17,7 +17,11 @@ namespace jfs {
 namespace fuzzingCommon {
 
 class FuzzingAnalysisInfo;
+class FuzzingSolverImpl;
 class FuzzingSolver : public jfs::core::Solver {
+private:
+  std::unique_ptr<FuzzingSolverImpl> impl;
+
 protected:
   virtual std::unique_ptr<jfs::core::SolverResponse>
   fuzz(jfs::core::Query& q, bool produceModel,
@@ -28,6 +32,8 @@ public:
   ~FuzzingSolver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
+  void cancel() override;
+  friend class FuzzingSolverImpl;
 };
 }
 }

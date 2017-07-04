@@ -23,6 +23,10 @@ llvm::StringRef DummyFuzzingSolver::getName() const {
   return "DummyFuzzingSolver";
 }
 
+void DummyFuzzingSolver::cancel() {
+  // Dummy solver, so nothing to cancel
+}
+
 class DummyFuzzingSolverResponse : public SolverResponse {
 public:
   DummyFuzzingSolverResponse() : SolverResponse(SolverResponse::UNKNOWN) {}

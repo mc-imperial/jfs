@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Core/IfVerbose.h"
+#include <mutex>
 #include <vector>
 
 using namespace jfs::core;
@@ -23,19 +24,32 @@ private:
   // passes.  This means we can't have unique ownership (otherwise clients
   // would have to hold on to raw pointers which is dangerous).
   std::vector<std::shared_ptr<QueryPass>> passes;
+  std::mutex passesMutex;
   bool cancelled;
 
 public:
   QueryPassManagerImpl() : cancelled(false) {}
   ~QueryPassManagerImpl() {}
-  void add(std::shared_ptr<QueryPass> pass) { passes.push_back(pass); }
+  void add(std::shared_ptr<QueryPass> pass) {
+    std::lock_guard<std::mutex> lock(passesMutex);
+    passes.push_back(pass);
+  }
+  // The mutex currently exists just to prevent a race
+  // between cancel() and clear().
+  void clear() {
+    std::lock_guard<std::mutex> lock(passesMutex);
+    passes.clear();
+  }
   void cancel() {
+    std::lock_guard<std::mutex> lock(passesMutex);
     cancelled = true;
     for (auto const& pass : passes) {
       pass->cancel();
     }
   }
   void run(Query &q) {
+    // FIXME: We can't hold passesMutex here otherwise `cancel` will not
+    // cancel until this method finishes.
     JFSContext &ctx = q.getContext();
     IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager starting)\n";);
     for (auto pi = passes.begin(), pe = passes.end(); pi != pe; ++pi) {
@@ -66,5 +80,6 @@ QueryPassManager::~QueryPassManager() {}
 void QueryPassManager::add(std::shared_ptr<QueryPass> pass) { impl->add(pass); }
 void QueryPassManager::run(Query &q) { impl->run(q); }
 void QueryPassManager::cancel() { impl->cancel(); }
+void QueryPassManager::clear() { impl->clear(); }
 }
 }

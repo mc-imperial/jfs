@@ -11,6 +11,7 @@
 #ifndef JFS_CORE_SOLVER_H
 #define JFS_CORE_SOLVER_H
 #include "jfs/Core/Query.h"
+#include "jfs/Support/ICancellable.h"
 #include "llvm/ADT/StringRef.h"
 #include <memory>
 #include <stdint.h>
@@ -40,7 +41,7 @@ public:
   static llvm::StringRef getSatString(SolverSatisfiability);
 };
 
-class Solver {
+class Solver : public jfs::support::ICancellable {
 protected:
   const SolverOptions& options;
 

@@ -31,6 +31,7 @@ public:
   void add(std::shared_ptr<QueryPass> pass);
   void run(jfs::core::Query& q);
   void cancel() override;
+  void clear();
 };
 }
 }

@@ -9,15 +9,15 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Z3Backend/Z3Solver.h"
+#include "jfs/Core/IfVerbose.h"
 
 using namespace jfs::core;
 
 namespace jfs {
   namespace z3Backend {
 
-  Z3Solver::Z3Solver(const SolverOptions& options) : jfs::core::Solver(options) {
-
-  }
+  Z3Solver::Z3Solver(const SolverOptions& options)
+      : jfs::core::Solver(options), z3Ctx(nullptr), cancelled(false) {}
   Z3Solver::~Z3Solver() {}
 
   llvm::StringRef Z3Solver::getName() const { return "Z3Solver"; }
@@ -61,8 +61,16 @@ namespace jfs {
     }
   };
 
+  void Z3Solver::cancel() {
+    cancelled = true;
+    if (z3Ctx) {
+      ::Z3_interrupt(z3Ctx);
+    }
+  }
+
   std::unique_ptr<SolverResponse> Z3Solver::solve(const Query &q, bool getModel) {
-    Z3_context z3Ctx = q.getContext().z3Ctx;
+    JFSContext& ctx = q.getContext();
+    z3Ctx = q.getContext().z3Ctx;
     // Use default solver behaviour
     Z3SolverHandle solver = Z3SolverHandle(::Z3_mk_solver(z3Ctx), z3Ctx);
 
@@ -78,7 +86,11 @@ namespace jfs {
          ++ci) {
       ::Z3_solver_assert(z3Ctx, solver, *ci);
     }
-    Z3_lbool satisfiable = Z3_solver_check(z3Ctx, solver);
+    Z3_lbool satisfiable = Z3_L_UNDEF;
+    if (!cancelled) {
+      satisfiable = Z3_solver_check(z3Ctx, solver);
+    }
+
     SolverResponse::SolverSatisfiability sat = SolverResponse::UNKNOWN;
     switch (satisfiable) {
       case Z3_L_TRUE:
@@ -90,6 +102,11 @@ namespace jfs {
       default:
         sat = SolverResponse::UNKNOWN;
     }
+
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+    }
+
     std::unique_ptr<SolverResponse> resp(new Z3SolverResponse(sat));
     if (getModel && sat == SolverResponse::SAT) {
       // Add the model

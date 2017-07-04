@@ -12,6 +12,9 @@
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
+#include "jfs/Transform/QueryPass.h"
+#include <mutex>
+#include <unordered_set>
 
 using namespace jfs::core;
 using namespace jfs::fuzzingCommon;
@@ -30,9 +33,24 @@ public:
 };
 
 class CXXFuzzingSolverImpl {
+  std::mutex cancellablePassesMutex; // protects `cancellablePasses`
+  std::unordered_set<jfs::transform::QueryPass*> cancellablePasses;
+  bool cancelled = false;
+
 public:
+  llvm::StringRef getName() { return "CXXFuzzingSolver"; }
+  void cancel() {
+    cancelled = true;
+    // Cancel any active passes
+    {
+      std::lock_guard<std::mutex> lock(cancellablePassesMutex);
+      for (const auto& pass : cancellablePasses) {
+        pass->cancel();
+      }
+    }
+  }
   // FIXME: Should be const Query.
-  bool sortsAreSupported(Query &q) const {
+  bool sortsAreSupported(Query& q) {
     JFSContext &ctx = q.getContext();
     SortConformanceCheckPass p([&ctx](Z3SortHandle s) {
       switch (s.getKind()) {
@@ -60,7 +78,20 @@ public:
       }
       }
     });
+
+    {
+      // Make the pass cancellable
+      std::lock_guard<std::mutex> lock(cancellablePassesMutex);
+      cancellablePasses.insert(&p);
+    }
+
     p.run(q);
+
+    {
+      // The pass is done remove it from set of cancellable passes
+      std::lock_guard<std::mutex> lock(cancellablePassesMutex);
+      cancellablePasses.erase(&p);
+    }
     return p.predicateAlwaysHeld();
   }
 
@@ -80,9 +111,35 @@ public:
           new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
     }
 
+    // Cancellation point
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
+
     // TODO: Do fuzzing
     CXXProgramBuilderPass pbp(info, ctx);
+
+    {
+      // Make the pass cancellable
+      std::lock_guard<std::mutex> lock(cancellablePassesMutex);
+      cancellablePasses.insert(&pbp);
+    }
     pbp.run(q);
+    {
+      // Pass is done. Remove from the set of cancellable passes
+      std::lock_guard<std::mutex> lock(cancellablePassesMutex);
+      cancellablePasses.insert(&pbp);
+    }
+
+    // Cancellation point
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
+
     return std::unique_ptr<SolverResponse>(
         new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
   }
@@ -101,5 +158,12 @@ CXXFuzzingSolver::fuzz(jfs::core::Query &q, bool produceModel,
 }
 
 llvm::StringRef CXXFuzzingSolver::getName() const { return "CXXFuzzingSolver"; }
+
+void CXXFuzzingSolver::cancel() {
+  // Call parent
+  FuzzingSolver::cancel();
+  // Notify implementation
+  impl->cancel();
+}
 }
 }

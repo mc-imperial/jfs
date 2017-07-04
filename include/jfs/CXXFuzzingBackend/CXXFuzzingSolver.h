@@ -32,6 +32,7 @@ public:
   CXXFuzzingSolver(const jfs::core::SolverOptions&);
   ~CXXFuzzingSolver();
   llvm::StringRef getName() const override;
+  void cancel() override;
 };
 }
 }
