@@ -13,12 +13,14 @@
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/Transform/QueryPass.h"
+#include "jfs/Transform/QueryPassManager.h"
 #include <atomic>
 #include <mutex>
 #include <unordered_set>
 
 using namespace jfs::core;
 using namespace jfs::fuzzingCommon;
+using namespace jfs::transform;
 
 namespace jfs {
 namespace cxxfb {
@@ -54,7 +56,7 @@ public:
   // FIXME: Should be const Query.
   bool sortsAreSupported(Query& q) {
     JFSContext &ctx = q.getContext();
-    SortConformanceCheckPass p([&ctx](Z3SortHandle s) {
+    auto p = std::make_shared<SortConformanceCheckPass>([&ctx](Z3SortHandle s) {
       switch (s.getKind()) {
       case Z3_BOOL_SORT: {
         return true;
@@ -81,20 +83,22 @@ public:
       }
     });
 
+    QueryPassManager pm;
     {
       // Make the pass cancellable
       std::lock_guard<std::mutex> lock(cancellablePassesMutex);
-      cancellablePasses.insert(&p);
+      cancellablePasses.insert(p.get());
+      pm.add(p);
     }
 
-    p.run(q);
+    pm.run(q);
 
     {
       // The pass is done remove it from set of cancellable passes
       std::lock_guard<std::mutex> lock(cancellablePassesMutex);
-      cancellablePasses.erase(&p);
+      cancellablePasses.erase(p.get());
     }
-    return p.predicateAlwaysHeld();
+    return p->predicateAlwaysHeld();
   }
 
   std::unique_ptr<jfs::core::SolverResponse>
@@ -123,18 +127,20 @@ public:
     CHECK_CANCELLED();
 
     // TODO: Do fuzzing
-    CXXProgramBuilderPass pbp(info, ctx);
+    QueryPassManager pm;
+    auto pbp = std::make_shared<CXXProgramBuilderPass>(info, ctx);
 
     {
       // Make the pass cancellable
       std::lock_guard<std::mutex> lock(cancellablePassesMutex);
-      cancellablePasses.insert(&pbp);
+      cancellablePasses.insert(pbp.get());
+      pm.add(pbp);
     }
-    pbp.run(q);
+    pm.run(q);
     {
       // Pass is done. Remove from the set of cancellable passes
       std::lock_guard<std::mutex> lock(cancellablePassesMutex);
-      cancellablePasses.insert(&pbp);
+      cancellablePasses.insert(pbp.get());
     }
 
     // Cancellation point
