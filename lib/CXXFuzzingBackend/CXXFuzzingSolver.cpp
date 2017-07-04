@@ -105,6 +105,12 @@ public:
       ctx.getErrorStream() << "(error model generation not supported)\n";
       return nullptr;
     }
+#define CHECK_CANCELLED()                                                      \
+  if (cancelled) {                                                             \
+    IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n"); \
+    return std::unique_ptr<SolverResponse>(                                    \
+        new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));                \
+  }
 
     // Check types are supported
     if (!sortsAreSupported(q)) {
@@ -114,11 +120,7 @@ public:
     }
 
     // Cancellation point
-    if (cancelled) {
-      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
-      return std::unique_ptr<SolverResponse>(
-          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
-    }
+    CHECK_CANCELLED();
 
     // TODO: Do fuzzing
     CXXProgramBuilderPass pbp(info, ctx);
@@ -136,11 +138,7 @@ public:
     }
 
     // Cancellation point
-    if (cancelled) {
-      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
-      return std::unique_ptr<SolverResponse>(
-          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
-    }
+    CHECK_CANCELLED();
 
     return std::unique_ptr<SolverResponse>(
         new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
