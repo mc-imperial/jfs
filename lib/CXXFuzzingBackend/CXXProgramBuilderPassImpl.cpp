@@ -191,18 +191,20 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
     underlyingString.clear();
     switch (be.getSort().getKind()) {
     case Z3_BOOL_SORT: {
-      ss << "makeBoolFrom";
+      assert((endBufferBit - currentBufferBit + 1) <= 8);
+      ss << "makeBoolFrom(" << bufferRefName << ", " << currentBufferBit << ", "
+         << endBufferBit << ")";
       break;
     }
     case Z3_BV_SORT: {
       ss << "makeBitVectorFrom";
+      ss << "<" << currentBufferBit << "," << endBufferBit << ">("
+         << bufferRefName << ")";
       break;
     }
     default:
       llvm_unreachable("Unhandled sort");
     }
-    ss << "<" << currentBufferBit << "," << endBufferBit << ">("
-       << bufferRefName << ")";
     ss.flush();
     auto assignmentStmt = std::make_shared<CXXDeclAndDefnVarStatement>(
         cb.get(), assignmentTy, sanitizedSymbolName, underlyingString);
