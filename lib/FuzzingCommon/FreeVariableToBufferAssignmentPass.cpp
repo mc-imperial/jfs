@@ -303,7 +303,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     bufferAssignment->appendElement(el);
   }
 
-  if (ctx.getVerbosity() > 0) {
+  if (ctx.getVerbosity() > 1) {
     bufferAssignment->print(ctx.getDebugStream());
     constantAssignments->print(ctx.getDebugStream());
   }

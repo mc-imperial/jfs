@@ -195,7 +195,7 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
   // Modify constraints
   q.constraints = std::move(newConstraints);
 
-  if (ctx.getVerbosity() > 0) {
+  if (ctx.getVerbosity() > 1) {
     auto& ss = ctx.getDebugStream();
     ss << "(" << getName() << "\n";
     ss << "  equality sets: " << equalities.size() << "\n";
