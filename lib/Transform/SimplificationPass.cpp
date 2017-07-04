@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/SimplificationPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include <list>
 #include <vector>
 
@@ -18,12 +19,18 @@ namespace jfs {
 namespace transform {
 
 bool SimplificationPass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   bool changed = false;
   std::vector<Z3ASTHandle> newConstraints;
   newConstraints.reserve(q.constraints.size());
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
     Z3ASTHandle current = *ci;
+
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
 
     // TODO: Investigate the different simplifier parameters and see what
     // is relevant in our use case.

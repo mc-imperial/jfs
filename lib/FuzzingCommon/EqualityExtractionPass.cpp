@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/EqualityExtractionPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include <algorithm>
 #include <memory>
 
@@ -23,6 +24,11 @@ llvm::StringRef EqualityExtractionPass::getName() {
   return "EqualityExtractionPass";
 }
 
+void EqualityExtractionPass::cleanUp() {
+  mapping.clear();
+  equalities.clear();
+}
+
 bool EqualityExtractionPass::run(jfs::core::Query& q) {
   JFSContext& ctx = q.getContext();
   mapping.clear();
@@ -35,6 +41,13 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
   for (auto bi = q.constraints.begin(), be = q.constraints.end(); bi != be;
        ++bi) {
     Z3ASTHandle node = *bi;
+
+    // TODO: We probably should add more cancellation points.
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      cleanUp();
+      return false;
+    }
     // Now pattern match the equality for the cases we
     // know we can help the fuzzer
     std::vector<Z3ASTHandle> equalOperands;

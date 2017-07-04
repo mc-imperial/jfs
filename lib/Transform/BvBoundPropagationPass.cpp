@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/BvBoundPropagationPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeSet.h"
 #include <list>
@@ -21,8 +22,9 @@ namespace jfs {
 namespace transform {
 
 bool BvBoundPropagationPass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   std::vector<Z3ASTHandle> newConstraints;
-  Z3_context z3Ctx = q.getContext().z3Ctx;
+  z3Ctx = q.getContext().z3Ctx;
   // NOTE: This tactic only modifies bvule and bvsle so the SimplificationPass
   // needs to be run first.
   Z3TacticHandle propagateValuesTactic(
@@ -43,8 +45,19 @@ bool BvBoundPropagationPass::run(Query &q) {
     initialGoal.addFormula(*ci);
   }
 
+  if (cancelled) {
+    IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+    return false;
+  }
+
   // Apply the tactic
   Z3ApplyResultHandle result = propagateValuesTactic.apply(initialGoal);
+
+  if (cancelled) {
+    IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+    return false;
+  }
+
   // Collect all the resulting formulas
   result.collectAllFormulas(newConstraints);
 

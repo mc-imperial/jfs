@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/Z3NodeSet.h"
 #include <list>
 
@@ -22,6 +23,7 @@ SortConformanceCheckPass::SortConformanceCheckPass(
     : predicateHeld(false), predicate(predicate) {}
 
 bool SortConformanceCheckPass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   std::list<Z3ASTHandle> workList;
   for (auto bi = q.constraints.begin(), be = q.constraints.end(); bi != be;
        ++bi) {
@@ -34,6 +36,12 @@ bool SortConformanceCheckPass::run(Query &q) {
   while (workList.size() != 0) {
     Z3ASTHandle node = workList.front();
     workList.pop_front();
+
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
+
     if (visited.count(node) > 0) {
       // Already visited. Skip
       continue;

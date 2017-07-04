@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/SimpleContradictionsToFalsePass.h"
+#include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/Z3NodeSet.h"
 #include <vector>
 
@@ -16,7 +17,7 @@ using namespace jfs::core;
 
 namespace {
 // (a) and (not a) are contradictions
-bool simplifyTopLevelNot(Query &q) {
+bool simplifyTopLevelNot(Query& q, bool* cancelled) {
   Z3ASTSet seenExpr;
   seenExpr.reserve(q.constraints.size());
   const JFSContext &ctx = q.getContext();
@@ -32,6 +33,10 @@ bool simplifyTopLevelNot(Query &q) {
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
     Z3ASTHandle e = *ci;
+
+    if (*cancelled) {
+      return false;
+    }
 
     if (!e.isAppOf(Z3_OP_NOT))
       continue;
@@ -61,6 +66,11 @@ bool simplifyTopLevelNot(Query &q) {
   newConstraints.reserve(q.constraints.size() - newConstraints.size());
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
+
+    if (*cancelled) {
+      return false;
+    }
+
     if (contradictingConstraints.count(*ci) > 0) {
       // Replace contradicting constraint with false
       newConstraints.push_back(
@@ -79,11 +89,15 @@ namespace jfs {
 namespace transform {
 
 bool SimpleContradictionsToFalsePass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   bool changed = false;
   // TODO: Look for other patterns that are contradictions
-  changed |= simplifyTopLevelNot(q);
+  changed |= simplifyTopLevelNot(q, &cancelled);
   // TODO: Look for equality contradictions
   // TODO: Look for range contradictions. e.g. x> 5 and x < 5
+  if (cancelled) {
+    IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+  }
   return changed;
 }
 

@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/TrueConstraintEliminationPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include <vector>
 
 using namespace jfs::core;
@@ -17,11 +18,18 @@ namespace jfs {
 namespace transform {
 
 bool TrueConstraintEliminationPass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   bool changed = false;
   std::vector<Z3ASTHandle> newConstraints;
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
     Z3ASTHandle e = *ci;
+
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
+
     if (e.isTrue()) {
       // Don't add "true" to constraint set.
       changed = true;

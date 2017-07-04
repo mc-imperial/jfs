@@ -18,5 +18,6 @@ jfs_add_component(JFSTransform
   SimplificationPass.cpp
   StandardPasses.cpp
   TrueConstraintEliminationPass.cpp
+  Z3QueryPass.cpp
 )
 target_link_libraries(JFSTransform PUBLIC JFSCore)

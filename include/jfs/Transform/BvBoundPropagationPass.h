@@ -11,13 +11,13 @@
 #ifndef JFS_TRANSFORM_BV_BOUND_PROPAGATION_PASS_H
 #define JFS_TRANSFORM_BV_BOUND_PROPAGATION_PASS_H
 #include "jfs/Core/Query.h"
-#include "jfs/Transform/QueryPass.h"
+#include "jfs/Transform/Z3QueryPass.h"
 
 namespace jfs {
 namespace transform {
 // NOTE: This pass only supports bvule and bvsle
 // currently so simplifier must be run first.
-class BvBoundPropagationPass : public QueryPass {
+class BvBoundPropagationPass : public Z3QueryPass {
 public:
   BvBoundPropagationPass() {}
   ~BvBoundPropagationPass() {}

@@ -8,21 +8,22 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef JFS_TRANSFORM_CONSTANT_PROPAGATION_PASS_H
-#define JFS_TRANSFORM_CONSTANT_PROPAGATION_PASS_H
+#ifndef JFS_TRANSFORM_Z3_QUERY_PASS_H
+#define JFS_TRANSFORM_Z3_QUERY_PASS_H
 #include "jfs/Core/Query.h"
-#include "jfs/Transform/Z3QueryPass.h"
+#include "jfs/Transform/QueryPass.h"
 
 namespace jfs {
 namespace transform {
-class ConstantPropagationPass : public Z3QueryPass {
+class Z3QueryPass : public QueryPass {
+protected:
+  Z3_context z3Ctx;
+
 public:
-  ConstantPropagationPass() {}
-  ~ConstantPropagationPass() {}
-  bool run(jfs::core::Query& q) override;
-  virtual llvm::StringRef getName() override;
+  Z3QueryPass() : z3Ctx(nullptr) {}
+  ~Z3QueryPass() {}
+  void cancel() override;
 };
 }
 }
-
 #endif

@@ -26,6 +26,9 @@ namespace fuzzingCommon {
 // equal. Instead of enforcing them as branch conditions we can construct the
 // input program such the equality always holds in some simple cases.
 class EqualityExtractionPass : public jfs::transform::QueryPass {
+private:
+  void cleanUp();
+
 public:
   // TODO: Put this behind an interface once we know what the requirements
   // are.

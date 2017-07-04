@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/Z3NodeSet.h"
 #include "jfs/FuzzingCommon/CommandLineCategory.h"
 #include "llvm/Support/CommandLine.h"
@@ -152,6 +153,13 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   while (workList.size() > 0) {
     Z3ASTHandle node = workList.front();
     workList.pop_front();
+
+    // TODO: Should probably add more cancellation points.
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
+
     if (seenExpr.count(node) > 0) {
       // Visited this Expr before
       continue;
@@ -224,6 +232,11 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   constantAssignments = std::make_shared<ConstantAssignment>();
   Z3ASTSet alreadyAssigned; // Already assigned to constant map or buffer
   for (const auto& freeVarApp : orderedFreeVariableApps) {
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
+
     if (alreadyAssigned.count(freeVarApp) > 0) {
       // We have already assigned this variable a position
       // in the buffer.
@@ -294,7 +307,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     bufferAssignment->print(ctx.getDebugStream());
     constantAssignments->print(ctx.getDebugStream());
   }
-  return true;
+  return false;
 }
 }
 }

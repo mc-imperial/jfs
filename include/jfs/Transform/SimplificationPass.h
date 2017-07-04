@@ -11,11 +11,11 @@
 #ifndef JFS_TRANSFORM_SIMPLIFICATION_PASS_H
 #define JFS_TRANSFORM_SIMPLIFICATION_PASS_H
 #include "jfs/Core/Query.h"
-#include "jfs/Transform/QueryPass.h"
+#include "jfs/Transform/Z3QueryPass.h"
 
 namespace jfs {
 namespace transform {
-class SimplificationPass : public QueryPass {
+class SimplificationPass : public Z3QueryPass {
 public:
   SimplificationPass() {}
   ~SimplificationPass() {}

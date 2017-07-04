@@ -16,18 +16,25 @@ using namespace jfs::core;
 
 namespace jfs {
 namespace transform {
-class QueryPassManagerImpl {
+class QueryPassManagerImpl : public jfs::support::ICancellable {
 private:
   // This not a std::unique_ptr<QueryPass> because some passes just collect
   // information so clients will need to hold on to a pointer to those
   // passes.  This means we can't have unique ownership (otherwise clients
   // would have to hold on to raw pointers which is dangerous).
   std::vector<std::shared_ptr<QueryPass>> passes;
+  bool cancelled;
 
 public:
-  QueryPassManagerImpl() {}
+  QueryPassManagerImpl() : cancelled(false) {}
   ~QueryPassManagerImpl() {}
   void add(std::shared_ptr<QueryPass> pass) { passes.push_back(pass); }
+  void cancel() {
+    cancelled = true;
+    for (auto const& pass : passes) {
+      pass->cancel();
+    }
+  }
   void run(Query &q) {
     JFSContext &ctx = q.getContext();
     IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager starting)\n";);
@@ -39,7 +46,10 @@ public:
                  ctx.getDebugStream()
                      << ";Before \"" << (*pi)->getName() << "\n"
                      << q << "\n";);
-
+      if (cancelled) {
+        IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager cancelled)\n";);
+        return;
+      }
       // Now run the pass
       (*pi)->run(q);
 
@@ -55,5 +65,6 @@ QueryPassManager::QueryPassManager() : impl(new QueryPassManagerImpl()) {}
 QueryPassManager::~QueryPassManager() {}
 void QueryPassManager::add(std::shared_ptr<QueryPass> pass) { impl->add(pass); }
 void QueryPassManager::run(Query &q) { impl->run(q); }
+void QueryPassManager::cancel() { impl->cancel(); }
 }
 }

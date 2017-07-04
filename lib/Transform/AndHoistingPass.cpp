@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/AndHoistingPass.h"
+#include "jfs/Core/IfVerbose.h"
 #include <list>
 #include <vector>
 
@@ -18,6 +19,7 @@ namespace jfs {
 namespace transform {
 
 bool AndHoistingPass::run(Query &q) {
+  JFSContext& ctx = q.getContext();
   bool changed = false;
   std::vector<Z3ASTHandle> newConstraints;
   newConstraints.reserve(q.constraints.size());
@@ -29,6 +31,10 @@ bool AndHoistingPass::run(Query &q) {
   while (workList.size() > 0) {
     Z3ASTHandle e = workList.front();
     workList.pop_front();
+    if (cancelled) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+      return false;
+    }
     if (!e.isAppOf(Z3_OP_AND)) {
       // Not an logical and application.
       // Just add as a constraint
@@ -52,7 +58,12 @@ bool AndHoistingPass::run(Query &q) {
     }
   }
 
-  // We didn't do any hoisting so leave Query untouched.
+  // We didn't do any hoisting or a cancel was triggered
+  // so leave Query untouched.
+  if (cancelled) {
+    IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");
+    return false;
+  }
   if (!changed)
     return false;
 
