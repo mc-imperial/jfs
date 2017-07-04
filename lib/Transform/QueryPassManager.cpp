@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Core/IfVerbose.h"
+#include <atomic>
 #include <mutex>
 #include <vector>
 
@@ -25,7 +26,7 @@ private:
   // would have to hold on to raw pointers which is dangerous).
   std::vector<std::shared_ptr<QueryPass>> passes;
   std::mutex passesMutex;
-  bool cancelled;
+  std::atomic<bool> cancelled;
 
 public:
   QueryPassManagerImpl() : cancelled(false) {}

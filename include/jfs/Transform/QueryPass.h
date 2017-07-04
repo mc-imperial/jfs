@@ -13,12 +13,13 @@
 #include "jfs/Core/Query.h"
 #include "jfs/Support/ICancellable.h"
 #include "llvm/ADT/StringRef.h"
+#include <atomic>
 
 namespace jfs {
 namespace transform {
 class QueryPass : jfs::support::ICancellable {
 protected:
-  bool cancelled;
+  std::atomic<bool> cancelled;
 
 public:
   QueryPass() : cancelled(false) {}

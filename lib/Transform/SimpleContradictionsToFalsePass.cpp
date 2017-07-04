@@ -17,7 +17,7 @@ using namespace jfs::core;
 
 namespace {
 // (a) and (not a) are contradictions
-bool simplifyTopLevelNot(Query& q, bool* cancelled) {
+bool simplifyTopLevelNot(Query& q, std::atomic<bool>* cancelled) {
   Z3ASTSet seenExpr;
   seenExpr.reserve(q.constraints.size());
   const JFSContext &ctx = q.getContext();

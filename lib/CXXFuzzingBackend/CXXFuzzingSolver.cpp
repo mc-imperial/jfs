@@ -13,6 +13,7 @@
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/Transform/QueryPass.h"
+#include <atomic>
 #include <mutex>
 #include <unordered_set>
 
@@ -35,9 +36,10 @@ public:
 class CXXFuzzingSolverImpl {
   std::mutex cancellablePassesMutex; // protects `cancellablePasses`
   std::unordered_set<jfs::transform::QueryPass*> cancellablePasses;
-  bool cancelled = false;
+  std::atomic<bool> cancelled;
 
 public:
+  CXXFuzzingSolverImpl() : cancelled(false) {}
   llvm::StringRef getName() { return "CXXFuzzingSolver"; }
   void cancel() {
     cancelled = true;

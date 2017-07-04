@@ -12,6 +12,7 @@
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include <atomic>
 #include <mutex>
 
 using namespace jfs::core;
@@ -38,7 +39,7 @@ public:
 // FIXME: This complication exists because I don't want to expose the
 // implementation details to the client. This might be too complicated.
 class FuzzingSolverImpl {
-  bool cancelled;
+  std::atomic<bool> cancelled;
   FuzzingSolver* interF;
   std::mutex cancellablePassManagerMutex;
   QueryPassManager* cancellablePassManager;
