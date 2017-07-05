@@ -30,6 +30,7 @@ public:
   // will never be called.
   ScopedTimer(uint64_t maxTime, CallBackTy callBack);
   ~ScopedTimer();
+  uint64_t getRemainingTime() const;
 };
 }
 }

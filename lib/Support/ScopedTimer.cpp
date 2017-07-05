@@ -24,12 +24,11 @@ private:
   std::condition_variable cv;
   std::mutex cvMutex;
   bool realWakeUp;
+  std::chrono::time_point<std::chrono::steady_clock> startTime;
+  std::chrono::time_point<std::chrono::steady_clock> endTime;
 
 public:
   void waiterFunction() {
-    std::chrono::seconds timeout(maxTime);
-    auto startTime = std::chrono::steady_clock::now();
-    auto endTime = startTime + timeout;
     std::unique_lock<std::mutex> lock(cvMutex);
     // Loop just in case there are spurious wake ups
     while (true) {
@@ -47,6 +46,10 @@ public:
   ScopedTimerImpl(uint64_t maxTime, ScopedTimer::CallBackTy callBack)
       : maxTime(maxTime), callBack(callBack), waiter(nullptr),
         realWakeUp(false) {
+    startTime = std::chrono::steady_clock::now();
+    std::chrono::seconds timeout(maxTime);
+    endTime = startTime + timeout;
+
     if (maxTime == 0) {
       return;
     }
@@ -63,6 +66,18 @@ public:
       waiter->join();
     }
   }
+
+  uint64_t getRemainingTime() const {
+    auto now = std::chrono::steady_clock::now();
+    auto remaining = endTime - now;
+    auto remainingAsSecs =
+        std::chrono::duration_cast<std::chrono::seconds>(remaining);
+    int64_t remainingNativeTy = remainingAsSecs.count();
+    if (remainingNativeTy < 0) {
+      return 0;
+    }
+    return remainingNativeTy;
+  }
 };
 
 ScopedTimer::ScopedTimer(uint64_t maxTime, CallBackTy callBack)
@@ -70,6 +85,10 @@ ScopedTimer::ScopedTimer(uint64_t maxTime, CallBackTy callBack)
 
 ScopedTimer::~ScopedTimer() {
   // Let ~ScopedTimerImpl() do the work
+}
+
+uint64_t ScopedTimer::getRemainingTime() const {
+  return impl->getRemainingTime();
 }
 }
 }
