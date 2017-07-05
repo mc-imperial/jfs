@@ -584,6 +584,32 @@ BV_UNARY_OP(visitBvNot, bvnot)
     insertSSAStmt(e.asAST(), ss.str());                                        \
   }
 
+#define BV_NARY_OP(NAME, CALL_NAME)                                            \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    const unsigned numArgs = e.getNumKids();                                   \
+    assert(numArgs >= 2);                                                      \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    auto arg0 = e.getKid(0);                                                   \
+    /* Correct number of opening braces*/                                      \
+    for (unsigned index = 2; index < numArgs; ++index) {                       \
+      ss << "(";                                                               \
+    }                                                                          \
+                                                                               \
+    for (unsigned index = 1; index < numArgs; ++index) {                       \
+      if (index == 1) {                                                        \
+        ss << getSymbolFor(arg0);                                              \
+      }                                                                        \
+      auto argN = e.getKid(index);                                             \
+      if (index > 1) {                                                         \
+        /* Closing brace for previous operation */                             \
+        ss << ")";                                                             \
+      }                                                                        \
+      ss << "." #CALL_NAME "(" << getSymbolFor(argN) << ")";                   \
+    }                                                                          \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+
 BV_BIN_OP(visitBvAdd, bvadd)
 BV_BIN_OP(visitBvSub, bvsub)
 BV_BIN_OP(visitBvMul, bvmul)
@@ -601,9 +627,6 @@ BV_BIN_OP(visitBvSLT, bvslt)
 BV_BIN_OP(visitBvUGT, bvugt)
 BV_BIN_OP(visitBvSGT, bvsgt)
 BV_BIN_OP(visitBvComp, bvcomp)
-BV_BIN_OP(visitBvAnd, bvand)
-BV_BIN_OP(visitBvOr, bvor)
-BV_BIN_OP(visitBvXor, bvxor)
 BV_BIN_OP(visitBvNand, bvnand)
 BV_BIN_OP(visitBvNor, bvnor)
 BV_BIN_OP(visitBvXnor, bvxnor)
@@ -611,7 +634,16 @@ BV_BIN_OP(visitBvShl, bvshl)
 BV_BIN_OP(visitBvLShr, bvlshr)
 BV_BIN_OP(visitBvAShr, bvashr)
 
+// Bitvector NAry operations. Even though in SMT-LIBv2 these ops are binary Z3
+// allows n-ary versions which could be introduced by its simplication steps.
+// We assume these operations are associative so it doesn't matter the order we
+// apply them in.
+BV_NARY_OP(visitBvOr, bvor)
+BV_NARY_OP(visitBvAnd, bvand)
+BV_NARY_OP(visitBvXor, bvxor)
+
 #undef BV_BIN_OP
+#undef BV_NARY_OP
 
 void CXXProgramBuilderPassImpl::visitBvRotateLeft(Z3AppHandle e) {
   // The rotation amount is not an argument
