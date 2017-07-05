@@ -16,8 +16,9 @@ using namespace jfs::core;
 namespace jfs {
   namespace z3Backend {
 
-  Z3Solver::Z3Solver(const SolverOptions& options)
-      : jfs::core::Solver(options), z3Ctx(nullptr), cancelled(false) {}
+  Z3Solver::Z3Solver(std::unique_ptr<SolverOptions> options)
+      : jfs::core::Solver(std::move(options)), z3Ctx(nullptr),
+        cancelled(false) {}
   Z3Solver::~Z3Solver() {}
 
   llvm::StringRef Z3Solver::getName() const { return "Z3Solver"; }
@@ -75,11 +76,12 @@ namespace jfs {
     Z3SolverHandle solver = Z3SolverHandle(::Z3_mk_solver(z3Ctx), z3Ctx);
 
     // Set solver timeout. Assume default is no timeout.
-    if (options.maxTime > 0) {
+    if (options->maxTime > 0) {
       Z3ParamsHandle params = Z3ParamsHandle(::Z3_mk_params(z3Ctx), z3Ctx);
       Z3_symbol timeoutSymbol = ::Z3_mk_string_symbol(z3Ctx, "timeout");
       // Z3's timeout is in milliseconds.
-      ::Z3_params_set_uint(z3Ctx, params, timeoutSymbol, options.maxTime *1000);
+      ::Z3_params_set_uint(z3Ctx, params, timeoutSymbol,
+                           options->maxTime * 1000);
       ::Z3_solver_set_params(z3Ctx, solver, params);
     }
     for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;

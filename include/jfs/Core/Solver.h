@@ -11,6 +11,7 @@
 #ifndef JFS_CORE_SOLVER_H
 #define JFS_CORE_SOLVER_H
 #include "jfs/Core/Query.h"
+#include "jfs/Core/SolverOptions.h"
 #include "jfs/Support/ICancellable.h"
 #include "llvm/ADT/StringRef.h"
 #include <memory>
@@ -19,14 +20,6 @@
 namespace jfs {
 namespace core {
 
-// TODO: Implement LLVM style RTTI so we
-// can have subclasses with solver specific
-// options.
-class SolverOptions {
-public:
-  // max time in seconds. Zero means no timeout
-  uint64_t maxTime = 0;
-};
 
 class Model {
   virtual Z3ASTHandle getAssignment(Z3FuncDeclHandle) = 0;
@@ -43,10 +36,10 @@ public:
 
 class Solver : public jfs::support::ICancellable {
 protected:
-  const SolverOptions& options;
+  std::unique_ptr<SolverOptions> options;
 
 public:
-  Solver(const SolverOptions&);
+  Solver(std::unique_ptr<SolverOptions> options);
   virtual ~Solver();
   Solver(const Solver&) = delete;
   Solver(const Solver&&) = delete;
@@ -56,7 +49,7 @@ public:
   // be available.
   virtual std::unique_ptr<SolverResponse> solve(const Query& q,
                                                 bool produceModel) = 0;
-  const SolverOptions& getOptions() const;
+  const SolverOptions* getOptions() const;
   virtual llvm::StringRef getName() const = 0;
 };
 }

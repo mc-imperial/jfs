@@ -24,7 +24,7 @@ protected:
        std::shared_ptr<FuzzingAnalysisInfo> info) override;
 
 public:
-  DummyFuzzingSolver(const jfs::core::SolverOptions&);
+  DummyFuzzingSolver(std::unique_ptr<jfs::core::SolverOptions> options);
   ~DummyFuzzingSolver();
   llvm::StringRef getName() const override;
   void cancel() override;

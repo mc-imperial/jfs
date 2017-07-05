@@ -8,8 +8,8 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
+#include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
@@ -95,19 +95,25 @@ int main(int argc, char** argv) {
 
   // Create solver
   // TODO: Refactor this so it can be used elsewhere
-  SolverOptions solverOptions;
-  solverOptions.maxTime = MaxTime; // FIXME: This is wrong
   std::unique_ptr<Solver> solver;
   switch (SolverBackend) {
-  case DUMMY_FUZZING_SOLVER:
-    solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(solverOptions));
+  case DUMMY_FUZZING_SOLVER: {
+    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
+    solver.reset(
+        new jfs::fuzzingCommon::DummyFuzzingSolver(std::move(solverOptions)));
     break;
-  case Z3_SOLVER:
-    solver.reset(new jfs::z3Backend::Z3Solver(solverOptions));
+  }
+  case Z3_SOLVER: {
+    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
+    solver.reset(new jfs::z3Backend::Z3Solver(std::move(solverOptions)));
     break;
-  case CXX_FUZZING_SOLVER:
-    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(solverOptions));
+  }
+  case CXX_FUZZING_SOLVER: {
+    std::unique_ptr<SolverOptions> solverOptions(
+        new jfs::cxxfb::CXXFuzzingSolverOptions());
+    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions)));
     break;
+  }
   default:
     llvm_unreachable("unknown solver backend");
   }

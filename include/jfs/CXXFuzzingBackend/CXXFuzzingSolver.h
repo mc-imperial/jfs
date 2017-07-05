@@ -29,7 +29,7 @@ protected:
        std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info) override;
 
 public:
-  CXXFuzzingSolver(const jfs::core::SolverOptions&);
+  CXXFuzzingSolver(std::unique_ptr<jfs::core::SolverOptions> options);
   ~CXXFuzzingSolver();
   llvm::StringRef getName() const override;
   void cancel() override;

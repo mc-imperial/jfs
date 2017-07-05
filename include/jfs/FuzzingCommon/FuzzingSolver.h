@@ -28,7 +28,7 @@ protected:
        std::shared_ptr<FuzzingAnalysisInfo> info) = 0;
 
 public:
-  FuzzingSolver(const jfs::core::SolverOptions&);
+  FuzzingSolver(std::unique_ptr<jfs::core::SolverOptions> options);
   ~FuzzingSolver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;

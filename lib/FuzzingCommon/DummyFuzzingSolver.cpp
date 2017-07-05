@@ -14,8 +14,8 @@ using namespace jfs::core;
 
 namespace jfs {
 namespace fuzzingCommon {
-DummyFuzzingSolver::DummyFuzzingSolver(const SolverOptions &opts)
-    : FuzzingSolver(opts) {}
+DummyFuzzingSolver::DummyFuzzingSolver(std::unique_ptr<SolverOptions> options)
+    : FuzzingSolver(std::move(options)) {}
 
 DummyFuzzingSolver::~DummyFuzzingSolver() {}
 

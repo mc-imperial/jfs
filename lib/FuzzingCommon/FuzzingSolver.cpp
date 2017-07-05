@@ -141,8 +141,8 @@ public:
 #undef CHECK_CANCELLED
 };
 
-FuzzingSolver::FuzzingSolver(const SolverOptions& opts)
-    : Solver(opts), impl(new FuzzingSolverImpl(this)) {}
+FuzzingSolver::FuzzingSolver(std::unique_ptr<SolverOptions> options)
+    : Solver(std::move(options)), impl(new FuzzingSolverImpl(this)) {}
 FuzzingSolver::~FuzzingSolver() {}
 std::unique_ptr<jfs::core::SolverResponse>
 FuzzingSolver::solve(const jfs::core::Query& q, bool produceModel) {

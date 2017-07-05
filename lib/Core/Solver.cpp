@@ -13,11 +13,12 @@
 namespace jfs {
   namespace core {
 
-  Solver::Solver(const SolverOptions &options) : options(options) {}
+  Solver::Solver(std::unique_ptr<SolverOptions> options)
+      : options(std::move(options)) {}
 
   Solver::~Solver() {}
 
-  const SolverOptions &Solver::getOptions() const { return options; }
+  const SolverOptions* Solver::getOptions() const { return options.get(); }
 
   llvm::StringRef SolverResponse::getSatString(SolverSatisfiability sat) {
     switch (sat) {

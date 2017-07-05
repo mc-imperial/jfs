@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
+#include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
@@ -151,8 +152,9 @@ public:
   }
 };
 
-CXXFuzzingSolver::CXXFuzzingSolver(const jfs::core::SolverOptions &options)
-    : jfs::fuzzingCommon::FuzzingSolver(options),
+CXXFuzzingSolver::CXXFuzzingSolver(
+    std::unique_ptr<jfs::core::SolverOptions> options)
+    : jfs::fuzzingCommon::FuzzingSolver(std::move(options)),
       impl(new CXXFuzzingSolverImpl()) {}
 
 CXXFuzzingSolver::~CXXFuzzingSolver() {}

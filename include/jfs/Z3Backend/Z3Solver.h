@@ -21,7 +21,7 @@ private:
   bool cancelled;
 
 public:
-  Z3Solver(const jfs::core::SolverOptions&);
+  Z3Solver(std::unique_ptr<jfs::core::SolverOptions> options);
   ~Z3Solver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
