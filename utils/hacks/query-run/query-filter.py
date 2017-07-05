@@ -56,6 +56,19 @@ def filter_gt_exec_time(run_info, min_time):
     _logger.info('Removed {} queries'.format(original_count - len(d.keys())))
     return d
 
+def filter_lt_exec_time(run_info, max_time):
+    _logger.info('Keeping only results that had exec time < {}'.format(max_time))
+    assert isinstance(run_info, dict)
+    assert isinstance(max_time, float)
+    original_count = len(run_info.keys())
+    d = dict()
+    for query_name, data in run_info.items():
+        exec_time = data['wallclock_time']
+        if exec_time < max_time:
+            d[query_name] = data
+    _logger.info('Removed {} queries'.format(original_count - len(d.keys())))
+    return d
+
 def filter_n_slowest(run_info, n):
     _logger.info('Keeping only {} slowest queries: {}'.format(n))
     original_count = len(run_info.keys())
@@ -257,6 +270,17 @@ def filter_uses_qf_fpabv(run_info, queries_root_dir):
     _logger.info('Removed {} queries'.format(original_count - len(temp_run_info3.keys())))
     return temp_run_info3
 
+def filter_non_zero_exit_code(run_info, queries_root_dir):
+    _logger.info('Keeping only queries with non-zero exit code')
+    original_count = len(run_info.keys())
+    non_zero_ec = dict()
+    for query_name, data in run_info.items():
+        if data['exit_code'] != 0:
+            non_zero_ec[query_name] = data
+    _logger.info('Removed {} queries'.format(original_count - len(non_zero_ec.keys())))
+    return non_zero_ec
+
+
 def filter_uses_floating_point_theory(run_info, queries_root_dir):
     _logger.info('Keeping only queries that use floating point theory')
     original_count = len(run_info.keys())
@@ -325,10 +349,12 @@ def main(args):
             "has_decls",
             "no_decls",
             "min_exec_time",
+            "max_exec_time",
             "uses_fp_to_ieee_bv",
             "uses_fp_theory",
             "uses_qf_fpbv",
             "uses_qf_fpabv",
+            "non_zero_exit_code",
         ],
         default=[],
         action='append',
@@ -338,6 +364,12 @@ def main(args):
         type=float,
         default=20.0,
         help='The minimum execution time to use for min_exec_time filter',
+    )
+    parser.add_argument("--max-exec-time",
+        dest="max_exec_time",
+        type=float,
+        default=20.0,
+        help='The maximum execution time to use for max_exec_time filter',
     )
     parser.add_argument("--sat",
         choices=['sat','unsat','unknown'],
@@ -423,6 +455,8 @@ def main(args):
             run_info = filter_no_decls(run_info, pargs.queries_root_dir)
         elif filter_ty == 'min_exec_time':
             run_info = filter_gt_exec_time(run_info, pargs.min_exec_time)
+        elif filter_ty == 'max_exec_time':
+            run_info = filter_lt_exec_time(run_info, pargs.max_exec_time)
         elif filter_ty == 'uses_fp_to_ieee_bv':
             run_info = filter_uses_fp_to_ieee_bv(run_info, pargs.queries_root_dir)
         elif filter_ty == 'uses_fp_theory':
@@ -431,6 +465,8 @@ def main(args):
             run_info = filter_uses_qf_fpbv(run_info, pargs.queries_root_dir)
         elif filter_ty == 'uses_qf_fpabv':
             run_info = filter_uses_qf_fpabv(run_info, pargs.queries_root_dir)
+        elif filter_ty == 'non_zero_exit_code':
+            run_info = filter_non_zero_exit_code(run_info, pargs.queries_root_dir)
         else:
             raise Exception('Unhandled filter "{}"'.format(filter_ty))
         assert isinstance(run_info, dict)
