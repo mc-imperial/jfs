@@ -51,6 +51,10 @@ bool ConstantPropagationPass::run(Query &q) {
     } else if (ci->isAppOf(Z3_OP_AND)) {
       // Z3's API seems to hoist ands so count these.
       expectedIncrement += ci->asApp().getNumKids();
+    } else if (ci->isAppOf(Z3_OP_NOT) && ci->asApp().getKid(0).isAppOf(Z3_OP_OR)) {
+      // Z3's API seems to apply de-morgan
+      // (not (or a b)) === (not a) , (not b)
+      expectedIncrement += ci->asApp().getKid(0).asApp().getNumKids();
     } else {
       // Otherwise assume that adding the formula will add one formula
       // to the formula count
