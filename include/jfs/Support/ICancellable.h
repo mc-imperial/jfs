@@ -18,6 +18,7 @@ namespace support {
 // currently assigned work. It is not defined what the state of the instance
 // will be after making this call.
 class ICancellable {
+public:
   virtual void cancel() = 0;
 };
 }

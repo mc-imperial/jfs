@@ -12,6 +12,7 @@
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
+#include "jfs/Core/ToolErrorHandler.h"
 #include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/Passes.h"
@@ -118,15 +119,6 @@ void printVersion() {
   return;
 }
 
-class ToolErrorHandler : public JFSContextErrorHandler {
-  JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext &ctx,
-                                                    Z3_error_code ec) {
-    ctx.getErrorStream() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec)
-                         << "\")\n";
-    exit(1);
-    return JFSContextErrorHandler::STOP; // Unreachable.
-  }
-};
 }
 
 int main(int argc, char **argv) {
@@ -144,7 +136,7 @@ int main(int argc, char **argv) {
   }
   auto buffer(std::move(bufferOrError.get()));
 
-  ToolErrorHandler toolHandler;
+  ToolErrorHandler toolHandler(/*ignoredCanceled=*/false);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseMemoryBuffer(std::move(buffer));

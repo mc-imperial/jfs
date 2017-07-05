@@ -11,6 +11,7 @@
 jfs_add_component(JFSSupport
   version.cpp
   ErrorMessages.cpp
+  ScopedTimer.cpp
 )
 
 # Needed for command line support

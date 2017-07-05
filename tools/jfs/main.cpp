@@ -10,11 +10,14 @@
 //===----------------------------------------------------------------------===//
 
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
+#include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
+#include "jfs/Core/ToolErrorHandler.h"
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
 #include "jfs/Support/ErrorMessages.h"
+#include "jfs/Support/ScopedTimer.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
@@ -63,18 +66,6 @@ void printVersion() {
   return;
 }
 
-class ToolErrorHandler : public JFSContextErrorHandler {
-  JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext &ctx,
-                                                    Z3_error_code ec) {
-    ctx.getErrorStream() << "(error \"" << Z3_get_error_msg(ctx.z3Ctx, ec)
-                         << "\")\n";
-    exit(1);
-    return JFSContextErrorHandler::STOP; // Unreachable.
-  }
-
-};
-
-
 int main(int argc, char** argv) {
   llvm::cl::SetVersionPrinter(printVersion);
   llvm::cl::ParseCommandLineOptions(argc, argv);
@@ -90,24 +81,22 @@ int main(int argc, char** argv) {
   }
   auto buffer(std::move(bufferOrError.get()));
 
-  ToolErrorHandler toolHandler;
+  // FIXME: We assume that parsing is quick so it isn't included
+  // as part of the timeout.
+  ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
   SMTLIB2Parser parser(ctx);
   auto query = parser.parseMemoryBuffer(std::move(buffer));
   if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
-  // Run standard transformations
+  // Create pass manager
   QueryPassManager pm;
-  AddStandardPasses(pm);
-  pm.run(*query);
-  if (Verbosity > 10)
-    ctx.getDebugStream() << *query;
 
   // Create solver
   // TODO: Refactor this so it can be used elsewhere
   SolverOptions solverOptions;
-  solverOptions.maxTime = MaxTime;
+  solverOptions.maxTime = MaxTime; // FIXME: This is wrong
   std::unique_ptr<Solver> solver;
   switch (SolverBackend) {
   case DUMMY_FUZZING_SOLVER:
@@ -122,6 +111,20 @@ int main(int argc, char** argv) {
   default:
     llvm_unreachable("unknown solver backend");
   }
+
+  // Apply timeout
+  jfs::support::ScopedTimer timer(MaxTime, [&solver, &pm, &ctx]() {
+    // Actions to perform if timeout reached
+    IF_VERB(ctx, ctx.getDebugStream() << "(\"Timeout hit\")\n");
+    pm.cancel();
+    solver->cancel();
+  });
+
+  // Run standard transformations
+  AddStandardPasses(pm);
+  pm.run(*query);
+  if (Verbosity > 10)
+    ctx.getDebugStream() << *query;
 
   if (Verbosity > 0)
     ctx.getDebugStream() << "(using solver \"" << solver->getName() << "\")\n";
