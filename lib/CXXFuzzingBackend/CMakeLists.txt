@@ -10,8 +10,13 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSCXXFuzzingBackend
   CXXFuzzingSolver.cpp
+  CXXFuzzingSolverOptions.cpp
   CXXProgram.cpp
   CXXProgramBuilderPass.cpp
   CXXProgramBuilderPassImpl.cpp
 )
 target_link_libraries(JFSCXXFuzzingBackend PUBLIC JFSFuzzingCommon)
+
+jfs_get_llvm_components(llvm_components support)
+
+target_link_libraries(JFSCXXFuzzingBackend PUBLIC ${llvm_components})

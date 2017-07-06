@@ -109,8 +109,20 @@ int main(int argc, char** argv) {
     break;
   }
   case CXX_FUZZING_SOLVER: {
+    // Tell ClangOptions to try and infer all paths
+    std::string pathToExecutable = llvm::sys::fs::getMainExecutable(
+        argv[0], reinterpret_cast<void*>(reinterpret_cast<intptr_t>(main)));
+    std::unique_ptr<jfs::cxxfb::ClangOptions> clangOptions(
+        new jfs::cxxfb::ClangOptions(
+            pathToExecutable,
+            jfs::cxxfb::ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO));
+    // TODO: Add command line options to control this.
+    clangOptions->appendSanitizerCoverageOption(
+        jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
+    IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
+
     std::unique_ptr<SolverOptions> solverOptions(
-        new jfs::cxxfb::CXXFuzzingSolverOptions());
+        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
     solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions)));
     break;
   }
