@@ -115,7 +115,13 @@ int main(int argc, char** argv) {
     std::unique_ptr<jfs::cxxfb::ClangOptions> clangOptions(
         new jfs::cxxfb::ClangOptions(
             pathToExecutable,
-            jfs::cxxfb::ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO));
+            jfs::cxxfb::ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO,
+            ctx));
+    bool pathsOk = clangOptions->checkPaths(ctx);
+    if (!pathsOk) {
+      ctx.getErrorStream() << "(error One or more runtime paths are invalid)\n";
+      return 1;
+    }
     // TODO: Add command line options to control this.
     clangOptions->appendSanitizerCoverageOption(
         jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);

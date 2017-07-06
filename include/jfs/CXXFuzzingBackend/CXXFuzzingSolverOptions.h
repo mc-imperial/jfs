@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_CXX_FUZZING_BACKEND_FUZZING_SOLVER_OPTIONS_H
 #define JFS_CXX_FUZZING_BACKEND_FUZZING_SOLVER_OPTIONS_H
+#include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SolverOptions.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/Support/raw_ostream.h"
@@ -40,11 +41,13 @@ struct ClangOptions {
   enum class LibFuzzerBuildType {
     REL_WITH_DEB_INFO,
   };
-  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt);
+  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt,
+               jfs::core::JFSContext& ctx);
   ClangOptions();
   void appendSanitizerCoverageOption(SanitizerCoverageTy opt);
   void dump() const;
   void print(llvm::raw_ostream& os) const;
+  bool checkPaths(jfs::core::JFSContext& ctx) const;
 };
 
 class CXXFuzzingSolverOptions : public jfs::core::SolverOptions {

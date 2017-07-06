@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
+#include "jfs/Core/IfVerbose.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/Twine.h"
 #include "llvm/Support/FileSystem.h"
@@ -20,8 +21,36 @@ ClangOptions::ClangOptions()
     : pathToBinary(""), pathToRuntimeIncludeDir(""), pathToLibFuzzerLib(""),
       optimizationLevel("0"), useASan(false), useUBSan(false) {}
 
+bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
+  bool ok = true;
+  if (!llvm::sys::fs::exists(pathToBinary)) {
+    IF_VERB(ctx,
+            ctx.getWarningStream() << "(warning path to clang \""
+                                   << pathToBinary << "\" does not exist)\n");
+    ok = false;
+  }
+
+  if (!llvm::sys::fs::exists(pathToLibFuzzerLib)) {
+    IF_VERB(ctx,
+            ctx.getWarningStream()
+                << "(warning path to LibFuzzer library \"" << pathToLibFuzzerLib
+                << "\" does not exist)\n");
+    ok = false;
+  }
+  bool isDirectory = false;
+  (void)llvm::sys::fs::is_directory(pathToRuntimeIncludeDir);
+  if (!isDirectory) {
+    IF_VERB(ctx,
+            ctx.getWarningStream()
+                << "(warning path to runtime include directory \""
+                << pathToRuntimeIncludeDir << "\" does not exist)\n");
+    ok = false;
+  }
+  return ok;
+}
+
 ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
-                           LibFuzzerBuildType lfbt)
+                           LibFuzzerBuildType lfbt, jfs::core::JFSContext& ctx)
     : ClangOptions() {
   // Try to infer paths
   assert(pathToExecutable.data() != nullptr);
@@ -36,6 +65,7 @@ ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
   // Set path to Clang
   llvm::sys::path::append(mutablePath, "runtime", "bin", "clang++");
   pathToBinary = std::string(mutablePath.data(), mutablePath.size());
+
   // Remove "bin/clang++"
   llvm::sys::path::remove_filename(mutablePath);
   llvm::sys::path::remove_filename(mutablePath);
