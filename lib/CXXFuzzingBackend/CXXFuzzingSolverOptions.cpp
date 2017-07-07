@@ -37,8 +37,7 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
                 << "\" does not exist)\n");
     ok = false;
   }
-  bool isDirectory = false;
-  (void)llvm::sys::fs::is_directory(pathToRuntimeIncludeDir);
+  bool isDirectory = llvm::sys::fs::is_directory(pathToRuntimeIncludeDir);
   if (!isDirectory) {
     IF_VERB(ctx,
             ctx.getWarningStream()

@@ -16,21 +16,21 @@ project(SMTLIBRuntime CXX)
 cmake_minimum_required(VERSION 2.8.12)
 
 if (NOT DEFINED JFS_SRC_ROOT)
-  mesage(FATAL_ERROR "JFS_SRC_ROOT must be defined")
+  message(FATAL_ERROR "JFS_SRC_ROOT must be defined")
 endif()
 if (NOT EXISTS "${JFS_SRC_ROOT}")
-  mesage(FATAL_ERROR "JFS_SRC_ROOT (${JFS_SRC_ROOT}) must exist")
+  message(FATAL_ERROR "JFS_SRC_ROOT (${JFS_SRC_ROOT}) must exist")
 endif()
 
 if (NOT DEFINED JFS_BINARY_ROOT)
-  mesage(FATAL_ERROR "JFS_BINARY_ROOT must be defined")
+  message(FATAL_ERROR "JFS_BINARY_ROOT must be defined")
 endif()
 if (NOT EXISTS "${JFS_BINARY_ROOT}")
-  mesage(FATAL_ERROR "JFS_BINARY_ROOT (${JFS_BINARY_ROOT}) must exist")
+  message(FATAL_ERROR "JFS_BINARY_ROOT (${JFS_BINARY_ROOT}) must exist")
 endif()
 
 if (NOT EXISTS "${GTEST_SRC_DIR}")
-  mesage(FATAL_ERROR "GTEST_SRC_DIR (${GTEST_SRC_DIR}) must exist")
+  message(FATAL_ERROR "GTEST_SRC_DIR (${GTEST_SRC_DIR}) must exist")
 endif()
 
 ###############################################################################
@@ -73,7 +73,7 @@ endif()
 add_library(JFSSMTLIBRuntime INTERFACE)
 
 target_include_directories(JFSSMTLIBRuntime
-  INTERFACE "${JFS_SRC_ROOT}/runtime"
+  INTERFACE "${JFS_BINARY_ROOT}/runtime/include"
 )
 
 # Header should use C++11

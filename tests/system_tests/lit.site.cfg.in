@@ -9,6 +9,6 @@ config.not_tool_path = "@NOT_BIN_PATH@"
 config.jfs_src_root = "@CMAKE_SOURCE_DIR@"
 config.jfs_bin_root = "@CMAKE_BINARY_DIR@"
 
-config.clang_tool_path = "@LLVM_CLANG_CXX_TOOL@"
+config.clang_tool_path = "@JFS_LLVM_CLANG_CXX_TOOL@"
 
 lit_config.load_config(config, "@CMAKE_CURRENT_SOURCE_DIR@/lit.cfg")

@@ -9,6 +9,70 @@
 #
 #===------------------------------------------------------------------------===#
 
+###############################################################################
+# Runtime header files
+###############################################################################
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/SMTLIB")
+set(RUNTIME_HEADERS "BitVector.h" "BufferRef.h" "Core.h")
+foreach (runtime_header ${RUNTIME_HEADERS})
+  # Use configure_file() so that changes to the files in the source tree
+  # trigger CMake to re-configure itself which will then cause the copies
+  # of the headers in the build tree to be updated.
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIB/${runtime_header}"
+    "${CMAKE_CURRENT_BINARY_DIR}/include/SMTLIB/${runtime_header}"
+    COPYONLY
+  )
+endforeach()
+
+###############################################################################
+# Runtime copy of Clang++ and dependent libraries
+###############################################################################
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+# `clang++` might be a symlink so resolve to real path
+get_filename_component(LLVM_CLANG_CXX_TOOL_REAL_PATH
+  "${LLVM_CLANG_CXX_TOOL}" REALPATH
+)
+get_filename_component(LLVM_CLANG_CXX_TOOL_NAME
+  "${LLVM_CLANG_CXX_TOOL}"
+  NAME
+)
+# FIXME: Creating symlinks won't work on Windows
+set(JFS_LLVM_CLANG_CXX_TOOL
+  "${CMAKE_CURRENT_BINARY_DIR}/bin/${LLVM_CLANG_CXX_TOOL_NAME}"
+)
+execute_process(COMMAND
+  "${CMAKE_COMMAND}" -E create_symlink "${LLVM_CLANG_CXX_TOOL_REAL_PATH}"
+  "${JFS_LLVM_CLANG_CXX_TOOL}"
+)
+# Handle Clang runtime
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib")
+get_filename_component(LLVM_BIN_DIR
+  "${LLVM_CLANG_CXX_TOOL_REAL_PATH}"
+  DIRECTORY
+)
+get_filename_component(LLVM_ROOT_DIR
+  "${LLVM_BIN_DIR}"
+  DIRECTORY
+)
+set(CLANG_RUNTIME_DIR "${LLVM_ROOT_DIR}/lib/clang")
+if (NOT (EXISTS "${CLANG_RUNTIME_DIR}"))
+  message(FATAL_ERROR
+    "Cannot find Clang runtime directory \"${CLANG_RUNTIME_DIR}\""
+  )
+endif()
+# FIXME: Creating symlinks won't work on Windows
+execute_process(COMMAND
+  "${CMAKE_COMMAND}" -E create_symlink "${CLANG_RUNTIME_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}/lib/clang"
+)
+# Make availble to main `CMakeLists.txt` so we can use this elsewhere.
+set(JFS_LLVM_CLANG_CXX_TOOL "${JFS_LLVM_CLANG_CXX_TOOL}" PARENT_SCOPE)
+
+###############################################################################
+# Build LibFuzzer
+###############################################################################
 # We build LibFuzzer as an external project using Clang. We
 # build it in different configurations.
 include(ExternalProject)

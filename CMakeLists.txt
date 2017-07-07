@@ -371,6 +371,14 @@ add_subdirectory(lib)
 # Runtime
 ################################################################################
 add_subdirectory(runtime)
+# Sanity checks
+if ("${JFS_LLVM_CLANG_CXX_TOOL}" STREQUAL "")
+  message(FATAL_ERROR "JFS_LLVM_CLANG_CXX_TOOL not set")
+endif()
+if (NOT (EXISTS "${JFS_LLVM_CLANG_CXX_TOOL}"))
+  message(FATAL_ERROR "JFS_LLVM_CLANG_CXX_TOOL (\"${JFS_LLVM_CLANG_CXX_TOOL}\") doest not exist")
+endif()
+message(STATUS "JFS_LLVM_CLANG_CXX_TOOL: ${JFS_LLVM_CLANG_CXX_TOOL}")
 
 ################################################################################
 # Tools
