@@ -57,6 +57,7 @@ public:
   }
   std::unique_ptr<SolverResponse> solve(const jfs::core::Query& q,
                                         bool produceModel) {
+    assert(q.getContext() == interF->ctx);
 #define CHECK_CANCELLED()                                                      \
   if (cancelled) {                                                             \
     JFSContext& ctx = q.getContext();                                          \
@@ -141,8 +142,9 @@ public:
 #undef CHECK_CANCELLED
 };
 
-FuzzingSolver::FuzzingSolver(std::unique_ptr<SolverOptions> options)
-    : Solver(std::move(options)), impl(new FuzzingSolverImpl(this)) {}
+FuzzingSolver::FuzzingSolver(std::unique_ptr<SolverOptions> options,
+                             JFSContext& ctx)
+    : Solver(std::move(options), ctx), impl(new FuzzingSolverImpl(this)) {}
 FuzzingSolver::~FuzzingSolver() {}
 std::unique_ptr<jfs::core::SolverResponse>
 FuzzingSolver::solve(const jfs::core::Query& q, bool produceModel) {

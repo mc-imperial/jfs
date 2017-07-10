@@ -16,8 +16,8 @@ using namespace jfs::core;
 namespace jfs {
   namespace z3Backend {
 
-  Z3Solver::Z3Solver(std::unique_ptr<SolverOptions> options)
-      : jfs::core::Solver(std::move(options)), z3Ctx(nullptr),
+  Z3Solver::Z3Solver(std::unique_ptr<SolverOptions> options, JFSContext& ctx)
+      : jfs::core::Solver(std::move(options), ctx), z3Ctx(ctx.z3Ctx),
         cancelled(false) {}
   Z3Solver::~Z3Solver() {}
 
@@ -70,8 +70,8 @@ namespace jfs {
   }
 
   std::unique_ptr<SolverResponse> Z3Solver::solve(const Query &q, bool getModel) {
-    JFSContext& ctx = q.getContext();
-    z3Ctx = q.getContext().z3Ctx;
+    assert(&ctx == &(q.getContext()));
+    assert(z3Ctx == q.getContext().z3Ctx);
     // Use default solver behaviour
     Z3SolverHandle solver = Z3SolverHandle(::Z3_mk_solver(z3Ctx), z3Ctx);
 

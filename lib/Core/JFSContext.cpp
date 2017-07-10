@@ -59,6 +59,13 @@ JFSContext::~JFSContext() {
   Z3_del_context(z3Ctx);
 }
 
+bool JFSContext::operator==(const JFSContext& other) const {
+  // We don't allow copying of a JFSContext so the only
+  // way a context can be the same is if it has the same
+  // memory address.
+  return this == &(other);
+}
+
 bool JFSContext::registerErrorHandler(JFSContextErrorHandler *h) {
   errorHandlers.push_front(h);
   return true;

@@ -99,13 +99,13 @@ int main(int argc, char** argv) {
   switch (SolverBackend) {
   case DUMMY_FUZZING_SOLVER: {
     std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
-    solver.reset(
-        new jfs::fuzzingCommon::DummyFuzzingSolver(std::move(solverOptions)));
+    solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(
+        std::move(solverOptions), ctx));
     break;
   }
   case Z3_SOLVER: {
     std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
-    solver.reset(new jfs::z3Backend::Z3Solver(std::move(solverOptions)));
+    solver.reset(new jfs::z3Backend::Z3Solver(std::move(solverOptions), ctx));
     break;
   }
   case CXX_FUZZING_SOLVER: {
@@ -129,7 +129,8 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<SolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
-    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions)));
+    solver.reset(
+        new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions), ctx));
     break;
   }
   default:

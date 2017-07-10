@@ -37,9 +37,10 @@ public:
 class Solver : public jfs::support::ICancellable {
 protected:
   std::unique_ptr<SolverOptions> options;
+  JFSContext& ctx;
 
 public:
-  Solver(std::unique_ptr<SolverOptions> options);
+  Solver(std::unique_ptr<SolverOptions> options, JFSContext& ctx);
   virtual ~Solver();
   Solver(const Solver&) = delete;
   Solver(const Solver&&) = delete;
@@ -51,6 +52,7 @@ public:
                                                 bool produceModel) = 0;
   const SolverOptions* getOptions() const;
   virtual llvm::StringRef getName() const = 0;
+  JFSContext& getContext() { return ctx; }
 };
 }
 }

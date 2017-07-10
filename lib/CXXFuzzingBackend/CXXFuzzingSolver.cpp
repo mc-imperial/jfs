@@ -40,9 +40,10 @@ class CXXFuzzingSolverImpl {
   std::mutex cancellablePassesMutex; // protects `cancellablePasses`
   std::unordered_set<jfs::transform::QueryPass*> cancellablePasses;
   std::atomic<bool> cancelled;
+  JFSContext& ctx;
 
 public:
-  CXXFuzzingSolverImpl() : cancelled(false) {}
+  CXXFuzzingSolverImpl(JFSContext& ctx) : cancelled(false), ctx(ctx) {}
   llvm::StringRef getName() { return "CXXFuzzingSolver"; }
   void cancel() {
     cancelled = true;
@@ -105,7 +106,7 @@ public:
   std::unique_ptr<jfs::core::SolverResponse>
   fuzz(jfs::core::Query &q, bool produceModel,
        std::shared_ptr<FuzzingAnalysisInfo> info) {
-    JFSContext &ctx = q.getContext();
+    assert(ctx == q.getContext());
     if (produceModel) {
       ctx.getErrorStream() << "(error model generation not supported)\n";
       return nullptr;
@@ -153,9 +154,9 @@ public:
 };
 
 CXXFuzzingSolver::CXXFuzzingSolver(
-    std::unique_ptr<jfs::core::SolverOptions> options)
-    : jfs::fuzzingCommon::FuzzingSolver(std::move(options)),
-      impl(new CXXFuzzingSolverImpl()) {}
+    std::unique_ptr<jfs::core::SolverOptions> options, JFSContext& ctx)
+    : jfs::fuzzingCommon::FuzzingSolver(std::move(options), ctx),
+      impl(new CXXFuzzingSolverImpl(ctx)) {}
 
 CXXFuzzingSolver::~CXXFuzzingSolver() {}
 

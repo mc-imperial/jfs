@@ -13,8 +13,8 @@
 namespace jfs {
   namespace core {
 
-  Solver::Solver(std::unique_ptr<SolverOptions> options)
-      : options(std::move(options)) {}
+  Solver::Solver(std::unique_ptr<SolverOptions> options, JFSContext& ctx)
+      : options(std::move(options)), ctx(ctx) {}
 
   Solver::~Solver() {}
 

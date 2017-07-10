@@ -47,6 +47,8 @@ public:
   JFSContext(const JFSContext&&) = delete;
   JFSContext& operator=(const JFSContext&) = delete;
 
+  bool operator==(const JFSContext& other) const;
+
   bool registerErrorHandler(JFSContextErrorHandler* h);
   bool unRegisterErrorHandler(JFSContextErrorHandler* h);
   // FIXME: Should not be public

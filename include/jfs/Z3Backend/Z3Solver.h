@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_Z3BACKEND_Z3_SOLVER_H
 #define JFS_Z3BACKEND_Z3_SOLVER_H
+#include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Solver.h"
 #include <memory>
 
@@ -21,7 +22,8 @@ private:
   bool cancelled;
 
 public:
-  Z3Solver(std::unique_ptr<jfs::core::SolverOptions> options);
+  Z3Solver(std::unique_ptr<jfs::core::SolverOptions> options,
+           jfs::core::JFSContext& ctx);
   ~Z3Solver();
   std::unique_ptr<jfs::core::SolverResponse> solve(const jfs::core::Query& q,
                                                    bool produceModel) override;
