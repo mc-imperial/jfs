@@ -41,9 +41,19 @@ class CXXFuzzingSolverImpl {
   std::unordered_set<jfs::transform::QueryPass*> cancellablePasses;
   std::atomic<bool> cancelled;
   JFSContext& ctx;
+  // Raw pointer because we don't own the storage.
+  CXXFuzzingSolverOptions* options;
 
 public:
-  CXXFuzzingSolverImpl(JFSContext& ctx) : cancelled(false), ctx(ctx) {}
+  friend class CXXFuzzingSolver;
+  CXXFuzzingSolverImpl(JFSContext& ctx, CXXFuzzingSolverOptions* options)
+      : cancelled(false), ctx(ctx), options(options) {
+    // Check paths
+    bool clangPathsOkay = options->getClangOptions()->checkPaths(ctx);
+    if (!clangPathsOkay) {
+      ctx.raiseFatalError("One or more Clang paths do not exist");
+    }
+  }
   llvm::StringRef getName() { return "CXXFuzzingSolver"; }
   void cancel() {
     cancelled = true;
@@ -154,9 +164,10 @@ public:
 };
 
 CXXFuzzingSolver::CXXFuzzingSolver(
-    std::unique_ptr<jfs::core::SolverOptions> options, JFSContext& ctx)
+    std::unique_ptr<CXXFuzzingSolverOptions> options, JFSContext& ctx)
     : jfs::fuzzingCommon::FuzzingSolver(std::move(options), ctx),
-      impl(new CXXFuzzingSolverImpl(ctx)) {}
+      impl(new CXXFuzzingSolverImpl(
+          ctx, static_cast<CXXFuzzingSolverOptions*>(this->options.get()))) {}
 
 CXXFuzzingSolver::~CXXFuzzingSolver() {}
 

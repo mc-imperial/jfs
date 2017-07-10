@@ -16,6 +16,7 @@ namespace jfs {
 namespace cxxfb {
 
 class CXXFuzzingSolverImpl;
+class CXXFuzzingSolverOptions;
 
 // This solver emits a CXX program and fuzzes it to find a satisfying
 // assignment.
@@ -29,7 +30,7 @@ protected:
        std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info) override;
 
 public:
-  CXXFuzzingSolver(std::unique_ptr<jfs::core::SolverOptions> options,
+  CXXFuzzingSolver(std::unique_ptr<CXXFuzzingSolverOptions> options,
                    jfs::core::JFSContext& ctx);
   ~CXXFuzzingSolver();
   llvm::StringRef getName() const override;

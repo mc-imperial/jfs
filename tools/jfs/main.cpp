@@ -117,17 +117,12 @@ int main(int argc, char** argv) {
             pathToExecutable,
             jfs::cxxfb::ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO,
             ctx));
-    bool pathsOk = clangOptions->checkPaths(ctx);
-    if (!pathsOk) {
-      ctx.getErrorStream() << "(error One or more runtime paths are invalid)\n";
-      return 1;
-    }
     // TODO: Add command line options to control this.
     clangOptions->appendSanitizerCoverageOption(
         jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
-    std::unique_ptr<SolverOptions> solverOptions(
+    std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
     solver.reset(
         new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions), ctx));
