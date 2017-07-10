@@ -29,7 +29,9 @@ public:
   std::shared_ptr<Query> parseStr(llvm::StringRef str);
   std::shared_ptr<Query>
   parseMemoryBuffer(std::unique_ptr<llvm::MemoryBuffer> buffer);
-  virtual ErrorAction handleZ3error(JFSContext& ctx, Z3_error_code ec);
+  ErrorAction handleZ3error(JFSContext& ctx, Z3_error_code ec) override;
+  ErrorAction handleFatalError(JFSContext& ctx, llvm::StringRef msg) override;
+  ErrorAction handleGenericError(JFSContext& ctx, llvm::StringRef msg) override;
   unsigned getErrorCount() const;
   void resetErrorCount();
 

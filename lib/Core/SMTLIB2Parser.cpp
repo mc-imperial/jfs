@@ -90,6 +90,20 @@ SMTLIB2Parser::handleZ3error(JFSContext &ctx, Z3_error_code ec) {
   return JFSContextErrorHandler::CONTINUE;
 }
 
+JFSContextErrorHandler::ErrorAction
+SMTLIB2Parser::handleFatalError(JFSContext& ctx, llvm::StringRef msg) {
+  ++errorCount;
+  // Let another handler deal with this.
+  return JFSContextErrorHandler::CONTINUE;
+}
+
+JFSContextErrorHandler::ErrorAction
+SMTLIB2Parser::handleGenericError(JFSContext& ctx, llvm::StringRef msg) {
+  ++errorCount;
+  // Let another handler deal with this.
+  return JFSContextErrorHandler::CONTINUE;
+}
+
 std::shared_ptr<Query>
 SMTLIB2Parser::parseMemoryBuffer(std::unique_ptr<llvm::MemoryBuffer> buffer) {
   llvm::StringRef strRef = buffer->getBuffer();

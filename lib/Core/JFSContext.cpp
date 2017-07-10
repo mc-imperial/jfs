@@ -94,6 +94,28 @@ void JFSContext::z3ErrorHandler(Z3_error_code ec) {
   abort();
 }
 
+void JFSContext::raiseFatalError(llvm::StringRef msg) {
+  // Call the error handlers in order.
+  for (const auto& eh : errorHandlers) {
+    auto action = eh->handleFatalError(*this, msg);
+    if (action == JFSContextErrorHandler::STOP) {
+      break;
+    }
+  }
+  // Guarantee that execution does not continue
+  abort();
+}
+
+void JFSContext::raiseError(llvm::StringRef msg) {
+  // Call the error handlers in order.
+  for (const auto& eh : errorHandlers) {
+    auto action = eh->handleFatalError(*this, msg);
+    if (action == JFSContextErrorHandler::STOP) {
+      return;
+    }
+  }
+}
+
 llvm::raw_ostream &JFSContext::getErrorStream() {
   // TODO: Make this customisable
   return llvm::errs();

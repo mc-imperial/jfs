@@ -24,6 +24,8 @@ public:
 
   JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext& ctx,
                                                     Z3_error_code ec);
+  ErrorAction handleFatalError(JFSContext& ctx, llvm::StringRef msg) override;
+  ErrorAction handleGenericError(JFSContext& ctx, llvm::StringRef msg) override;
 };
 }
 }

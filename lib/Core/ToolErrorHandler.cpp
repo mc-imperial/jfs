@@ -27,5 +27,18 @@ ToolErrorHandler::handleZ3error(JFSContext& ctx, Z3_error_code ec) {
   exit(1);
   return JFSContextErrorHandler::STOP; // Unreachable.
 }
+
+JFSContextErrorHandler::ErrorAction
+ToolErrorHandler::handleFatalError(JFSContext& ctx, llvm::StringRef msg) {
+  ctx.getErrorStream() << "(error \"" << msg << "\")\n";
+  exit(1);
+  return JFSContextErrorHandler::STOP; // Unreachable.
+}
+
+JFSContextErrorHandler::ErrorAction
+ToolErrorHandler::handleGenericError(JFSContext& ctx, llvm::StringRef msg) {
+  // Just treat as a fatal error
+  return handleFatalError(ctx, msg);
+}
 }
 }
