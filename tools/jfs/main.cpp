@@ -119,10 +119,6 @@ int main(int argc, char** argv) {
           << ec.message() << ")\n";
       exit(1);
     }
-    // FIXME: THIS SUCKS `llvm::sys::fs::current_path()` doesn't give a
-    // null-terminated
-    // buffer.
-    // currentDir.push_back('\0');
     llvm::StringRef currentDirAsStringRef(currentDir.data(), currentDir.size());
     llvm::StringRef prefix;
     if (InputFilename == "-") {
