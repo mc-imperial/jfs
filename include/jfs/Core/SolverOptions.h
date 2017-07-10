@@ -32,6 +32,7 @@ protected:
 
 public:
   SolverOptions() : SolverOptions(SOLVER_OPTIONS_KIND) {}
+  virtual ~SolverOptions() {}
   SolverOptionKind getKind() const { return kind; }
   static bool classof(const SolverOptions* so) {
     return so->getKind() == SOLVER_OPTIONS_KIND;

@@ -163,8 +163,11 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
+    assert(clangOptions.get() == nullptr);
     solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
                                                   std::move(wdm), ctx));
+    assert(wdm.get() == nullptr);
+    assert(solverOptions.get() == nullptr);
     break;
   }
   default:
