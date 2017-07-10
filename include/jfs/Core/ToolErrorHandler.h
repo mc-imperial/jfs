@@ -23,7 +23,7 @@ public:
   ToolErrorHandler(bool ignoreCanceled) : ignoreCanceled(ignoreCanceled) {}
 
   JFSContextErrorHandler::ErrorAction handleZ3error(JFSContext& ctx,
-                                                    Z3_error_code ec);
+                                                    Z3_error_code ec) override;
   ErrorAction handleFatalError(JFSContext& ctx, llvm::StringRef msg) override;
   ErrorAction handleGenericError(JFSContext& ctx, llvm::StringRef msg) override;
 };
