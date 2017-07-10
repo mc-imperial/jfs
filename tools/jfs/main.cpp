@@ -22,9 +22,11 @@
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
 #include "jfs/Z3Backend/Z3Solver.h"
+#include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/Path.h"
 #include "llvm/Support/raw_ostream.h"
 #include <string>
 
@@ -43,6 +45,14 @@ llvm::cl::opt<unsigned>
     MaxTime("max-time", llvm::cl::desc("Max allowed solver time (seconds). "
                                        "Default is 0 which means no maximum"),
             llvm::cl::init(0));
+
+llvm::cl::opt<std::string> OutputDirectory(
+    "output-dir", llvm::cl::init(""),
+    llvm::cl::desc("Output directory. If not set automatically create one"));
+
+llvm::cl::opt<bool>
+    KeepOutputDirectory("keep-output-dir", llvm::cl::init(false),
+                        llvm::cl::desc("Keep output directory (default false)"));
 
 enum BackendTy {
   DUMMY_FUZZING_SOLVER,
@@ -93,6 +103,39 @@ int main(int argc, char** argv) {
   // Create pass manager
   QueryPassManager pm;
 
+  // Create the working directory
+  std::unique_ptr<jfs::fuzzingCommon::WorkingDirectoryManager> wdm(nullptr);
+  if (OutputDirectory.size() > 0) {
+    // Use user specified path for working directory
+    wdm = jfs::fuzzingCommon::WorkingDirectoryManager::makeAtPath(
+        OutputDirectory, ctx, !KeepOutputDirectory);
+  } else {
+    // Use the current working directory as the base directory
+    // and use as a prefix the name of the query.
+    llvm::SmallVector<char, 256> currentDir;
+    if (auto ec = llvm::sys::fs::current_path(currentDir)) {
+      ctx.getErrorStream()
+          << "(error failed to get current workding directory because "
+          << ec.message() << ")\n";
+      exit(1);
+    }
+    // FIXME: THIS SUCKS `llvm::sys::fs::current_path()` doesn't give a
+    // null-terminated
+    // buffer.
+    // currentDir.push_back('\0');
+    llvm::StringRef currentDirAsStringRef(currentDir.data(), currentDir.size());
+    llvm::StringRef prefix;
+    if (InputFilename == "-") {
+      prefix = "stdin";
+    } else {
+      // Not on standard input so get the name
+      prefix = llvm::sys::path::filename(InputFilename);
+    }
+    wdm = jfs::fuzzingCommon::WorkingDirectoryManager::makeInDirectory(
+        /*directory=*/currentDirAsStringRef, /*prefix=*/prefix, ctx,
+        !KeepOutputDirectory);
+  }
+
   // Create solver
   // TODO: Refactor this so it can be used elsewhere
   std::unique_ptr<Solver> solver;
@@ -100,7 +143,7 @@ int main(int argc, char** argv) {
   case DUMMY_FUZZING_SOLVER: {
     std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
     solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(
-        std::move(solverOptions), ctx));
+        std::move(solverOptions), std::move(wdm), ctx));
     break;
   }
   case Z3_SOLVER: {
@@ -124,8 +167,8 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
-    solver.reset(
-        new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions), ctx));
+    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
+                                                  std::move(wdm), ctx));
     break;
   }
   default:

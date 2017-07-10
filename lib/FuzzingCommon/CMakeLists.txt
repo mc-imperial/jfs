@@ -16,9 +16,11 @@ jfs_add_component(JFSFuzzingCommon
   FuzzingSolver.cpp
   FuzzingAnalysisInfo.cpp
   SortConformanceCheckPass.cpp
+  WorkingDirectoryManager.cpp
 )
 target_link_libraries(JFSFuzzingCommon
   PUBLIC
   JFSTransform
   JFSCore
+  JFSSupport
 )

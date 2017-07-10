@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSSupport
   version.cpp
+  FileUtils.cpp
   ErrorMessages.cpp
   ScopedTimer.cpp
 )

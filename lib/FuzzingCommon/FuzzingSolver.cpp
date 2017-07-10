@@ -143,8 +143,10 @@ public:
 };
 
 FuzzingSolver::FuzzingSolver(std::unique_ptr<SolverOptions> options,
+                             std::unique_ptr<WorkingDirectoryManager> wdm,
                              JFSContext& ctx)
-    : Solver(std::move(options), ctx), impl(new FuzzingSolverImpl(this)) {}
+    : Solver(std::move(options), ctx), impl(new FuzzingSolverImpl(this)),
+      wdm(std::move(wdm)) {}
 FuzzingSolver::~FuzzingSolver() {}
 std::unique_ptr<jfs::core::SolverResponse>
 FuzzingSolver::solve(const jfs::core::Query& q, bool produceModel) {

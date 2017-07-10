@@ -25,6 +25,7 @@ protected:
 
 public:
   DummyFuzzingSolver(std::unique_ptr<jfs::core::SolverOptions> options,
+                     std::unique_ptr<WorkingDirectoryManager> wdm,
                      jfs::core::JFSContext& ctx);
   ~DummyFuzzingSolver();
   llvm::StringRef getName() const override;

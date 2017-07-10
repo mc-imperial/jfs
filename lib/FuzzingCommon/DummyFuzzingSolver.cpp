@@ -14,9 +14,10 @@ using namespace jfs::core;
 
 namespace jfs {
 namespace fuzzingCommon {
-DummyFuzzingSolver::DummyFuzzingSolver(std::unique_ptr<SolverOptions> options,
-                                       JFSContext& ctx)
-    : FuzzingSolver(std::move(options), ctx) {}
+DummyFuzzingSolver::DummyFuzzingSolver(
+    std::unique_ptr<SolverOptions> options,
+    std::unique_ptr<WorkingDirectoryManager> wdm, JFSContext& ctx)
+    : FuzzingSolver(std::move(options), std::move(wdm), ctx) {}
 
 DummyFuzzingSolver::~DummyFuzzingSolver() {}
 

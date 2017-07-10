@@ -164,8 +164,10 @@ public:
 };
 
 CXXFuzzingSolver::CXXFuzzingSolver(
-    std::unique_ptr<CXXFuzzingSolverOptions> options, JFSContext& ctx)
-    : jfs::fuzzingCommon::FuzzingSolver(std::move(options), ctx),
+    std::unique_ptr<CXXFuzzingSolverOptions> options,
+    std::unique_ptr<WorkingDirectoryManager> wdm, JFSContext& ctx)
+    : jfs::fuzzingCommon::FuzzingSolver(std::move(options), std::move(wdm),
+                                        ctx),
       impl(new CXXFuzzingSolverImpl(
           ctx, static_cast<CXXFuzzingSolverOptions*>(this->options.get()))) {}
 
