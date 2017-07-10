@@ -11,6 +11,7 @@
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
+#include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/Transform/QueryPass.h"

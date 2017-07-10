@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
+#include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
