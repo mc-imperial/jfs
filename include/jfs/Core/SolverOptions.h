@@ -16,9 +16,6 @@
 namespace jfs {
 namespace core {
 
-// TODO: Implement LLVM style RTTI so we
-// can have subclasses with solver specific
-// options.
 class SolverOptions {
   // START: LLVM RTTI boilerplate code
 public:
