@@ -162,9 +162,15 @@ int main(int argc, char** argv) {
         jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
+    // TODO: Add command line options to control some of the options
+    std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOptions(
+        new jfs::fuzzingCommon::LibFuzzerOptions());
+
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
-        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions)));
+        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),
+                                                std::move(libFuzzerOptions)));
     assert(clangOptions.get() == nullptr);
+    assert(libFuzzerOptions.get() == nullptr);
     solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
                                                   std::move(wdm), ctx));
     assert(wdm.get() == nullptr);

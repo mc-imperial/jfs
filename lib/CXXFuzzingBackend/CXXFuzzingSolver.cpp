@@ -14,6 +14,7 @@
 #include "jfs/CXXFuzzingBackend/ClangInvocationManager.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
 #include "jfs/Transform/QueryPass.h"
@@ -47,13 +48,15 @@ class CXXFuzzingSolverImpl {
   // Raw pointer because we don't own the storage.
   CXXFuzzingSolverOptions* options;
   ClangInvocationManager cim;
+  LibFuzzerInvocationManager lim;
   WorkingDirectoryManager* wdm;
 
 public:
   friend class CXXFuzzingSolver;
   CXXFuzzingSolverImpl(JFSContext& ctx, CXXFuzzingSolverOptions* options,
                        WorkingDirectoryManager* wdm)
-      : cancelled(false), ctx(ctx), options(options), cim(ctx), wdm(wdm) {
+      : cancelled(false), ctx(ctx), options(options), cim(ctx), lim(ctx),
+        wdm(wdm) {
     assert(this->wdm != nullptr);
     assert(this->options != nullptr);
     // Check paths
@@ -76,7 +79,10 @@ public:
     }
     // Cancel active Clang invocation
     cim.cancel();
+    // Cancel active LibFuzzer invocation
+    lim.cancel();
   }
+
   // FIXME: Should be const Query.
   bool sortsAreSupported(Query& q) {
     JFSContext &ctx = q.getContext();
@@ -177,19 +183,19 @@ public:
     // back.
     std::string sourceFilePath = wdm->getPathToFileInDirectory("program.cpp");
     std::string outputFilePath = wdm->getPathToFileInDirectory("fuzzer");
-    std::string stdOutFile;
-    std::string stdErrFile;
+    std::string clangStdOutFile;
+    std::string clangStdErrFile;
     if (ctx.getVerbosity() == 0) {
       // When being quiet redirect to files
-      stdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
-      stdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
+      clangStdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
+      clangStdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
     }
     bool compileSuccess = cim.compile(
         /*program=*/pbp->getProgram().get(), /*sourceFile=*/sourceFilePath,
         /*outputFile=*/outputFilePath,
         /*clangOptions=*/options->getClangOptions(),
-        /*stdOutFile=*/stdOutFile,
-        /*stdErrFile=*/stdErrFile);
+        /*stdOutFile=*/clangStdOutFile,
+        /*stdErrFile=*/clangStdErrFile);
     if (!compileSuccess) {
       return std::unique_ptr<SolverResponse>(
           new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
@@ -197,9 +203,41 @@ public:
     // Cancellation point
     CHECK_CANCELLED();
 
-    // TODO: Fuzz binary
+    // Set LibFuzzer options
+    LibFuzzerOptions* lfo = options->getLibFuzzerOptions();
+    // FIXME: We've already computed this earlier so we should cache it
+    // somewhere.
+    lfo->maxLength =
+        (info->freeVariableAssignment->bufferAssignment->computeWidth() + 7) /
+        8;
+    lfo->targetBinary = outputFilePath;
+    std::string corpusDir = wdm->makeNewDirectoryInDirectory("corpus");
+    lfo->corpusDir = corpusDir;
+    std::string artifactDir = wdm->makeNewDirectoryInDirectory("artifacts");
+    lfo->artifactDir = artifactDir;
+    std::string libFuzzerStdOutFile;
+    std::string libFuzzerStdErrFile;
+    if (ctx.getVerbosity() == 0) {
+      // When being quiet redirect to files
+      libFuzzerStdOutFile =
+          wdm->getPathToFileInDirectory("libfuzzer.stdout.txt");
+      libFuzzerStdErrFile =
+          wdm->getPathToFileInDirectory("libfuzzer.stderr.txt");
+    }
+    // Fuzz
+    auto fuzzingResponse =
+        lim.fuzz(lfo, libFuzzerStdOutFile, libFuzzerStdErrFile);
+    if (fuzzingResponse->outcome == LibFuzzerResponse::ResponseTy::UNKNOWN ||
+        fuzzingResponse->outcome == LibFuzzerResponse::ResponseTy::CANCELLED) {
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
+    assert(fuzzingResponse->outcome ==
+           LibFuzzerResponse::ResponseTy::TARGET_FOUND);
+    // Solution found
+    // TODO: Handle setting up model if its needed.
     return std::unique_ptr<SolverResponse>(
-        new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+        new CXXFuzzingSolverResponse(SolverResponse::SAT));
   }
 };
 

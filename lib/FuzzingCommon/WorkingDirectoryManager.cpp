@@ -149,5 +149,20 @@ std::string WorkingDirectoryManager::getPathToFileInDirectory(
   llvm::sys::path::append(mutablePath, fileName);
   return llvm::Twine(mutablePath).str();
 }
+
+std::string
+WorkingDirectoryManager::makeNewDirectoryInDirectory(llvm::StringRef dirName) {
+  assert(dirName.size() > 0);
+  std::string fullDirPath = getPathToFileInDirectory(dirName);
+  if (auto error = llvm::sys::fs::create_directory(fullDirPath,
+                                                   /*IgnoreExisting=*/false)) {
+    std::string msg;
+    llvm::raw_string_ostream ss(msg);
+    ss << "Failed to create " << fullDirPath << " because " << error.message();
+    ss.flush();
+    ctx.raiseFatalError(msg);
+  }
+  return fullDirPath;
+}
 }
 }

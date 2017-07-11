@@ -35,6 +35,7 @@ public:
 
   llvm::StringRef getPath() const { return path; }
   std::string getPathToFileInDirectory(llvm::StringRef fileName) const;
+  std::string makeNewDirectoryInDirectory(llvm::StringRef dirName);
 
   // Make at `path`. `path` should not already exist, but its
   // parent directory should.

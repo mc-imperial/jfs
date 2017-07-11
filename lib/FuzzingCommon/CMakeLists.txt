@@ -15,6 +15,8 @@ jfs_add_component(JFSFuzzingCommon
   FreeVariableToBufferAssignmentPass.cpp
   FuzzingSolver.cpp
   FuzzingAnalysisInfo.cpp
+  LibFuzzerInvocationManager.cpp
+  LibFuzzerOptions.cpp
   SortConformanceCheckPass.cpp
   WorkingDirectoryManager.cpp
 )
