@@ -33,6 +33,9 @@ public:
   WorkingDirectoryManager(const WorkingDirectoryManager&&) = delete;
   WorkingDirectoryManager& operator=(const WorkingDirectoryManager&) = delete;
 
+  llvm::StringRef getPath() const { return path; }
+  std::string getPathToFileInDirectory(llvm::StringRef fileName) const;
+
   // Make at `path`. `path` should not already exist, but its
   // parent directory should.
   // If the fails a nullptr will be returned.

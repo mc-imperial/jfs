@@ -11,9 +11,11 @@
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
+#include "jfs/CXXFuzzingBackend/ClangInvocationManager.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
+#include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
 #include "jfs/Transform/QueryPass.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include <atomic>
@@ -44,17 +46,24 @@ class CXXFuzzingSolverImpl {
   JFSContext& ctx;
   // Raw pointer because we don't own the storage.
   CXXFuzzingSolverOptions* options;
+  ClangInvocationManager cim;
+  WorkingDirectoryManager* wdm;
 
 public:
   friend class CXXFuzzingSolver;
-  CXXFuzzingSolverImpl(JFSContext& ctx, CXXFuzzingSolverOptions* options)
-      : cancelled(false), ctx(ctx), options(options) {
+  CXXFuzzingSolverImpl(JFSContext& ctx, CXXFuzzingSolverOptions* options,
+                       WorkingDirectoryManager* wdm)
+      : cancelled(false), ctx(ctx), options(options), cim(ctx), wdm(wdm) {
+    assert(this->wdm != nullptr);
+    assert(this->options != nullptr);
     // Check paths
     bool clangPathsOkay = options->getClangOptions()->checkPaths(ctx);
     if (!clangPathsOkay) {
       ctx.raiseFatalError("One or more Clang paths do not exist");
     }
   }
+  ~CXXFuzzingSolverImpl() {}
+
   llvm::StringRef getName() { return "CXXFuzzingSolver"; }
   void cancel() {
     cancelled = true;
@@ -65,6 +74,8 @@ public:
         pass->cancel();
       }
     }
+    // Cancel active Clang invocation
+    cim.cancel();
   }
   // FIXME: Should be const Query.
   bool sortsAreSupported(Query& q) {
@@ -139,7 +150,7 @@ public:
     // Cancellation point
     CHECK_CANCELLED();
 
-    // TODO: Do fuzzing
+    // Generate program
     QueryPassManager pm;
     auto pbp = std::make_shared<CXXProgramBuilderPass>(info, ctx);
 
@@ -159,6 +170,34 @@ public:
     // Cancellation point
     CHECK_CANCELLED();
 
+    // Build program
+    // FIXME: We should teach ClangInvocationManager to pipe the program
+    // directly
+    // to Clang so we don't need to write it disk and then immediatly read it
+    // back.
+    std::string sourceFilePath = wdm->getPathToFileInDirectory("program.cpp");
+    std::string outputFilePath = wdm->getPathToFileInDirectory("fuzzer");
+    std::string stdOutFile;
+    std::string stdErrFile;
+    if (ctx.getVerbosity() == 0) {
+      // When being quiet redirect to files
+      stdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
+      stdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
+    }
+    bool compileSuccess = cim.compile(
+        /*program=*/pbp->getProgram().get(), /*sourceFile=*/sourceFilePath,
+        /*outputFile=*/outputFilePath,
+        /*clangOptions=*/options->getClangOptions(),
+        /*stdOutFile=*/stdOutFile,
+        /*stdErrFile=*/stdErrFile);
+    if (!compileSuccess) {
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
+    // Cancellation point
+    CHECK_CANCELLED();
+
+    // TODO: Fuzz binary
     return std::unique_ptr<SolverResponse>(
         new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
   }
@@ -170,7 +209,8 @@ CXXFuzzingSolver::CXXFuzzingSolver(
     : jfs::fuzzingCommon::FuzzingSolver(std::move(options), std::move(wdm),
                                         ctx),
       impl(new CXXFuzzingSolverImpl(
-          ctx, static_cast<CXXFuzzingSolverOptions*>(this->options.get()))) {}
+          ctx, static_cast<CXXFuzzingSolverOptions*>(this->options.get()),
+          this->wdm.get())) {}
 
 CXXFuzzingSolver::~CXXFuzzingSolver() {}
 

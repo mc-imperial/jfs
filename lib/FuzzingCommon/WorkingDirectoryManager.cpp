@@ -142,5 +142,12 @@ WorkingDirectoryManager::makeInDirectory(llvm::StringRef directory,
   ctx.raiseFatalError(msg);
   return toReturn;
 }
+
+std::string WorkingDirectoryManager::getPathToFileInDirectory(
+    llvm::StringRef fileName) const {
+  llvm::SmallVector<char, 256> mutablePath(path.begin(), path.end());
+  llvm::sys::path::append(mutablePath, fileName);
+  return llvm::Twine(mutablePath).str();
+}
 }
 }

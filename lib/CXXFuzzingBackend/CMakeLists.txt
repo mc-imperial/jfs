@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSCXXFuzzingBackend
+  ClangInvocationManager.cpp
   ClangOptions.cpp
   CXXFuzzingSolver.cpp
   CXXFuzzingSolverOptions.cpp
