@@ -21,6 +21,7 @@ struct LibFuzzerOptions {
   uint64_t mutationDepth; // Corresponds to `-mutate_depth=<N>`
   bool crossOver;         // Corresponds to `-cross_over` option
   uint64_t maxLength;     // Corresponds to `-max_len=<N>` option (bytes).
+  bool useCmp;            // Corresponds to `-use_cmp` option
 
   bool addAllZeroMaxLengthSeed;
 

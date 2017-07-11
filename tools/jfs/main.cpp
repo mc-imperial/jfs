@@ -160,6 +160,8 @@ int main(int argc, char** argv) {
     // TODO: Add command line options to control this.
     clangOptions->appendSanitizerCoverageOption(
         jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
+    clangOptions->appendSanitizerCoverageOption(
+        jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_CMP);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
     // TODO: Add command line options to control some of the options

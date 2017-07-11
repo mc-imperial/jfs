@@ -14,7 +14,7 @@ namespace jfs {
 namespace fuzzingCommon {
 
 LibFuzzerOptions::LibFuzzerOptions()
-    : seed(0), mutationDepth(5), crossOver(true), maxLength(0),
+    : seed(0), mutationDepth(5), crossOver(true), maxLength(0), useCmp(false),
       addAllZeroMaxLengthSeed(true) {}
 }
 }

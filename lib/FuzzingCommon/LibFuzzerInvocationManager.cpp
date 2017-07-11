@@ -114,6 +114,9 @@ public:
     // Max length
     SET_ARG(maxLengthArg, "-max_len=" << options->maxLength);
 
+    // Use trace comparison
+    SET_ARG(useCmpArg, "-use_cmp=" << (options->useCmp ? "1" : "0"));
+
     // Artifact dir
     // TODO: Use Twine?
     std::string artifactPathWithSlash(options->artifactDir);

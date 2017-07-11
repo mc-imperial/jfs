@@ -19,6 +19,7 @@
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
 #include "jfs/Transform/QueryPass.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include <algorithm>
 #include <atomic>
 #include <mutex>
 #include <unordered_set>
@@ -217,6 +218,15 @@ public:
     lfo->artifactDir = artifactDir;
     std::string libFuzzerStdOutFile;
     std::string libFuzzerStdErrFile;
+    lfo->useCmp = false;
+    // FIXME: This is O(N). We should probably change sanitizerCoverageOptions
+    // to be a set.
+    if (std::find(options->getClangOptions()->sanitizerCoverageOptions.begin(),
+                  options->getClangOptions()->sanitizerCoverageOptions.end(),
+                  ClangOptions::SanitizerCoverageTy::TRACE_CMP) !=
+        options->getClangOptions()->sanitizerCoverageOptions.end()) {
+      lfo->useCmp = true;
+    }
     if (ctx.getVerbosity() == 0) {
       // When being quiet redirect to files
       libFuzzerStdOutFile =
