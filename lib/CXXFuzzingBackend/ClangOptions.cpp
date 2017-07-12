@@ -19,7 +19,8 @@ namespace cxxfb {
 
 ClangOptions::ClangOptions()
     : pathToBinary(""), pathToRuntimeIncludeDir(""), pathToLibFuzzerLib(""),
-      optimizationLevel("0"), useASan(false), useUBSan(false) {}
+      optimizationLevel(OptimizationLevel::O0), debugSymbols(false),
+      useASan(false), useUBSan(false) {}
 
 bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
   bool ok = true;
@@ -49,7 +50,7 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
 }
 
 ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
-                           LibFuzzerBuildType lfbt, jfs::core::JFSContext& ctx)
+                           LibFuzzerBuildType lfbt)
     : ClangOptions() {
   // Try to infer paths
   assert(pathToExecutable.data() != nullptr);
@@ -98,7 +99,19 @@ void ClangOptions::print(llvm::raw_ostream& os) const {
   os << "pathToBinary: \"" << pathToBinary << "\"\n";
   os << "pathToRuntimeIncludeDir: \"" << pathToRuntimeIncludeDir << "\"\n";
   os << "pathToLibFuzzerLib: \"" << pathToLibFuzzerLib << "\"\n";
-  os << "optimizationLevel: " << optimizationLevel << "\n";
+  os << "optimizationLevel: ";
+  switch (optimizationLevel) {
+#define HANDLE_LEVEL(X)                                                        \
+  case OptimizationLevel::X:                                                   \
+    os << #X << "\n";                                                          \
+    break;
+    HANDLE_LEVEL(O0);
+    HANDLE_LEVEL(O1);
+    HANDLE_LEVEL(O2);
+    HANDLE_LEVEL(O3);
+#undef HANDLE_LEVEL
+  }
+  os << "debug symbols:" << (debugSymbols ? "true" : "false") << "\n";
   os << "useASan: " << (useASan ? "true" : "false") << "\n";
   os << "useUBSan: " << (useUBSan ? "true" : "false") << "\n";
   os << "sanitizerCoverageOptions:";

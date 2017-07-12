@@ -11,6 +11,7 @@
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
+#include "jfs/CXXFuzzingBackend/CmdLine/ClangOptionsBuilder.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
@@ -28,8 +29,8 @@
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/Path.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Signals.h"
+#include "llvm/Support/raw_ostream.h"
 #include <string>
 
 using namespace jfs;
@@ -160,16 +161,8 @@ int main(int argc, char** argv) {
     // Tell ClangOptions to try and infer all paths
     std::string pathToExecutable = llvm::sys::fs::getMainExecutable(
         argv[0], reinterpret_cast<void*>(reinterpret_cast<intptr_t>(main)));
-    std::unique_ptr<jfs::cxxfb::ClangOptions> clangOptions(
-        new jfs::cxxfb::ClangOptions(
-            pathToExecutable,
-            jfs::cxxfb::ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO,
-            ctx));
-    // TODO: Add command line options to control this.
-    clangOptions->appendSanitizerCoverageOption(
-        jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
-    clangOptions->appendSanitizerCoverageOption(
-        jfs::cxxfb::ClangOptions::SanitizerCoverageTy::TRACE_CMP);
+    auto clangOptions =
+        jfs::cxxfb::cl::buildClangOptionsFromCmdLine(pathToExecutable);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
     // TODO: Add command line options to control some of the options

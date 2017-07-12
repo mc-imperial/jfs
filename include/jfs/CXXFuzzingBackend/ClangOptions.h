@@ -24,7 +24,9 @@ struct ClangOptions {
   std::string pathToBinary;
   std::string pathToRuntimeIncludeDir;
   std::string pathToLibFuzzerLib;
-  std::string optimizationLevel;
+  enum class OptimizationLevel { O0, O1, O2, O3 };
+  OptimizationLevel optimizationLevel;
+  bool debugSymbols;
   bool useASan;
   bool useUBSan;
   enum class SanitizerCoverageTy {
@@ -33,14 +35,13 @@ struct ClangOptions {
     // TODO: Add more
   };
   std::vector<SanitizerCoverageTy> sanitizerCoverageOptions;
-  // If `pathToExecutable` is not empty then paths will be
-  // inferred assuming that `pathToExecutable` is the absolute
-  // path to the `jfs` binary.
   enum class LibFuzzerBuildType {
     REL_WITH_DEB_INFO,
   };
-  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt,
-               jfs::core::JFSContext& ctx);
+  // If `pathToExecutable` is not empty then paths will be
+  // inferred assuming that `pathToExecutable` is the absolute
+  // path to the `jfs` binary.
+  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt);
   ClangOptions();
   void appendSanitizerCoverageOption(SanitizerCoverageTy opt);
   void dump() const;

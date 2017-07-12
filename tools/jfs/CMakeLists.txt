@@ -25,6 +25,7 @@ target_link_libraries(
   JFSFuzzingCommon
   JFSZ3Backend
   JFSCXXFuzzingBackend
+  JFSCXXFuzzingBackendCmdLine
 )
 
 # Give shortname

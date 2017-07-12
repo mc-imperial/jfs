@@ -92,9 +92,27 @@ public:
     cmdLineArgs.push_back(options->pathToRuntimeIncludeDir.c_str());
 
     // Optimization level
-    std::string optOption("-O");
-    optOption += options->optimizationLevel;
-    cmdLineArgs.push_back(optOption.c_str());
+    switch (options->optimizationLevel) {
+    case ClangOptions::OptimizationLevel::O0:
+      cmdLineArgs.push_back("-O0");
+      break;
+    case ClangOptions::OptimizationLevel::O1:
+      cmdLineArgs.push_back("-O1");
+      break;
+    case ClangOptions::OptimizationLevel::O2:
+      cmdLineArgs.push_back("-O2");
+      break;
+    case ClangOptions::OptimizationLevel::O3:
+      cmdLineArgs.push_back("-O3");
+      break;
+    default:
+      llvm_unreachable("Unhandled optimization level");
+    }
+
+    // Debug symbols
+    if (options->debugSymbols) {
+      cmdLineArgs.push_back("-g");
+    }
 
     // TODO: Do we actually need this?
     cmdLineArgs.push_back("-fno-omit-frame-pointer");
@@ -108,7 +126,6 @@ public:
     if (options->useUBSan) {
       cmdLineArgs.push_back("-fsanitize=undefined");
     }
-
     // SanitizerCoverage options
     assert(options->sanitizerCoverageOptions.size() > 0);
     for (const auto& sanitizerCovOpt : options->sanitizerCoverageOptions) {
