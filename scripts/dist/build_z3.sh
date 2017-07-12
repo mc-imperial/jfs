@@ -9,7 +9,7 @@ set -o pipefail
 : ${Z3_BUILD_TYPE?"Z3_BUILD_TYPE must be specified"}
 
 # Set values if not already set externally
-Z3_GIT_REVISION="${Z3_GIT_REVISION:-77ffa9f32fa5a202b95a7b2b745e608969ec9309}"
+Z3_GIT_REVISION="${Z3_GIT_REVISION:-680f3422479537fe107bb28ab6216def0586e350}"
 Z3_GIT_URL="${Z3_GIT_URL:-https://github.com/Z3Prover/z3.git}"
 Z3_CMAKE_GENERATOR="${Z3_CMAKE_GENERATOR:-Ninja}"
 
