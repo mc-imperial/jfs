@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/Z3ASTVisitor.h"
 #include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/Compiler.h"
 
 namespace jfs {
 namespace core {
@@ -67,6 +68,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_BSDIV:
     ACTION(visitBvSDiv(asApp))
   case Z3_OP_BUDIV:
+    LLVM_FALLTHROUGH;
+  case Z3_OP_BUDIV_I:
     ACTION(visitBvUDiv(asApp))
   case Z3_OP_BSREM:
     ACTION(visitBvSRem(asApp))
