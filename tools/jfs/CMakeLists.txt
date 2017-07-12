@@ -23,6 +23,7 @@ target_link_libraries(
   JFSCore
   JFSTransform
   JFSFuzzingCommon
+  JFSFuzzingCommonCmdLine
   JFSZ3Backend
   JFSCXXFuzzingBackend
   JFSCXXFuzzingBackendCmdLine

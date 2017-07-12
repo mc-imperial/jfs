@@ -16,6 +16,9 @@
 namespace jfs {
 namespace fuzzingCommon {
 
+// FIXME: This design is broken. Some of these options are used internally and
+// will get overwritten and others are public and can be changed. We need
+// to separate these two concerns.
 struct LibFuzzerOptions {
   // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a random seed.
   uint64_t seed;          // Corresponds to `-seed=<N>` option

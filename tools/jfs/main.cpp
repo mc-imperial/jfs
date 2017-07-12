@@ -17,6 +17,7 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
+#include "jfs/FuzzingCommon/CmdLine/LibFuzzerOptionsBuilder.h"
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
 #include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/ScopedTimer.h"
@@ -165,9 +166,8 @@ int main(int argc, char** argv) {
         jfs::cxxfb::cl::buildClangOptionsFromCmdLine(pathToExecutable);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
-    // TODO: Add command line options to control some of the options
-    std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOptions(
-        new jfs::fuzzingCommon::LibFuzzerOptions());
+    auto libFuzzerOptions =
+        jfs::fuzzingCommon::cl::buildLibFuzzerOptionsFromCmdLine();
 
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),

@@ -26,3 +26,5 @@ target_link_libraries(JFSFuzzingCommon
   JFSCore
   JFSSupport
 )
+
+add_subdirectory(CmdLine)
