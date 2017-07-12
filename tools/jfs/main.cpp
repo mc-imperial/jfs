@@ -29,6 +29,7 @@
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/Path.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/Signals.h"
 #include <string>
 
 using namespace jfs;
@@ -75,6 +76,13 @@ void printVersion() {
   llvm::outs() << "\n";
   llvm::cl::PrintVersionMessage();
   return;
+}
+
+std::function<void(void)> cancelFn;
+
+void handleInterrupt() {
+  if (cancelFn)
+    cancelFn();
 }
 
 int main(int argc, char** argv) {
@@ -183,13 +191,18 @@ int main(int argc, char** argv) {
     llvm_unreachable("unknown solver backend");
   }
 
-  // Apply timeout
-  jfs::support::ScopedTimer timer(MaxTime, [&solver, &pm, &ctx]() {
-    // Actions to perform if timeout reached
-    IF_VERB(ctx, ctx.getDebugStream() << "(\"Timeout hit\")\n");
+  // HACK: This is a global so `handleInterrupt()` can call it.
+  cancelFn = [&solver, &pm, &ctx]() {
+    // Actions to perform if cancellation is requested
+    IF_VERB(ctx, ctx.getDebugStream() << "(interrupted)\n");
     pm.cancel();
     solver->cancel();
-  });
+  };
+
+  llvm::sys::SetInterruptFunction(handleInterrupt);
+
+  // Apply timeout
+  jfs::support::ScopedTimer timer(MaxTime, cancelFn);
 
   // Run standard transformations
   AddStandardPasses(pm);
