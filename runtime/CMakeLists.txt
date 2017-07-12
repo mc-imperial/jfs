@@ -14,7 +14,7 @@
 ###############################################################################
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/SMTLIB")
-set(RUNTIME_HEADERS "BitVector.h" "BufferRef.h" "Core.h")
+set(RUNTIME_HEADERS "BitVector.h" "BufferRef.h" "Core.h" "jassert.h")
 foreach (runtime_header ${RUNTIME_HEADERS})
   # Use configure_file() so that changes to the files in the source tree
   # trigger CMake to re-configure itself which will then cause the copies

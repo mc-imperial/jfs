@@ -11,7 +11,7 @@
 #ifndef JFS_RUNTIME_SMTLIB_CORE_H
 #define JFS_RUNTIME_SMTLIB_CORE_H
 #include "BufferRef.h"
-#include <assert.h>
+#include "jassert.h"
 #include <stdint.h>
 #include <type_traits>
 
@@ -21,13 +21,13 @@
 
 bool makeBoolFrom(BufferRef<const uint8_t> buffer, const uint64_t lowBit,
                   const uint64_t highBit) {
-  assert(highBit >= lowBit && "invalid lowBit and highBit");
+  jassert(highBit >= lowBit && "invalid lowBit and highBit");
   const size_t bitWidth = (highBit - lowBit) + 1;
-  assert(bitWidth <= 8 && "Too many bits");
+  jassert(bitWidth <= 8 && "Too many bits");
   const size_t lowBitByte = lowBit / 8;
   const size_t highBitByte = highBit / 8;
-  assert(lowBitByte < buffer.getSize());
-  assert(highBitByte < buffer.getSize());
+  jassert(lowBitByte < buffer.getSize());
+  jassert(highBitByte < buffer.getSize());
   uint8_t data = 0;
   const size_t shiftOffset = lowBit % 8;
   uint8_t dataMask = 0;
@@ -42,7 +42,7 @@ bool makeBoolFrom(BufferRef<const uint8_t> buffer, const uint64_t lowBit,
   // If necessary read bits from the subsequent byte if we
   // are stradling bytes
   if (highBitByte > lowBitByte) {
-    assert(shiftOffset > 0);
+    jassert(shiftOffset > 0);
     uint8_t nextBufferByte = buffer.get()[highBitByte];
     data |= (nextBufferByte << (8 - shiftOffset));
   }

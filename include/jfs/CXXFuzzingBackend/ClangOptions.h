@@ -29,6 +29,7 @@ struct ClangOptions {
   bool debugSymbols;
   bool useASan;
   bool useUBSan;
+  bool useJFSRuntimeAsserts;
   enum class SanitizerCoverageTy {
     TRACE_PC_GUARD,
     TRACE_CMP,

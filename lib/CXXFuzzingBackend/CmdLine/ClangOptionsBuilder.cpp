@@ -60,6 +60,11 @@ llvm::cl::list<ClangOptions::SanitizerCoverageTy> SanitizerCoverageOptions(
                    "Trace Comparisions. Must be used in conjuction with "
                    "another coverage type.")),
     llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> UseJFSRuntimeAsserts(
+    "runtime-asserts",
+    llvm::cl::desc("Build JFS runtime asserts enabled (default: false)"),
+    llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -91,6 +96,8 @@ buildClangOptionsFromCmdLine(llvm::StringRef pathToExecutable) {
   clangOptions->useASan = UseAsan;
   // UBSan
   clangOptions->useUBSan = UseUBSan;
+  // JFS runtime asserts
+  clangOptions->useJFSRuntimeAsserts = UseJFSRuntimeAsserts;
 
   return clangOptions;
 }

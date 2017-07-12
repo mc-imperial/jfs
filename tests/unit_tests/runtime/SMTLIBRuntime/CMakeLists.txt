@@ -81,6 +81,19 @@ target_compile_options(JFSSMTLIBRuntime
   INTERFACE "${JFS_USE_CXX_FLAG}"
 )
 
+# Runtime asserts
+option(ENABLE_JFS_RUNTIME_ASSERTS "Enable runtime assertions" ON)
+if (ENABLE_JFS_RUNTIME_ASSERTS)
+  message(STATUS "JFS runtime asserts enabled")
+  target_compile_definitions(JFSSMTLIBRuntime
+    INTERFACE
+    "-DJFS_RUNTIME_FAILURE_CALLS_ABORT"
+    "-DENABLE_JFS_RUNTIME_ASSERTS"
+  )
+else()
+  message(STATUS "JFS runtime asserts disabled")
+endif()
+
 ###############################################################################
 # Utility library
 ###############################################################################

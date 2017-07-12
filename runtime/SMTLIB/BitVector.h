@@ -11,7 +11,7 @@
 #ifndef JFS_RUNTIME_SMTLIB_BITVECTOR_H
 #define JFS_RUNTIME_SMTLIB_BITVECTOR_H
 #include "BufferRef.h"
-#include <assert.h>
+#include "jassert.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +51,7 @@ public:
   BitVector(uint64_t value) {
     static_assert(N > 0 && N <= 64, "Invalid value for N");
     data = doMod(value);
-    assert(data == value);
+    jassert(data == value);
   }
 
   BitVector() : BitVector(0) {
@@ -72,7 +72,7 @@ public:
       typename std::enable_if<(((N * M) < 64) && (N * M) > 0)>::type* = nullptr>
   BitVector<(N * M)> repeat() const {
     // TODO:
-    abort();
+    JFS_RUNTIME_FAIL();
     return BitVector<N * M>(0);
   }
 
@@ -81,7 +81,7 @@ public:
             typename std::enable_if<((N * M) > 64)>::type* = nullptr>
   BitVector<(N * M)> repeat() const {
     // TODO:
-    abort();
+    JFS_RUNTIME_FAIL();
     return BitVector<N * M>(0);
   }
 
@@ -95,8 +95,8 @@ public:
   BitVector<N + M> concat(const BitVector<M>& rhs) const {
     // Concatentation produces native BitVector.
     static_assert((N + M) <= 64, "Too many bits");
-    assert((rhs.doMod(rhs.data) == rhs.data) && "too many bits");
-    assert((doMod(data) == data) && "too many bits");
+    jassert((rhs.doMod(rhs.data) == rhs.data) && "too many bits");
+    jassert((doMod(data) == data) && "too many bits");
     uint64_t newValue = rhs.data;
     newValue |= (data << M);
     return BitVector<N + M>(newValue);
@@ -192,7 +192,7 @@ public:
   BitVector<N + BITS> zeroExtend() const {
     // No really work to do provided internal invariant that unused biits
     // are zero is maintained.
-    assert(doMod(data) == data && "too many bits");
+    jassert(doMod(data) == data && "too many bits");
     return BitVector<N + BITS>(data);
   }
 
@@ -563,9 +563,9 @@ public:
   // Initialize from array
   BitVector(uint8_t* bytesToCopy, size_t numBytes) : data(nullptr) {
     data = reinterpret_cast<uint8_t*>(malloc(numBytesRequired(N)));
-    assert(data);
-    assert(bytesToCopy);
-    assert(numBytes <= numBytesRequired(N));
+    jassert(data);
+    jassert(bytesToCopy);
+    jassert(numBytes <= numBytesRequired(N));
     memcpy(data, bytesToCopy, numBytesRequired(N));
   }
   BitVector(BufferRef<uint8_t> bufferRef)
@@ -573,7 +573,7 @@ public:
   // Initialize to zero
   BitVector() {
     data = reinterpret_cast<uint8_t*>(malloc(numBytesRequired(N)));
-    assert(data);
+    jassert(data);
     memset(data, 0, numBytesRequired(N));
   }
   BitVector(uint64_t value) : BitVector() {
@@ -597,11 +597,11 @@ template <uint64_t BITWIDTH,
           typename std::enable_if<(BITWIDTH <= 64)>::type* = nullptr>
 BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
                                       uint64_t lowBit, uint64_t highBit) {
-  assert(highBit >= lowBit && "invalid lowBit and highBit");
+  jassert(highBit >= lowBit && "invalid lowBit and highBit");
   const size_t lowBitByte = lowBit / 8;
   const size_t highBitByte = highBit / 8;
-  assert(lowBitByte < buffer.getSize());
-  assert(highBitByte < buffer.getSize());
+  jassert(lowBitByte < buffer.getSize());
+  jassert(highBitByte < buffer.getSize());
   uint64_t data = 0;
   uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
   const size_t shiftOffset = lowBit % 8;

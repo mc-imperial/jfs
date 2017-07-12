@@ -20,7 +20,7 @@ namespace cxxfb {
 ClangOptions::ClangOptions()
     : pathToBinary(""), pathToRuntimeIncludeDir(""), pathToLibFuzzerLib(""),
       optimizationLevel(OptimizationLevel::O0), debugSymbols(false),
-      useASan(false), useUBSan(false) {}
+      useASan(false), useUBSan(false), useJFSRuntimeAsserts(false) {}
 
 bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
   bool ok = true;

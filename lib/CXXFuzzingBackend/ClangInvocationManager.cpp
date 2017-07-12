@@ -141,6 +141,11 @@ public:
       }
     }
 
+    // JFS runtime asserts
+    if (options->useJFSRuntimeAsserts) {
+      cmdLineArgs.push_back("-DENABLE_JFS_RUNTIME_ASSERTS");
+    }
+
     // Source file to compile
     cmdLineArgs.push_back(sourceFile.data());
 
