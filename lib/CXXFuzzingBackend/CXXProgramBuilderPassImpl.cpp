@@ -12,6 +12,7 @@
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
+#include <ctype.h>
 #include <list>
 
 using namespace jfs::core;
@@ -126,16 +127,81 @@ void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
 
 std::string
 CXXProgramBuilderPassImpl::getSanitizedVariableName(const std::string& name) {
-  // TODO:
-  // TODO: don't allow the bufferRef
-  // TODO: don't allow `size`
-  // TODO: don't allow `data`.
-  return name;
+  // NOTE: Z3's implementation doesn't include the `|` in quoted symbol
+  // names. So both quoted and un-quoted symbols are handled in the same
+  // way.
+  std::string buffer;
+  // Walkthrough string copying across allowed characters
+  // and replacing disallowed characters
+  bool requiredChange = false;
+  for (const auto& character : name) {
+    if (isalnum(character) || character == '_') {
+      buffer += character;
+      continue;
+    }
+    requiredChange = true;
+    // Valid Simple symbol character in SMT-LIBv2 but not
+    // valid for use as an identifier in C++.
+    switch (character) {
+#define ACTION(SEARCH, REPL)                                                   \
+  case SEARCH:                                                                 \
+    buffer += REPL;                                                            \
+    continue;
+      ACTION('~', "_t_");
+      ACTION('!', "_ex_");
+      ACTION('@', "_at_");
+      ACTION('$', "_ds_");
+      ACTION('%', "_pc_");
+      ACTION('^', "_c_");
+      ACTION('&', "_a_");
+      ACTION('*', "_s_");
+      ACTION('-', "_m_");
+      ACTION('+', "_p_");
+      ACTION('=', "_e_");
+      ACTION('<', "_lt_");
+      ACTION('>', "_gt_");
+      ACTION('.', "_d_");
+      ACTION('?', "_q_");
+      ACTION('/', "_fs_");
+#undef ACTION
+    default:
+      // In all other cases just use `_`.
+      buffer += '_';
+    }
+  }
+  if (!requiredChange) {
+    assert(name.size() > 0);
+    return name;
+  }
+
+  // FIXME: We need to avoid clashes with our own internal symbols names
+  // and C++ keywords.
+  assert(buffer.size() > 0);
+  return buffer;
 }
 
 llvm::StringRef
 CXXProgramBuilderPassImpl::insertSymbol(const std::string& symbolName) {
   std::string sanitizedName = getSanitizedVariableName(symbolName);
+  // Check the sanitized name isn't already used. If it is
+  // apply naive algorithm
+  if (usedSymbols.count(sanitizedName) > 0) {
+    sanitizedName += "_";
+    ssize_t indexToStartAt = sanitizedName.size() - 1;
+    char toWrite = '0';
+    do {
+      if (toWrite == '0') {
+        sanitizedName += 'X'; // Write place holder
+        ++indexToStartAt;
+      }
+      sanitizedName[indexToStartAt] = toWrite;
+      ++toWrite;
+      if (toWrite == ('9' + 1)) {
+        // Wrap around
+        toWrite = '0';
+      }
+    } while (usedSymbols.count(sanitizedName) > 0);
+  }
   auto statusPair = usedSymbols.insert(sanitizedName);
   assert(statusPair.second && "cannot insert already used symbolName");
   return llvm::StringRef(*(statusPair.first));
