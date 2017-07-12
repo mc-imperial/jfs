@@ -677,7 +677,6 @@ BV_UNARY_OP(visitBvNot, bvnot)
   }
 
 BV_BIN_OP(visitBvSub, bvsub)
-BV_BIN_OP(visitBvMul, bvmul)
 BV_BIN_OP(visitBvSDiv, bvsdiv)
 BV_BIN_OP(visitBvUDiv, bvudiv)
 BV_BIN_OP(visitBvSRem, bvsrem)
@@ -707,6 +706,7 @@ BV_NARY_OP(visitBvOr, bvor)
 BV_NARY_OP(visitBvAnd, bvand)
 BV_NARY_OP(visitBvXor, bvxor)
 BV_NARY_OP(visitBvAdd, bvadd)
+BV_NARY_OP(visitBvMul, bvmul)
 
 #undef BV_BIN_OP
 #undef BV_NARY_OP
