@@ -827,7 +827,8 @@ void CXXProgramBuilderPassImpl::visitBvExtract(Z3AppHandle e) {
   int lowBit = funcDecl.getIntParam(1);
   assert(highBit >= lowBit);
 
-  ss << getSymbolFor(arg0) << ".extract<" << highBit << "," << lowBit << ">()";
+  ss << getSymbolFor(arg0) << ".extract<" << ((highBit - lowBit) + 1) << ">("
+     << highBit << "," << lowBit << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
 
