@@ -676,7 +676,6 @@ BV_UNARY_OP(visitBvNot, bvnot)
     insertSSAStmt(e.asAST(), ss.str());                                        \
   }
 
-BV_BIN_OP(visitBvAdd, bvadd)
 BV_BIN_OP(visitBvSub, bvsub)
 BV_BIN_OP(visitBvMul, bvmul)
 BV_BIN_OP(visitBvSDiv, bvsdiv)
@@ -707,6 +706,7 @@ BV_BIN_OP(visitBvAShr, bvashr)
 BV_NARY_OP(visitBvOr, bvor)
 BV_NARY_OP(visitBvAnd, bvand)
 BV_NARY_OP(visitBvXor, bvxor)
+BV_NARY_OP(visitBvAdd, bvadd)
 
 #undef BV_BIN_OP
 #undef BV_NARY_OP
