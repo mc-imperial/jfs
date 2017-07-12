@@ -36,12 +36,8 @@ bool BvBoundPropagationPass::run(Query &q) {
                            z3Ctx);
 
   // Add the constraints to the goal
-// FIXME: I wish Z3's Goal API didn't do this. I'd like the simplifications
-// to come from the tactics I apply and not happen implicitly.
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
-  // I didn't copy the asserts() from `ConstantPropagationPass.cpp` because
-  // I don't want to clutter the code here.
     initialGoal.addFormula(*ci);
   }
 
