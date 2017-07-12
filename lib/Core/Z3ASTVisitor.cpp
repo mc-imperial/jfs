@@ -81,6 +81,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     LLVM_FALLTHROUGH;
   case Z3_OP_BUREM:
     ACTION(visitBvURem(asApp))
+  case Z3_OP_BSMOD_I:
+    LLVM_FALLTHROUGH;
   case Z3_OP_BSMOD:
     ACTION(visitBvSMod(asApp))
   // Comparison BitVector operations
