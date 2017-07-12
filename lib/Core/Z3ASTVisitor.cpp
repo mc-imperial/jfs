@@ -73,6 +73,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     LLVM_FALLTHROUGH;
   case Z3_OP_BUDIV_I:
     ACTION(visitBvUDiv(asApp))
+  case Z3_OP_BSREM_I:
+    LLVM_FALLTHROUGH;
   case Z3_OP_BSREM:
     ACTION(visitBvSRem(asApp))
   case Z3_OP_BUREM_I:
