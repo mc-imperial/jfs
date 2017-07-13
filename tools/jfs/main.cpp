@@ -159,25 +159,15 @@ int main(int argc, char** argv) {
   llvm::cl::SetVersionPrinter(printVersion);
   llvm::cl::ParseCommandLineOptions(argc, argv);
 
+  // Create context
   JFSContextConfig ctxCfg;
   ctxCfg.verbosity = Verbosity;
   JFSContext ctx(ctxCfg);
-  auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
-  if (auto error = bufferOrError.getError()) {
-    ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
-        InputFilename, error);
-    return 1;
-  }
-  auto buffer(std::move(bufferOrError.get()));
-
-  // FIXME: We assume that parsing is quick so it isn't included
-  // as part of the timeout.
   ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
+
+  // Create parser
   SMTLIB2Parser parser(ctx);
-  auto query = parser.parseMemoryBuffer(std::move(buffer));
-  if (Verbosity > 10)
-    ctx.getDebugStream() << *query;
 
   // Create pass manager
   QueryPassManager pm;
@@ -188,18 +178,48 @@ int main(int argc, char** argv) {
   std::unique_ptr<Solver> solver(
       makeSolver(ctx, makeWorkingDirectory(ctx), pathToExecutable));
 
-  // HACK: This is a global so `handleInterrupt()` can call it.
-  cancelFn = [&solver, &pm, &ctx]() {
+  // Now set up cancel/interrupt handlers. We do this now so that all the
+  // objects we need to interact with at cancellation time can be captured in
+  // lambda.
+  std::atomic<bool> parsingDone(false);
+  cancelFn = [&parsingDone, &solver, &pm, &ctx]() {
     // Actions to perform if cancellation is requested
-    IF_VERB(ctx, ctx.getDebugStream() << "(interrupted)\n");
+    IF_VERB(ctx, ctx.getDebugStream() << "(cancelling)\n");
+    if (!parsingDone) {
+      // HACK: We can't interrupt parsing so we have to just
+      // do a best effort here and try to exit cleanly.
+      // FIXME: We need to clean up the empty working directory.
+      llvm::outs() << "unknown\n";
+      exit(0);
+    }
     pm.cancel();
     solver->cancel();
   };
 
+  // Setup interrupt handler. This basically just calls
+  // cancelFn.
   llvm::sys::SetInterruptFunction(handleInterrupt);
 
   // Apply timeout
-  jfs::support::ScopedTimer timer(MaxTime, cancelFn);
+  jfs::support::ScopedTimer timer(MaxTime, [&ctx]() {
+    IF_VERB(ctx, ctx.getDebugStream() << "(timeout)\n");
+    cancelFn();
+  });
+
+  // Parse query
+  auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
+  if (auto error = bufferOrError.getError()) {
+    ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
+        InputFilename, error);
+    return 1;
+  }
+  auto buffer(std::move(bufferOrError.get()));
+  // NOTE: the ToolErrorHandler will deal with parsing errors.
+  auto query = parser.parseMemoryBuffer(std::move(buffer));
+  parsingDone = true;
+  if (Verbosity > 10)
+    ctx.getDebugStream() << *query;
+
 
   // Run standard transformations
   AddStandardPasses(pm);
