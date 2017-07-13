@@ -130,6 +130,11 @@ CXXProgramBuilderPassImpl::getSanitizedVariableName(const std::string& name) {
   // NOTE: Z3's implementation doesn't include the `|` in quoted symbol
   // names. So both quoted and un-quoted symbols are handled in the same
   // way.
+  if (name.size() == 0) {
+    // This is silly but SMT-LIB seems to allow the empty string (when quoted
+    // i.e. `||`) as a symbol name so pick our own name for this.
+    return "jfs__empty__";
+  }
   std::string buffer;
   // Walkthrough string copying across allowed characters
   // and replacing disallowed characters
@@ -169,6 +174,7 @@ CXXProgramBuilderPassImpl::getSanitizedVariableName(const std::string& name) {
       buffer += '_';
     }
   }
+
   if (!requiredChange) {
     assert(name.size() > 0);
     return name;
