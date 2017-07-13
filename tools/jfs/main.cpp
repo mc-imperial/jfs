@@ -80,6 +80,74 @@ void printVersion() {
   return;
 }
 
+std::unique_ptr<jfs::fuzzingCommon::WorkingDirectoryManager>
+makeWorkingDirectory(JFSContext& ctx) {
+  if (OutputDirectory.size() > 0) {
+    // Use user specified path for working directory
+    return jfs::fuzzingCommon::WorkingDirectoryManager::makeAtPath(
+        OutputDirectory, ctx, !KeepOutputDirectory);
+  }
+  // Use the current working directory as the base directory
+  // and use as a prefix the name of the query.
+  llvm::SmallVector<char, 256> currentDir;
+  if (auto ec = llvm::sys::fs::current_path(currentDir)) {
+    ctx.getErrorStream()
+        << "(error failed to get current workding directory because "
+        << ec.message() << ")\n";
+    exit(1);
+  }
+  llvm::StringRef currentDirAsStringRef(currentDir.data(), currentDir.size());
+  llvm::StringRef prefix;
+  if (InputFilename == "-") {
+    prefix = "stdin";
+  } else {
+    // Not on standard input so get the name
+    prefix = llvm::sys::path::filename(InputFilename);
+  }
+  return jfs::fuzzingCommon::WorkingDirectoryManager::makeInDirectory(
+      /*directory=*/currentDirAsStringRef, /*prefix=*/prefix, ctx,
+      !KeepOutputDirectory);
+}
+
+std::unique_ptr<Solver>
+makeSolver(JFSContext& ctx,
+           std::unique_ptr<jfs::fuzzingCommon::WorkingDirectoryManager> wdm,
+           llvm::StringRef pathToExecutable) {
+  std::unique_ptr<Solver> solver;
+  switch (SolverBackend) {
+  case DUMMY_FUZZING_SOLVER: {
+    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
+    solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(
+        std::move(solverOptions), std::move(wdm), ctx));
+    break;
+  }
+  case Z3_SOLVER: {
+    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
+    solver.reset(new jfs::z3Backend::Z3Solver(std::move(solverOptions), ctx));
+    break;
+  }
+  case CXX_FUZZING_SOLVER: {
+    // Tell ClangOptions to try and infer all paths
+    auto clangOptions =
+        jfs::cxxfb::cl::buildClangOptionsFromCmdLine(pathToExecutable);
+    IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
+
+    auto libFuzzerOptions =
+        jfs::fuzzingCommon::cl::buildLibFuzzerOptionsFromCmdLine();
+
+    std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
+        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),
+                                                std::move(libFuzzerOptions)));
+    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
+                                                  std::move(wdm), ctx));
+    break;
+  }
+  default:
+    llvm_unreachable("unknown solver backend");
+  }
+  return solver;
+}
+
 std::function<void(void)> cancelFn;
 
 void handleInterrupt() {
@@ -114,75 +182,11 @@ int main(int argc, char** argv) {
   // Create pass manager
   QueryPassManager pm;
 
-  // Create the working directory
-  std::unique_ptr<jfs::fuzzingCommon::WorkingDirectoryManager> wdm(nullptr);
-  if (OutputDirectory.size() > 0) {
-    // Use user specified path for working directory
-    wdm = jfs::fuzzingCommon::WorkingDirectoryManager::makeAtPath(
-        OutputDirectory, ctx, !KeepOutputDirectory);
-  } else {
-    // Use the current working directory as the base directory
-    // and use as a prefix the name of the query.
-    llvm::SmallVector<char, 256> currentDir;
-    if (auto ec = llvm::sys::fs::current_path(currentDir)) {
-      ctx.getErrorStream()
-          << "(error failed to get current workding directory because "
-          << ec.message() << ")\n";
-      exit(1);
-    }
-    llvm::StringRef currentDirAsStringRef(currentDir.data(), currentDir.size());
-    llvm::StringRef prefix;
-    if (InputFilename == "-") {
-      prefix = "stdin";
-    } else {
-      // Not on standard input so get the name
-      prefix = llvm::sys::path::filename(InputFilename);
-    }
-    wdm = jfs::fuzzingCommon::WorkingDirectoryManager::makeInDirectory(
-        /*directory=*/currentDirAsStringRef, /*prefix=*/prefix, ctx,
-        !KeepOutputDirectory);
-  }
-
-  // Create solver
-  // TODO: Refactor this so it can be used elsewhere
-  std::unique_ptr<Solver> solver;
-  switch (SolverBackend) {
-  case DUMMY_FUZZING_SOLVER: {
-    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
-    solver.reset(new jfs::fuzzingCommon::DummyFuzzingSolver(
-        std::move(solverOptions), std::move(wdm), ctx));
-    break;
-  }
-  case Z3_SOLVER: {
-    std::unique_ptr<SolverOptions> solverOptions(new SolverOptions());
-    solver.reset(new jfs::z3Backend::Z3Solver(std::move(solverOptions), ctx));
-    break;
-  }
-  case CXX_FUZZING_SOLVER: {
-    // Tell ClangOptions to try and infer all paths
-    std::string pathToExecutable = llvm::sys::fs::getMainExecutable(
-        argv[0], reinterpret_cast<void*>(reinterpret_cast<intptr_t>(main)));
-    auto clangOptions =
-        jfs::cxxfb::cl::buildClangOptionsFromCmdLine(pathToExecutable);
-    IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
-
-    auto libFuzzerOptions =
-        jfs::fuzzingCommon::cl::buildLibFuzzerOptionsFromCmdLine();
-
-    std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
-        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),
-                                                std::move(libFuzzerOptions)));
-    assert(clangOptions.get() == nullptr);
-    assert(libFuzzerOptions.get() == nullptr);
-    solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
-                                                  std::move(wdm), ctx));
-    assert(wdm.get() == nullptr);
-    assert(solverOptions.get() == nullptr);
-    break;
-  }
-  default:
-    llvm_unreachable("unknown solver backend");
-  }
+  // Create working directory and solver
+  std::string pathToExecutable = llvm::sys::fs::getMainExecutable(
+      argv[0], reinterpret_cast<void*>(reinterpret_cast<intptr_t>(main)));
+  std::unique_ptr<Solver> solver(
+      makeSolver(ctx, makeWorkingDirectory(ctx), pathToExecutable));
 
   // HACK: This is a global so `handleInterrupt()` can call it.
   cancelFn = [&solver, &pm, &ctx]() {
