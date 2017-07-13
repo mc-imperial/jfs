@@ -207,6 +207,7 @@ int main(int argc, char** argv) {
   });
 
   // Parse query
+  IF_VERB(ctx, ctx.getDebugStream() << "(Parser starting)\n");
   auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
   if (auto error = bufferOrError.getError()) {
     ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
@@ -217,6 +218,7 @@ int main(int argc, char** argv) {
   // NOTE: the ToolErrorHandler will deal with parsing errors.
   auto query = parser.parseMemoryBuffer(std::move(buffer));
   parsingDone = true;
+  IF_VERB(ctx, ctx.getDebugStream() << "(Parser finished)\n");
   if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
