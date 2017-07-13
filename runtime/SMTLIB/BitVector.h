@@ -599,13 +599,18 @@ template <uint64_t BITWIDTH,
 BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
                                       uint64_t lowBit, uint64_t highBit) {
   jassert(highBit >= lowBit && "invalid lowBit and highBit");
+  jassert(((highBit - lowBit) + 1) == BITWIDTH);
+  jassert(highBit < (buffer.getSize() * 8));
   const size_t lowBitByte = lowBit / 8;
-  const size_t highBitByte = highBit / 8;
+  const size_t shiftOffset = lowBit % 8;
+  // NOTE: doing `highBit / 8` to compute `highBitByte` is wrong. For [1,8]
+  // that gives a highBit of 1 which is wrong for the loop below (should be 0).
+  // const size_t highBitByte = (lowBitByte + ((BITWIDTH + 7) / 8)) - 1;
+  const size_t highBitByte = (lowBitByte + (((highBit - lowBit) + 8) / 8)) - 1;
   jassert(lowBitByte < buffer.getSize());
   jassert(highBitByte < buffer.getSize());
   uint64_t data = 0;
   uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
-  const size_t shiftOffset = lowBit % 8;
   uint64_t dataMask = 0;
   if (BITWIDTH < 64) {
     dataMask = (UINT64_C(1) << BITWIDTH) - 1;
@@ -614,7 +619,9 @@ BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
   }
   // Copy byte-by-byte shifting if necessary
   for (size_t index = lowBitByte; index <= highBitByte; ++index) {
-    size_t viewIndex = index - lowBitByte;
+    const size_t viewIndex = index - lowBitByte;
+    jassert(index < buffer.getSize());
+    jassert(viewIndex < sizeof(data));
     uint8_t bufferByte = buffer.get()[index];
     dataView[viewIndex] |= (bufferByte >> shiftOffset);
     if (shiftOffset == 0) {
@@ -622,10 +629,10 @@ BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
       // out.
       continue;
     }
-    // Doing the shift means we added have zero bits in LSB rather
-    // than the actually bits we want.
+    // Doing the shift means we have zero bits in MSB rather than the actually
+    // bits we want.
     uint8_t nextIterByteValue = 0;
-    if ((index + 1) <= highBitByte) {
+    if ((index + 1) < buffer.getSize()) {
       // Avoid out of bounds access
       nextIterByteValue = buffer.get()[index + 1];
     }

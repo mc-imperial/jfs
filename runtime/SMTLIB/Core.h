@@ -43,6 +43,7 @@ bool makeBoolFrom(BufferRef<const uint8_t> buffer, const uint64_t lowBit,
   // are stradling bytes
   if (highBitByte > lowBitByte) {
     jassert(shiftOffset > 0);
+    jassert(highBitByte < buffer.getSize());
     uint8_t nextBufferByte = buffer.get()[highBitByte];
     data |= (nextBufferByte << (8 - shiftOffset));
   }

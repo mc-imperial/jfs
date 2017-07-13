@@ -129,3 +129,43 @@ TEST(MakeFromBuffer, AcrossByteBoundaryFalse) {
   bool bits3 = makeBoolFrom(bufferRef, 7, 9);
   ASSERT_EQ(bits3, true);
 }
+
+#define MAKE_FROM_LARGE(N, BUFFER_SIZE, ALL_BITS_ONE)                          \
+  TEST(MakeFromBuffer, LargeBuffer_##N##_##BUFFER_SIZE##_##ALL_BITS_ONE) {     \
+    static_assert(BUFFER_SIZE > 0, "invalid buffer size");                     \
+    static_assert(N <= 8 && N >= 0, "invalid N value");                        \
+    const size_t numBytes = BUFFER_SIZE;                                       \
+    std::unique_ptr<uint8_t, decltype(std::free)*> buffer(                     \
+        reinterpret_cast<uint8_t*>(malloc(numBytes)), std::free);              \
+    if (ALL_BITS_ONE) {                                                        \
+      memset(buffer.get(), 255, numBytes);                                     \
+    } else {                                                                   \
+      memset(buffer.get(), 0, numBytes);                                       \
+    }                                                                          \
+    BufferRef<const uint8_t> bufferRef(buffer.get(), numBytes);                \
+    for (unsigned bitOffset = 0; bitOffset <= ((numBytes * 8) - N);            \
+         ++bitOffset) {                                                        \
+      bool a = makeBoolFrom(bufferRef, bitOffset, bitOffset + (N - 1));        \
+      if (ALL_BITS_ONE) {                                                      \
+        ASSERT_EQ(a, true);                                                    \
+      } else {                                                                 \
+        ASSERT_EQ(a, false);                                                   \
+      }                                                                        \
+    }                                                                          \
+  }
+MAKE_FROM_LARGE(1, 1024, true)
+MAKE_FROM_LARGE(2, 1024, true)
+MAKE_FROM_LARGE(3, 1024, true)
+MAKE_FROM_LARGE(4, 1024, true)
+MAKE_FROM_LARGE(5, 1024, true)
+MAKE_FROM_LARGE(6, 1024, true)
+MAKE_FROM_LARGE(7, 1024, true)
+MAKE_FROM_LARGE(8, 1024, true)
+MAKE_FROM_LARGE(1, 1024, false)
+MAKE_FROM_LARGE(2, 1024, false)
+MAKE_FROM_LARGE(3, 1024, false)
+MAKE_FROM_LARGE(4, 1024, false)
+MAKE_FROM_LARGE(5, 1024, false)
+MAKE_FROM_LARGE(6, 1024, false)
+MAKE_FROM_LARGE(7, 1024, false)
+MAKE_FROM_LARGE(8, 1024, false)

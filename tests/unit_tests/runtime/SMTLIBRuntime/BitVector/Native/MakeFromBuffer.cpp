@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "SMTLIB/BitVector.h"
 #include "gtest/gtest.h"
+#include <memory>
 #include <string.h>
 
 TEST(MakeFromBuffer, WholeBuffer64) {
@@ -64,3 +65,59 @@ TEST(MakeFromBuffer, NonByteAlignedOffset) {
   BitVector<6> d = makeBitVectorFrom<6>(bufferRef, 10, 15);
   ASSERT_EQ(d, 0);
 }
+
+TEST(MakeFromBuffer, LargeBuffer) {
+  const size_t numBytes = 128;
+  std::unique_ptr<uint8_t, decltype(std::free)*> buffer(
+      reinterpret_cast<uint8_t*>(malloc(numBytes)), std::free);
+  // All ones
+  memset(buffer.get(), 255, numBytes);
+  BufferRef<const uint8_t> bufferRef(buffer.get(), numBytes);
+  for (unsigned bitOffset = 0; bitOffset <= ((numBytes * 8) - 8); ++bitOffset) {
+    BitVector<8> a = makeBitVectorFrom<8>(bufferRef, bitOffset, bitOffset + 7);
+    ASSERT_EQ(a, 255);
+  }
+}
+
+#define MAKE_FROM_LARGE(N, BUFFER_SIZE, ALL_BITS_ONE)                          \
+  TEST(MakeFromBuffer, LargeBuffer_##N##_##BUFFER_SIZE##_##ALL_BITS_ONE) {     \
+    const size_t numBytes = BUFFER_SIZE;                                       \
+    static_assert(BUFFER_SIZE > 0, "invalid buffer size");                     \
+    static_assert(N >= 0 && N <= 64, "invalid N value");                       \
+    std::unique_ptr<uint8_t, decltype(std::free)*> buffer(                     \
+        reinterpret_cast<uint8_t*>(malloc(numBytes)), std::free);              \
+    if (ALL_BITS_ONE) {                                                        \
+      memset(buffer.get(), 255, numBytes);                                     \
+    } else {                                                                   \
+      memset(buffer.get(), 0, numBytes);                                       \
+    }                                                                          \
+    ASSERT_LE(N, 64);                                                          \
+    uint64_t maxValue = 0;                                                     \
+    if (N >= 64) {                                                             \
+      maxValue = UINT64_MAX;                                                   \
+    } else {                                                                   \
+      maxValue = (UINT64_MAX) >> (64 - N);                                     \
+    }                                                                          \
+                                                                               \
+    BufferRef<const uint8_t> bufferRef(buffer.get(), numBytes);                \
+    for (unsigned bitOffset = 0; bitOffset <= ((numBytes * 8) - N);            \
+         ++bitOffset) {                                                        \
+      const BitVector<N> a =                                                   \
+          makeBitVectorFrom<N>(bufferRef, bitOffset, bitOffset + (N - 1));     \
+      if (ALL_BITS_ONE) {                                                      \
+        ASSERT_EQ(a, maxValue);                                                \
+      } else {                                                                 \
+        ASSERT_EQ(a, 0);                                                       \
+      }                                                                        \
+    }                                                                          \
+  }
+MAKE_FROM_LARGE(64, 1990, true)
+MAKE_FROM_LARGE(64, 1990, false)
+MAKE_FROM_LARGE(1, 1990, true)
+MAKE_FROM_LARGE(1, 1990, false)
+MAKE_FROM_LARGE(2, 1990, true)
+MAKE_FROM_LARGE(2, 1990, false)
+MAKE_FROM_LARGE(3, 1990, true)
+MAKE_FROM_LARGE(3, 1990, false)
+MAKE_FROM_LARGE(4, 1990, true)
+MAKE_FROM_LARGE(4, 1990, false)
