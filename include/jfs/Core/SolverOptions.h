@@ -36,8 +36,6 @@ public:
   }
   // END: LLVM RTTI boilerplate code
   // Options common to all solvers
-  // FIXME: Timeout should be removed here as the cancel() method exists
-  uint64_t maxTime = 0;
 };
 }
 }
