@@ -26,6 +26,14 @@ struct LibFuzzerOptions {
   bool crossOver;         // Corresponds to `-cross_over` option
   uint64_t maxLength;     // Corresponds to `-max_len=<N>` option (bytes).
   bool useCmp;            // Corresponds to `-use_cmp` option
+  bool handleSIGABRT;
+  bool handleSIGBUS;
+  bool handleSIGFPE;
+  bool handleSIGILL;
+  bool handleSIGINT;
+  bool handleSIGSEGV;
+  bool handleSIGTERM;
+  bool handleSIGXFSZ;
 
   bool addAllZeroMaxLengthSeed;
 

@@ -117,6 +117,38 @@ public:
     // Use trace comparison
     SET_ARG(useCmpArg, "-use_cmp=" << (options->useCmp ? "1" : "0"));
 
+    // handle SIGABRT
+    SET_ARG(handleSIGABRTArg,
+            "-handle_abrt=" << (options->handleSIGABRT ? "1" : "0"));
+
+    // handle SIGBUS
+    SET_ARG(handleSIGBUSArg,
+            "-handle_bus=" << (options->handleSIGBUS ? "1" : "0"));
+
+    // handle SIGFPE
+    SET_ARG(handleSIGFPEArg,
+            "-handle_fpe=" << (options->handleSIGFPE ? "1" : "0"));
+
+    // handle SIGILL
+    SET_ARG(handleSIGILLArg,
+            "-handle_ill=" << (options->handleSIGILL ? "1" : "0"));
+
+    // handle SIGINT
+    SET_ARG(handleSIGIntArg,
+            "-handle_int=" << (options->handleSIGINT ? "1" : "0"));
+
+    // handle SIGSEGV
+    SET_ARG(handleSIGSEGVArg,
+            "-handle_segv=" << (options->handleSIGSEGV ? "1" : "0"));
+
+    // handle SIGTERM
+    SET_ARG(handleSIGTERMArg,
+            "-handle_term=" << (options->handleSIGTERM ? "1" : "0"));
+
+    // handle SIGXFSZ
+    SET_ARG(handleSIGXFSZArg,
+            "-handle_xfsz=" << (options->handleSIGXFSZ ? "1" : "0"));
+
     // Artifact dir
     // TODO: Use Twine?
     std::string artifactPathWithSlash(options->artifactDir);

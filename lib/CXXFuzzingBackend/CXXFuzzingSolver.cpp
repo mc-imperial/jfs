@@ -227,6 +227,21 @@ public:
         options->getClangOptions()->sanitizerCoverageOptions.end()) {
       lfo->useCmp = true;
     }
+    // FIXME: The fact that our fuzzing target is `abort()` is really fragile.
+    lfo->handleSIGABRT =
+        true; // Our target is an `abort()` so we want to catch this.
+    lfo->handleSIGBUS = false; // We don't want to confuse this with the target.
+    lfo->handleSIGFPE = false; // We don't want to confuse this with the target.
+    lfo->handleSIGILL = false; // We don't want to confuse this with the target.
+    lfo->handleSIGINT =
+        true; // This doesn't trigger LibFuzzer's error handler so this is fine.
+    lfo->handleSIGSEGV =
+        false; // We don't want to confuse this with the target.
+    lfo->handleSIGTERM =
+        true; // This doesn't trigger LibFuzzer's error handler so this is fine.
+    lfo->handleSIGXFSZ =
+        true; // This doesn't trigger LibFuzzer's error handler so this is fine.
+
     if (ctx.getVerbosity() == 0) {
       // When being quiet redirect to files
       libFuzzerStdOutFile =
