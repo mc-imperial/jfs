@@ -10,23 +10,6 @@
 #===------------------------------------------------------------------------===#
 
 ###############################################################################
-# Runtime header files
-###############################################################################
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/SMTLIB")
-set(RUNTIME_HEADERS "BitVector.h" "BufferRef.h" "Core.h" "jassert.h")
-foreach (runtime_header ${RUNTIME_HEADERS})
-  # Use configure_file() so that changes to the files in the source tree
-  # trigger CMake to re-configure itself which will then cause the copies
-  # of the headers in the build tree to be updated.
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIB/${runtime_header}"
-    "${CMAKE_CURRENT_BINARY_DIR}/include/SMTLIB/${runtime_header}"
-    COPYONLY
-  )
-endforeach()
-
-###############################################################################
 # Runtime copy of Clang++ and dependent libraries
 ###############################################################################
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
@@ -101,3 +84,8 @@ foreach (buildType ${LibFuzzerBuildTypes})
     USES_TERMINAL_CONFIGURE 1
   )
 endforeach()
+
+###############################################################################
+# SMTLIB runtime
+###############################################################################
+add_subdirectory(SMTLIB)

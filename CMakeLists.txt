@@ -361,11 +361,52 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include("${CMAKE_SOURCE_DIR}/cmake/jfs_add_component.cmake")
+
 ################################################################################
-# Libraries
+# Top level unit test target
 ################################################################################
-add_subdirectory(lib)
+# This is top level because there are multiple unit test suites to run
+add_custom_target(unittests)
+
+################################################################################
+# Detect lit tool
+################################################################################
+# This can't belong in `tests/` because `runtime/` needs to run its own tests.
+option(ENABLE_SYSTEM_TESTS "Enable system tests" ON)
+option(ENABLE_UNIT_TESTS "Enable unit tests" ON)
+if (ENABLE_SYSTEM_TESTS OR ENABLE_UNIT_TESTS)
+  # Find lit
+  set(LIT_TOOL_NAMES "llvm-lit" "lit")
+  find_program(
+    LIT_TOOL
+    NAMES ${LIT_TOOL_NAMES}
+    HINTS "${LLVM_TOOLS_BINARY_DIR}"
+    DOC "Path to lit tool"
+  )
+
+  set(LIT_ARGS
+    "-v;-s"
+    CACHE
+    STRING
+    "Lit arguments"
+  )
+
+  if ((NOT LIT_TOOL) OR (NOT EXISTS "${LIT_TOOL}"))
+    message(FATAL_ERROR "The lit tool is required for testing.")
+  else()
+    message(STATUS "Using lit: ${LIT_TOOL}")
+  endif()
+endif()
+
+################################################################################
+# Utilities
+################################################################################
+set(GTEST_SRC_DIR "${CMAKE_SOURCE_DIR}/utils/googletest/googletest")
+add_subdirectory(utils)
+# Sanity check: JFS runtime tests depend on this
+if (NOT DEFINED JFS_GTEST_EXPORT_FILE)
+  message(FATAL_ERROR "JFS_GTEST_EXPORT_FILE not defined")
+endif()
 
 ################################################################################
 # Runtime
@@ -379,6 +420,12 @@ if (NOT (EXISTS "${JFS_LLVM_CLANG_CXX_TOOL}"))
   message(FATAL_ERROR "JFS_LLVM_CLANG_CXX_TOOL (\"${JFS_LLVM_CLANG_CXX_TOOL}\") doest not exist")
 endif()
 message(STATUS "JFS_LLVM_CLANG_CXX_TOOL: ${JFS_LLVM_CLANG_CXX_TOOL}")
+
+################################################################################
+# Libraries
+################################################################################
+include("${CMAKE_SOURCE_DIR}/cmake/jfs_add_component.cmake")
+add_subdirectory(lib)
 
 ################################################################################
 # Tools

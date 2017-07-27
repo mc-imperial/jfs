@@ -1,0 +1,10 @@
+import sys
+import os
+
+## @AUTO_GEN_MSG@
+# TODO: Should put something about config in here
+config.name = '@UNIT_TEST_SUITE_NAME@'
+config.unit_test_exe_suffix = "@UNIT_TEST_EXE_SUFFIX@"
+
+# Let the main config do the real work.
+lit_config.load_config(config, "@CMAKE_CURRENT_SOURCE_DIR@/lit-unit-tests-common.cfg")

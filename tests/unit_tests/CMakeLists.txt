@@ -8,19 +8,13 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-set(GTEST_SRC_DIR "${CMAKE_SOURCE_DIR}/utils/googletest/googletest")
 include("${CMAKE_SOURCE_DIR}/cmake/add_jfs_unit_test.cmake")
 
-# Build gtest
-add_subdirectory(
-  "${GTEST_SRC_DIR}"
-  "${CMAKE_BINARY_DIR}/utils/googletest"
-)
+# Note we assume GTest is already built in `utils/CMakeLists.txt`
 
 # Unit Tests
 add_subdirectory(Dummy)
 add_subdirectory(FuzzingCommon)
-add_subdirectory(runtime)
 
 # Set up lit configuration
 configure_file(
@@ -29,17 +23,18 @@ configure_file(
   @ONLY
 )
 
-# Add a target to run all the unit tests using lit
 get_property(UNIT_TEST_DEPENDS
   GLOBAL
   PROPERTY JFS_UNIT_TEST_TARGETS
 )
-add_custom_target(unittests
+add_custom_target(jfs_lib_unittests
   COMMAND
     "${CMAKE_COMMAND}" -E env
       "UBSAN_OPTIONS=halt_on_error=1"
       "${LIT_TOOL}" ${LIT_ARGS} "${CMAKE_CURRENT_BINARY_DIR}"
-    DEPENDS ${UNIT_TEST_DEPENDS} SMTLIBRuntimeTests
-    COMMENT "Running unittests"
+    DEPENDS ${UNIT_TEST_DEPENDS}
+    COMMENT "Running JFS library unittests"
     ${ADD_CUSTOM_COMMAND_USES_TERMINAL_ARG}
 )
+# Make top level target depend on JFS library unit tests
+add_dependencies(unittests jfs_lib_unittests)

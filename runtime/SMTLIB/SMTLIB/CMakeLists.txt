@@ -15,11 +15,11 @@ project(SMTLIBRuntime CXX)
 ###############################################################################
 cmake_minimum_required(VERSION 2.8.12)
 
-if (NOT DEFINED JFS_SRC_ROOT)
-  message(FATAL_ERROR "JFS_SRC_ROOT must be defined")
+if (NOT DEFINED JFS_SOURCE_ROOT)
+  message(FATAL_ERROR "JFS_SOURCE_ROOT must be defined")
 endif()
-if (NOT EXISTS "${JFS_SRC_ROOT}")
-  message(FATAL_ERROR "JFS_SRC_ROOT (${JFS_SRC_ROOT}) must exist")
+if (NOT EXISTS "${JFS_SOURCE_ROOT}")
+  message(FATAL_ERROR "JFS_SOURCE_ROOT (${JFS_SOURCE_ROOT}) must exist")
 endif()
 
 if (NOT DEFINED JFS_BINARY_ROOT)
@@ -29,8 +29,20 @@ if (NOT EXISTS "${JFS_BINARY_ROOT}")
   message(FATAL_ERROR "JFS_BINARY_ROOT (${JFS_BINARY_ROOT}) must exist")
 endif()
 
-if (NOT EXISTS "${GTEST_SRC_DIR}")
-  message(FATAL_ERROR "GTEST_SRC_DIR (${GTEST_SRC_DIR}) must exist")
+if (NOT DEFINED JFS_GTEST_EXPORT_FILE)
+  message(FATAL_ERROR "JFS_GTEST_EXPORT_FILE must be defined")
+endif()
+
+if (NOT DEFINED LIT_TOOL)
+  message(FATAL_ERROR "LIT_TOOL must be defined")
+else()
+  message(STATUS "LIT_TOOL: \"${LIT_TOOL}\"")
+endif()
+
+if (NOT DEFINED LIT_ARGS)
+  message(FATAL_ERROR "LIT_ARGS must be defined")
+else()
+  message(STATUS "LIT_ARGS: \"${LIT_ARGS}\"")
 endif()
 
 ###############################################################################
@@ -67,13 +79,17 @@ else()
 endif()
 
 ###############################################################################
-# Header only library
+# SMTLIB runtime
 ###############################################################################
 
-add_library(JFSSMTLIBRuntime INTERFACE)
+add_library(JFSSMTLIBRuntime
+  STATIC
+  Core.cpp
+)
 
+# FIXME: We shouldn't be relying on external to set this up.
 target_include_directories(JFSSMTLIBRuntime
-  INTERFACE "${JFS_BINARY_ROOT}/runtime/include"
+  PUBLIC "${JFS_BINARY_ROOT}/runtime/include"
 )
 
 # Header should use C++11
@@ -95,32 +111,6 @@ else()
 endif()
 
 ###############################################################################
-# Utility library
+# Unit tests
 ###############################################################################
-add_library(JFSSMTLIBRuntimeTestUtil
-  SMTLIBRuntimeTestUtil.cpp
-)
-target_include_directories(JFSSMTLIBRuntimeTestUtil
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-###############################################################################
-# Build GTest
-###############################################################################
-# FIXME: This is kind of wasteful. We should import the targets instead and just
-# reuse them.
-# Build gtest
-add_subdirectory(
-  "${GTEST_SRC_DIR}"
-  # FIXME: This is a horrible hack.
-  # Build outside of our binary tree so that lit doesn't pick up binaries
-  "${JFS_BINARY_ROOT}/utils/googletest_runtime"
-)
-
-###############################################################################
-# Declare unit tests
-###############################################################################
-include("${JFS_SRC_ROOT}/cmake/add_jfs_unit_test.cmake")
-
-add_subdirectory(BitVector)
-add_subdirectory(Core)
+add_subdirectory(unittests)

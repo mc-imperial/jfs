@@ -11,17 +11,9 @@
 ###############################################################################
 # Build LLVM testing tools
 ###############################################################################
-add_subdirectory(
-  "${CMAKE_SOURCE_DIR}/utils/FileCheck"
-  "${CMAKE_BINARY_DIR}/utils/FileCheck"
-)
 # FIXME: This is not portable
 set(FILECHECK_BIN_PATH "${CMAKE_BINARY_DIR}/bin/FileCheck")
 
-add_subdirectory(
-  "${CMAKE_SOURCE_DIR}/utils/not"
-  "${CMAKE_BINARY_DIR}/utils/not"
-)
 # FIXME: This is not portable
 set(NOT_BIN_PATH "${CMAKE_BINARY_DIR}/bin/not")
 
