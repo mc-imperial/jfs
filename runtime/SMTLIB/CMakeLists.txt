@@ -24,33 +24,73 @@ foreach (runtime_header ${RUNTIME_HEADERS})
   )
 endforeach()
 
-# Build two copies of the runtime one for use in JFS and one for
-# ASan+UBSan testing
+# Build runtime as external project. This allows us to use a different
+# compiler from the host and also build multiple variants of the runtime.
 include(ExternalProject)
+include(CMakeParseArguments)
 include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
-# TODO: May want more configurations in the future.
-macro(AddJFSRuntimeBuild buildName buildType)
+macro(AddJFSRuntimeBuild)
+  cmake_parse_arguments(jfs_runtime_arg
+    "ASAN;UBSAN;RUNTIME_ASSERTS;DEBUG_SYMBOLS;OPTIMIZED;RUN_UNIT_TESTS"
+    ""
+    ""
+    ${ARGN}
+  )
+  # Compute build name from arguments
+  set(buildName "")
+  if (jfs_runtime_arg_DEBUG_SYMBOLS)
+    string(APPEND buildName "_DebugSymbols")
+  endif()
+  if (jfs_runtime_arg_OPTIMIZED)
+    string(APPEND buildName "_Optimized")
+  endif()
+  if (jfs_runtime_arg_RUNTIME_ASSERTS)
+    string(APPEND buildName "_RuntimeAsserts")
+  endif()
+  if (jfs_runtime_arg_ASAN)
+    string(APPEND buildName "_ASan")
+  endif()
+  if (jfs_runtime_arg_UBSAN)
+    string(APPEND buildName "_UBSan")
+  endif()
+  message(STATUS "Adding JFS runtime ${buildName}")
   set(buildDir "${CMAKE_CURRENT_BINARY_DIR}/SMTLIB_${buildName}")
+
+  # Compute CMake build type
+  if (jfs_runtime_arg_OPTIMIZED)
+    if (jfs_runtime_arg_DEBUG_SYMBOLS)
+      set(jfs_runtime_cmake_build_type "RelWithDebInfo")
+    else()
+      set(jfs_runtime_cmake_build_type "Release")
+    endif()
+  else()
+    set(jfs_runtime_cmake_build_type "Debug")
+  endif()
+
   jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
-  ExternalProject_Add(BuildSMTLIBRuntime_${buildName}
+  set(external_project_target_name "BuildSMTLIBRuntime${buildName}")
+  ExternalProject_Add(${external_project_target_name}
     DEPENDS jfs_gtest_main jfs_gtest
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIB"
     # FIXME: We should allow other generators
     CMAKE_GENERATOR "Unix Makefiles"
     CMAKE_ARGS
       "-DCMAKE_CXX_COMPILER=${LLVM_CLANG_CXX_TOOL}"
-      "-DCMAKE_BUILD_TYPE=${buildType}"
+      "-DCMAKE_BUILD_TYPE=${jfs_runtime_cmake_build_type}"
       "-DJFS_BINARY_ROOT=${CMAKE_BINARY_DIR}"
       "-DJFS_SOURCE_ROOT=${CMAKE_SOURCE_DIR}"
       "-DJFS_GTEST_EXPORT_FILE=${JFS_GTEST_EXPORT_FILE}"
       "-DGTEST_SRC_DIR=${GTEST_SRC_DIR}"
       "-DLIT_TOOL:string=${LIT_TOOL}"
-      ${ARGN} # Additional CMake arguments
+      "-DUSE_ASAN=${jfs_runtime_arg_ASAN}"
+      "-DUSE_UBSAN=${jfs_runtime_arg_UBSAN}"
+      "-DENABLE_JFS_RUNTIME_ASSERTS=${jfs_runtime_arg_RUNTIME_ASSERTS}"
     CMAKE_CACHE_ARGS
       # HACK: We have to pass `LIT_ARGS` this way because
       # its a list and passing it in `CMAKE_ARGS` doesn't
       # seem to work.
       "-DLIT_ARGS:string=${LIT_ARGS}"
+      "-DENABLE_UNIT_TESTS:bool=${jfs_runtime_arg_RUN_UNIT_TESTS}"
     BINARY_DIR "${buildDir}"
     BUILD_ALWAYS 1
     ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
@@ -60,29 +100,57 @@ macro(AddJFSRuntimeBuild buildName buildType)
     USES_TERMINAL_BUILD 1
     USES_TERMINAL_CONFIGURE 1
   )
-# Add custom target that invokes the unit teset target inside the external project
-add_custom_target(jfs_runtime_${buildName}_unittests
-  COMMENT "Runing JFS ${buildName} Runtime unittests"
-  COMMAND
-  "${CMAKE_COMMAND}" --build "${buildDir}/unittests" --target jfs_runtime_unittests
-  DEPENDS BuildSMTLIBRuntime_${buildName}
-  USES_TERMINAL
-)
-add_dependencies(unittests jfs_runtime_${buildName}_unittests)
+  if (jfs_runtime_arg_RUN_UNIT_TESTS)
+    message(STATUS "Enabling unit tests for JFS runtime ${buildName}")
+    # Add custom target that invokes the unit teset target inside the external project
+    add_custom_target(jfs_runtime_${buildName}_unittests
+      COMMENT "Runing JFS ${buildName} Runtime unittests"
+      COMMAND
+      "${CMAKE_COMMAND}" --build "${buildDir}/unittests" --target jfs_runtime_unittests
+      DEPENDS ${external_project_target_name}
+      USES_TERMINAL
+    )
+    add_dependencies(unittests jfs_runtime_${buildName}_unittests)
+  endif()
 endmacro()
 
 # TODO: Automatically generate a header and source file that JFS can
 # consume so it knows about each of the runtime configurations.
 
 # TODO: Add more configurations so we can experiment with them from jfs.
-
-# TODO: Can we speed up linking by not emitting debug symbols?
-AddJFSRuntimeBuild(Optimized_DbgSym RelWithDebInfo
-  -DENABLE_JFS_RUNTIME_ASSERTS=OFF
+AddJFSRuntimeBuild(
+  OPTIMIZED
+  DEBUG_SYMBOLS
+  RUN_UNIT_TESTS
 )
-AddJFSRuntimeBuild(Optimized_DbgSym_ASan_UBSan_RuntimeAsserts
-  RelWithDebInfo
-  -DUSE_ASAN=ON
-  -DUSE_UBSAN=ON
-  -DENABLE_JFS_RUNTIME_ASSERTS=ON
+AddJFSRuntimeBuild(
+  OPTIMIZED
+  DEBUG_SYMBOLS
+  RUNTIME_ASSERTS
+  RUN_UNIT_TESTS
+)
+# NOTE: There's no config to run with ASan/UBSan but not have runtime
+# asserts. It's unlikely we'd want to do that so don't build that
+# config for now.
+AddJFSRuntimeBuild(
+  DEBUG_SYMBOLS
+  OPTIMIZED
+  RUNTIME_ASSERTS
+  ASAN
+  UBSAN
+  RUN_UNIT_TESTS
+)
+AddJFSRuntimeBuild(
+  DEBUG_SYMBOLS
+  OPTIMIZED
+  RUNTIME_ASSERTS
+  ASAN
+  # Don't run tests as covered by config that mixes ASan and UBSan together
+)
+AddJFSRuntimeBuild(
+  DEBUG_SYMBOLS
+  OPTIMIZED
+  RUNTIME_ASSERTS
+  UBSAN
+  # Don't run tests as covered by config that mixes ASan and UBSan together
 )

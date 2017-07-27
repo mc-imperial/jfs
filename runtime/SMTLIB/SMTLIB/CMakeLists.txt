@@ -113,4 +113,7 @@ endif()
 ###############################################################################
 # Unit tests
 ###############################################################################
-add_subdirectory(unittests)
+option(ENABLE_UNIT_TESTS "Enable unit tests" ON)
+if (ENABLE_UNIT_TESTS)
+  add_subdirectory(unittests)
+endif()
