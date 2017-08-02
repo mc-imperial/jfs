@@ -22,6 +22,7 @@ namespace cxxfb {
 struct ClangOptions {
   // Paths should be absolute
   std::string pathToBinary;
+  std::string pathToRuntimeDir;
   std::string pathToRuntimeIncludeDir;
   std::string pathToLibFuzzerLib;
   enum class OptimizationLevel { O0, O1, O2, O3 };

@@ -29,6 +29,25 @@ endforeach()
 include(ExternalProject)
 include(CMakeParseArguments)
 include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
+
+# Properties populated by the `AddJFSRuntimeBuild()` macro.
+# They need to be global properties so that they can be consumed from
+# other parts of the build system
+define_property(
+  GLOBAL
+  PROPERTY
+  JFS_AVAILABLE_RUNTIMES
+  BRIEF_DOCS "List of available JFS runtimes"
+  FULL_DOCS "List of available JFS runtimes"
+)
+define_property(
+  GLOBAL
+  PROPERTY
+  JFS_STATIC_RUNTIME_PATH
+  BRIEF_DOCS "List of JFS static runtime library paths relative to runtime directory"
+  FULL_DOCS "List of JFS static runtime library paths relative to runtime directory"
+)
+
 macro(AddJFSRuntimeBuild)
   cmake_parse_arguments(jfs_runtime_arg
     "ASAN;UBSAN;RUNTIME_ASSERTS;DEBUG_SYMBOLS;OPTIMIZED;RUN_UNIT_TESTS"
@@ -112,10 +131,36 @@ macro(AddJFSRuntimeBuild)
     )
     add_dependencies(unittests jfs_runtime_${buildName}_unittests)
   endif()
+
+  # Append to JFS_AVAILABLE_RUNTIMES
+  string(TOUPPER "${buildName}" CAPITALIZED_BUILD_NAME)
+  string(REGEX REPLACE
+    "^_"
+    ""
+    CAPITALIZED_BUILD_NAME_NO_LEADING_UNDERSCORE
+    "${CAPITALIZED_BUILD_NAME}"
+  )
+  set_property(
+    GLOBAL
+    APPEND
+    PROPERTY JFS_AVAILABLE_RUNTIMES
+    "${CAPITALIZED_BUILD_NAME_NO_LEADING_UNDERSCORE}"
+  )
+  # Append to JFS_STATIC_RUNTIME_PATH
+  # This path will be relative to the `runtime`
+  file(RELATIVE_PATH
+    RUNTIME_LIBRARY_PATH
+    "${CMAKE_BINARY_DIR}/runtime" # Relative to
+    "${buildDir}/libJFSSMTLIBRuntime.a" # FIXME: Not portable
+  )
+  set_property(
+    GLOBAL
+    APPEND
+    PROPERTY JFS_STATIC_RUNTIME_PATH
+    "${RUNTIME_LIBRARY_PATH}"
+  )
 endmacro()
 
-# TODO: Automatically generate a header and source file that JFS can
-# consume so it knows about each of the runtime configurations.
 
 # TODO: Add more configurations so we can experiment with them from jfs.
 AddJFSRuntimeBuild(

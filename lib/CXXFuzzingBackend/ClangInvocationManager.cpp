@@ -12,8 +12,11 @@
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/FuzzingCommon/SMTLIBRuntimes.h"
 #include "jfs/Support/CancellableProcess.h"
+#include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/Support/Path.h"
 #include "llvm/Support/raw_ostream.h"
 #include <atomic>
 #include <string>
@@ -39,6 +42,50 @@ public:
     IF_VERB(ctx,
             ctx.getDebugStream() << "(ClangInvocationManager cancel called)\n");
     proc.cancel();
+  }
+
+  // FIXME: Not sure if this belongs here or in ClangOptions
+  jfs::fuzzingCommon::SMTLIBRuntimeTy
+  computeSMTLIBRuntime(const ClangOptions* options) const {
+    // FIXME: We ignore `debugSymbols` and `optimizationLevel` clang options
+    // right now because we don't produce separate runtimes for these
+    // combinations.
+    if (!options->useJFSRuntimeAsserts) {
+      if (options->useASan || options->useUBSan) {
+        // FIXME: We just don't build these combinations right now so we can
+        // easily fix this. This isn't a configuration we should really be using
+        // though. If we're debugging we should really have the asserts on.
+        ctx.raiseFatalError("Can't use ASan/UBSan without JFS runtime asserts");
+      }
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::DEBUGSYMBOLS_OPTIMIZED;
+    }
+
+    // Build has runtime asserts
+    if (options->useASan && options->useUBSan) {
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN_UBSAN;
+    } else if (options->useASan) {
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN;
+    } else if (options->useUBSan) {
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_UBSAN;
+    }
+    // Just with runtime asserts
+    return jfs::fuzzingCommon::SMTLIBRuntimeTy::
+        DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS;
+  }
+
+  // FIXME: Not sure if this belongs here or in ClangOptions
+  std::string computeSMTLIBRuntimePath(const ClangOptions* options) const {
+    jfs::fuzzingCommon::SMTLIBRuntimeTy runtimeTy =
+        computeSMTLIBRuntime(options);
+    llvm::SmallVector<char, 256> mutablePath(options->pathToRuntimeDir.cbegin(),
+                                             options->pathToRuntimeDir.cend());
+    llvm::sys::path::append(
+        mutablePath, jfs::fuzzingCommon::getSMTLIBRuntimePath(runtimeTy));
+    std::string path(mutablePath.data(), mutablePath.size());
+    return path;
   }
 
   bool compile(const CXXProgram* program, llvm::StringRef sourceFile,
@@ -148,6 +195,10 @@ public:
 
     // Source file to compile
     cmdLineArgs.push_back(sourceFile.data());
+
+    // Link against SMTLIB runtime
+    std::string smtlibRuntimePath = computeSMTLIBRuntimePath(options);
+    cmdLineArgs.push_back(smtlibRuntimePath.c_str());
 
     // Link against LibFuzzer
     cmdLineArgs.push_back(options->pathToLibFuzzerLib.c_str());

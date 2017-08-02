@@ -18,9 +18,10 @@ namespace jfs {
 namespace cxxfb {
 
 ClangOptions::ClangOptions()
-    : pathToBinary(""), pathToRuntimeIncludeDir(""), pathToLibFuzzerLib(""),
-      optimizationLevel(OptimizationLevel::O0), debugSymbols(false),
-      useASan(false), useUBSan(false), useJFSRuntimeAsserts(false) {}
+    : pathToBinary(""), pathToRuntimeDir(""), pathToRuntimeIncludeDir(""),
+      pathToLibFuzzerLib(""), optimizationLevel(OptimizationLevel::O0),
+      debugSymbols(false), useASan(false), useUBSan(false),
+      useJFSRuntimeAsserts(false) {}
 
 bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
   bool ok = true;
@@ -46,6 +47,14 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
                 << pathToRuntimeIncludeDir << "\" does not exist)\n");
     ok = false;
   }
+  isDirectory = llvm::sys::fs::is_directory(pathToRuntimeDir);
+  if (!isDirectory) {
+    IF_VERB(ctx,
+            ctx.getWarningStream()
+                << "(warning path to runtime directory \"" << pathToRuntimeDir
+                << "\" does not exist)\n");
+    ok = false;
+  }
   return ok;
 }
 
@@ -62,8 +71,12 @@ ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
   llvm::sys::path::remove_filename(mutablePath);
   llvm::sys::path::remove_filename(mutablePath);
 
+  // Set path to runtime directory
+  llvm::sys::path::append(mutablePath, "runtime");
+  pathToRuntimeDir = std::string(mutablePath.data(), mutablePath.size());
+
   // Set path to Clang
-  llvm::sys::path::append(mutablePath, "runtime", "bin", "clang++");
+  llvm::sys::path::append(mutablePath, "bin", "clang++");
   pathToBinary = std::string(mutablePath.data(), mutablePath.size());
 
   // Remove "bin/clang++"

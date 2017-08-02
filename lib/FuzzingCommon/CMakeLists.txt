@@ -8,6 +8,65 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
+
+################################################################################
+# Generate SMTLIBRuntimes.h
+################################################################################
+get_property(
+  JFS_AVAILABLE_RUNTIMES
+  GLOBAL
+  PROPERTY JFS_AVAILABLE_RUNTIMES
+)
+get_property(
+  JFS_STATIC_RUNTIME_PATH
+  GLOBAL
+  PROPERTY JFS_STATIC_RUNTIME_PATH
+)
+set(SMTLIB_RUNTIME_ENUM_ENTRIES "")
+foreach (runtime ${JFS_AVAILABLE_RUNTIMES})
+  string(APPEND SMTLIB_RUNTIME_ENUM_ENTRIES "  ${runtime},\n")
+endforeach()
+configure_file(
+  "SMTLIBRuntimes.h.in"
+  "${CMAKE_BINARY_DIR}/include/jfs/FuzzingCommon/SMTLIBRuntimes.h"
+  @ONLY
+)
+unset(SMTLIB_RUNTIME_ENUM_ENTRIES)
+################################################################################
+# Generate SMTLIBRuntimes.cpp
+################################################################################
+set(getSMTLIBRuntimeAsCStringEntries "")
+set(getSMTLIBRuntimePathEntries "")
+list(LENGTH JFS_AVAILABLE_RUNTIMES JFS_AVAILABLE_RUNTIMES_LENGTH)
+list(LENGTH JFS_STATIC_RUNTIME_PATH JFS_STATIC_RUNTIME_PATH_LENGTH)
+if (NOT ("${JFS_AVAILABLE_RUNTIMES_LENGTH}" EQUAL "${JFS_STATIC_RUNTIME_PATH_LENGTH}"))
+  message(FATAL_ERROR "Length mismatch")
+endif()
+set(index 0)
+while ("${index}" LESS "${JFS_AVAILABLE_RUNTIMES_LENGTH}")
+  list(GET JFS_AVAILABLE_RUNTIMES ${index} runtime_enum)
+  list(GET JFS_STATIC_RUNTIME_PATH ${index} runtime_path)
+
+  string(APPEND getSMTLIBRuntimeAsCStringEntries
+    "  case SMTLIBRuntimeTy::${runtime_enum}:\n    return \"${runtime_enum}\";\n"
+  )
+  string(APPEND getSMTLIBRuntimePathEntries
+    "  case SMTLIBRuntimeTy::${runtime_enum}:\n    return \"${runtime_path}\";\n"
+  )
+  math(EXPR index "${index}+1")
+endwhile()
+configure_file(
+  "SMTLIBRuntimes.cpp.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntimes.cpp"
+  @ONLY
+)
+message(STATUS "JFS_AVAILABLE_RUNTIMES: ${JFS_AVAILABLE_RUNTIMES}")
+message(STATUS "JFS_STATIC_RUNTIME_PATH: ${JFS_STATIC_RUNTIME_PATH}")
+
+################################################################################
+# JFSFuzzingCommon component
+################################################################################
+
 jfs_add_component(JFSFuzzingCommon
   CommandLineCategory.cpp
   DummyFuzzingSolver.cpp
@@ -17,6 +76,7 @@ jfs_add_component(JFSFuzzingCommon
   FuzzingAnalysisInfo.cpp
   LibFuzzerInvocationManager.cpp
   LibFuzzerOptions.cpp
+  "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntimes.cpp"
   SortConformanceCheckPass.cpp
   WorkingDirectoryManager.cpp
 )

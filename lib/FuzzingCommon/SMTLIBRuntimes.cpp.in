@@ -1,0 +1,36 @@
+//===----------------------------------------------------------------------===//
+//
+//                        JFS - The JIT Fuzzing Solver
+//
+// Copyright 2017 Daniel Liew
+//
+// This file is distributed under the MIT license.
+// See LICENSE.txt for details.
+//
+//===----------------------------------------------------------------------===//
+// @AUTO_GEN_MSG@
+#include "jfs/FuzzingCommon/SMTLIBRuntimes.h"
+#include "llvm/Support/ErrorHandling.h"
+
+namespace jfs {
+namespace fuzzingCommon {
+
+
+const char* getSMTLIBRuntimeAsCString(SMTLIBRuntimeTy runtimeType) {
+  switch(runtimeType) {
+@getSMTLIBRuntimeAsCStringEntries@
+    default:
+      llvm_unreachable("Unhandled SMTLIBRuntimeTy");
+  }
+};
+
+const char* getSMTLIBRuntimePath(SMTLIBRuntimeTy runtimeType) {
+  switch(runtimeType) {
+@getSMTLIBRuntimePathEntries@
+    default:
+      llvm_unreachable("Unhandled SMTLIBRuntimeTy");
+  }
+}
+
+}
+}

@@ -1,0 +1,31 @@
+//===----------------------------------------------------------------------===//
+//
+//                        JFS - The JIT Fuzzing Solver
+//
+// Copyright 2017 Daniel Liew
+//
+// This file is distributed under the MIT license.
+// See LICENSE.txt for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef JFS_FUZZING_COMMON_SMTLIB_RUNTIMES_H
+#define JFS_FUZZING_COMMON_SMTLIB_RUNTIMES_H
+// @AUTO_GEN_MSG@
+
+namespace jfs {
+namespace fuzzingCommon {
+
+enum class SMTLIBRuntimeTy {
+@SMTLIB_RUNTIME_ENUM_ENTRIES@
+};
+
+const char* getSMTLIBRuntimeAsCString(SMTLIBRuntimeTy runtimeType);
+
+// Returns path to runtime library relative to the `runtime/`
+// directory.
+const char* getSMTLIBRuntimePath(SMTLIBRuntimeTy runtimeType);
+
+}
+}
+
+#endif
