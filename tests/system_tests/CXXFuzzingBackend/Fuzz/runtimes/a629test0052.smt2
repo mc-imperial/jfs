@@ -1,4 +1,10 @@
+; This test just checks that the different flags can be used to change the runtime
+; FIXME: we don't actually check the right runtime gets used.
 ; RUN: %jfs -cxx %s | %FileCheck %s
+; RUN: %jfs -cxx -runtime-asserts %s | %FileCheck %s
+; RUN: %jfs -cxx -asan -runtime-asserts %s | %FileCheck %s
+; RUN: %jfs -cxx -ubsan -runtime-asserts %s | %FileCheck %s
+; RUN: %jfs -cxx -asan -ubsan -runtime-asserts %s | %FileCheck %s
 (set-logic QF_BV)
 (set-info :source |
 Bit-vector benchmarks from Dawson Engler's tool contributed by Vijay Ganesh
