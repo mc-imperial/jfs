@@ -1,0 +1,80 @@
+//===----------------------------------------------------------------------===//
+//
+//                        JFS - The JIT Fuzzing Solver
+//
+// Copyright 2017 Daniel Liew
+//
+// This file is distributed under the MIT license.
+// See LICENSE.txt for details.
+//
+//===----------------------------------------------------------------------===//
+// This is the implemenation of the runtime for SMTLIB BitVectors that
+// uses native machine operations. It is written with a C compatible interface
+// so that in the future we can easily use LLVM's JIT.
+
+#include "SMTLIB/NativeBitVector.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+const uint64_t jfs_nr_bitvector_ty_bit_width = sizeof(jfs_nr_bitvector_ty) * 8;
+
+jfs_nr_bitvector_ty jfs_nr_get_bitvector_mask(uint64_t bitWidth) {
+  static_assert(jfs_nr_bitvector_ty_bit_width <= 64, "Wrong width");
+  jassert(bitWidth <= jfs_nr_bitvector_ty_bit_width);
+  return (bitWidth >= jfs_nr_bitvector_ty_bit_width)
+             ? UINT64_MAX
+             : ((UINT64_C(1) << bitWidth) - 1);
+}
+
+// Convenience function for creating a BitVector
+// from any arbitrary bit offset in a buffer. Offset
+// is [lowbit, highbit].
+jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
+                                          const uint64_t bufferSize,
+                                          const uint64_t lowBit,
+                                          const uint64_t highBit) {
+  jassert(highBit >= lowBit && "invalid lowBit and highBit");
+  jassert(highBit < (bufferSize * 8));
+  const uint64_t bitWidth = ((highBit - lowBit) + 1);
+  const size_t lowBitByte = lowBit / 8;
+  const size_t shiftOffset = lowBit % 8;
+  // NOTE: doing `highBit / 8` to compute `highBitByte` is wrong. For [1,8]
+  // that gives a highBit of 1 which is wrong for the loop below (should be 0).
+  // const size_t highBitByte = (lowBitByte + ((BITWIDTH + 7) / 8)) - 1;
+  const size_t highBitByte = (lowBitByte + (((highBit - lowBit) + 8) / 8)) - 1;
+  jassert(lowBitByte < bufferSize);
+  jassert(highBitByte < bufferSize);
+  jfs_nr_bitvector_ty data = 0;
+  uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
+  jfs_nr_bitvector_ty dataMask = jfs_nr_get_bitvector_mask(bitWidth);
+  // Copy byte-by-byte shifting if necessary
+  for (size_t index = lowBitByte; index <= highBitByte; ++index) {
+    const size_t viewIndex = index - lowBitByte;
+    jassert(index < bufferSize);
+    jassert(viewIndex < sizeof(data));
+    uint8_t bufferByte = bufferData[index];
+    dataView[viewIndex] |= (bufferByte >> shiftOffset);
+    if (shiftOffset == 0) {
+      // If there is no shift offset then we didn't shift any bits
+      // out.
+      continue;
+    }
+    // Doing the shift means we have zero bits in MSB rather than the actually
+    // bits we want.
+    uint8_t nextIterByteValue = 0;
+    if ((index + 1) < bufferSize) {
+      // Avoid out of bounds access
+      nextIterByteValue = bufferData[index + 1];
+    }
+    dataView[viewIndex] |= (nextIterByteValue << (8 - shiftOffset));
+  }
+  // Now mask off the data
+  data &= dataMask;
+  return data;
+}
+
+#ifdef __cplusplus
+}
+#endif

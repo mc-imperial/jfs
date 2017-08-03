@@ -85,6 +85,7 @@ endif()
 add_library(JFSSMTLIBRuntime
   STATIC
   Core.cpp
+  NativeBitVector.cpp
 )
 
 # FIXME: We shouldn't be relying on external to set this up.

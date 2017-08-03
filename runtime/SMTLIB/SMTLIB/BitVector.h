@@ -11,6 +11,7 @@
 #ifndef JFS_RUNTIME_SMTLIB_BITVECTOR_H
 #define JFS_RUNTIME_SMTLIB_BITVECTOR_H
 #include "BufferRef.h"
+#include "NativeBitVector.h"
 #include "jassert.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -595,51 +596,15 @@ public:
 // is [lowbit, highbit].
 // Implementation for native BitVector
 template <uint64_t BITWIDTH,
-          typename std::enable_if<(BITWIDTH <= 64)>::type* = nullptr>
+          typename std::enable_if<
+              (BITWIDTH <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
 BitVector<BITWIDTH> makeBitVectorFrom(BufferRef<const uint8_t> buffer,
                                       uint64_t lowBit, uint64_t highBit) {
   jassert(highBit >= lowBit && "invalid lowBit and highBit");
   jassert(((highBit - lowBit) + 1) == BITWIDTH);
   jassert(highBit < (buffer.getSize() * 8));
-  const size_t lowBitByte = lowBit / 8;
-  const size_t shiftOffset = lowBit % 8;
-  // NOTE: doing `highBit / 8` to compute `highBitByte` is wrong. For [1,8]
-  // that gives a highBit of 1 which is wrong for the loop below (should be 0).
-  // const size_t highBitByte = (lowBitByte + ((BITWIDTH + 7) / 8)) - 1;
-  const size_t highBitByte = (lowBitByte + (((highBit - lowBit) + 8) / 8)) - 1;
-  jassert(lowBitByte < buffer.getSize());
-  jassert(highBitByte < buffer.getSize());
-  uint64_t data = 0;
-  uint8_t* dataView = reinterpret_cast<uint8_t*>(&data);
-  uint64_t dataMask = 0;
-  if (BITWIDTH < 64) {
-    dataMask = (UINT64_C(1) << BITWIDTH) - 1;
-  } else {
-    dataMask = UINT64_MAX;
-  }
-  // Copy byte-by-byte shifting if necessary
-  for (size_t index = lowBitByte; index <= highBitByte; ++index) {
-    const size_t viewIndex = index - lowBitByte;
-    jassert(index < buffer.getSize());
-    jassert(viewIndex < sizeof(data));
-    uint8_t bufferByte = buffer.get()[index];
-    dataView[viewIndex] |= (bufferByte >> shiftOffset);
-    if (shiftOffset == 0) {
-      // If there is no shift offset then we didn't shift any bits
-      // out.
-      continue;
-    }
-    // Doing the shift means we have zero bits in MSB rather than the actually
-    // bits we want.
-    uint8_t nextIterByteValue = 0;
-    if ((index + 1) < buffer.getSize()) {
-      // Avoid out of bounds access
-      nextIterByteValue = buffer.get()[index + 1];
-    }
-    dataView[viewIndex] |= (nextIterByteValue << (8 - shiftOffset));
-  }
-  // Now mask off the data
-  data &= dataMask;
+  jfs_nr_bitvector_ty data =
+      jfs_nr_make_bitvector(buffer.get(), buffer.getSize(), lowBit, highBit);
   return BitVector<BITWIDTH>(data);
 }
 
