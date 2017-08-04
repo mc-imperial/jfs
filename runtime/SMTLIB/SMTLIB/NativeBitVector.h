@@ -19,8 +19,14 @@ extern "C" {
 #endif
 
 typedef uint64_t jfs_nr_bitvector_ty;
+typedef uint64_t jfs_nr_width_ty;
 
 #define JFS_NR_BITVECTOR_TY_BITWIDTH (sizeof(jfs_nr_bitvector_ty) * 8)
+
+jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
+                                  const jfs_nr_width_ty lhsBitWidth,
+                                  const jfs_nr_bitvector_ty rhs,
+                                  const jfs_nr_width_ty rhsBitWidth);
 
 jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t bufferSize,

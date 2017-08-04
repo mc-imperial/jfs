@@ -96,11 +96,7 @@ public:
   BitVector<N + M> concat(const BitVector<M>& rhs) const {
     // Concatentation produces native BitVector.
     static_assert((N + M) <= 64, "Too many bits");
-    jassert((rhs.doMod(rhs.data) == rhs.data) && "too many bits");
-    jassert((doMod(data) == data) && "too many bits");
-    uint64_t newValue = rhs.data;
-    newValue |= (data << M);
-    return BitVector<N + M>(newValue);
+    return BitVector<N + M>(jfs_nr_concat(data, N, rhs.data, M));
   }
 
   // Implementation for where result is not a native BitVector

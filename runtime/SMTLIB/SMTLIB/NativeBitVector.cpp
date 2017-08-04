@@ -14,18 +14,53 @@
 
 #include "SMTLIB/NativeBitVector.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Helper constants/functions
+namespace {
 
-const uint64_t jfs_nr_bitvector_ty_bit_width = sizeof(jfs_nr_bitvector_ty) * 8;
+const jfs_nr_width_ty jfs_nr_bitvector_ty_bit_width =
+    sizeof(jfs_nr_bitvector_ty) * 8;
 
-jfs_nr_bitvector_ty jfs_nr_get_bitvector_mask(uint64_t bitWidth) {
+jfs_nr_bitvector_ty jfs_nr_get_bitvector_mask(const jfs_nr_width_ty bitWidth) {
   static_assert(jfs_nr_bitvector_ty_bit_width <= 64, "Wrong width");
   jassert(bitWidth <= jfs_nr_bitvector_ty_bit_width);
   return (bitWidth >= jfs_nr_bitvector_ty_bit_width)
              ? UINT64_MAX
              : ((UINT64_C(1) << bitWidth) - 1);
+}
+
+jfs_nr_bitvector_ty jfs_nr_get_bitvector_mod(const jfs_nr_bitvector_ty value,
+                                             const jfs_nr_width_ty bitWidth) {
+  static_assert(jfs_nr_bitvector_ty_bit_width <= 64, "Wrong width");
+  if (bitWidth >= jfs_nr_bitvector_ty_bit_width) {
+    return value;
+  } else {
+    return value % (UINT64_C(1) << bitWidth);
+  }
+}
+
+bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
+                     const jfs_nr_width_ty width) {
+  return jfs_nr_get_bitvector_mod(value, width) == value;
+}
+}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Public functions
+
+jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
+                                  const jfs_nr_width_ty lhsBitWidth,
+                                  const jfs_nr_bitvector_ty rhs,
+                                  const jfs_nr_width_ty rhsBitWidth) {
+  jassert(jfs_nr_is_valid(lhs, lhsBitWidth));
+  jassert(jfs_nr_is_valid(rhs, rhsBitWidth));
+  jassert(((lhsBitWidth + rhsBitWidth) <= jfs_nr_bitvector_ty_bit_width) &&
+          "concat too wide");
+  jfs_nr_bitvector_ty newValue = rhs;
+  newValue |= (lhs << rhsBitWidth);
+  return newValue;
 }
 
 // Convenience function for creating a BitVector
