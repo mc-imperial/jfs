@@ -86,6 +86,17 @@ jfs_nr_bitvector_ty jfs_nr_extract(const jfs_nr_bitvector_ty value,
   return temp;
 }
 
+// Zero extend to bitvector (bitWidth + extraBits) wide
+jfs_nr_bitvector_ty jfs_nr_zero_extend(const jfs_nr_bitvector_ty value,
+                                       const jfs_nr_width_ty bitWidth,
+                                       const jfs_nr_width_ty extraBits) {
+  // No really work to do provided internal invariant that unused biits
+  // are zero is maintained.
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  jassert((bitWidth + extraBits) <= jfs_nr_bitvector_ty_bit_width);
+  return value;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].

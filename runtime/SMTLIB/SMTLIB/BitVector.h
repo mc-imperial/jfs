@@ -171,10 +171,8 @@ public:
   template <uint64_t BITS,
             typename std::enable_if<((N + BITS) <= 64)>::type* = nullptr>
   BitVector<N + BITS> zeroExtend() const {
-    // No really work to do provided internal invariant that unused biits
-    // are zero is maintained.
-    jassert(doMod(data) == data && "too many bits");
-    return BitVector<N + BITS>(data);
+    static_assert((N + BITS) <= 64, "too many bits");
+    return BitVector<N + BITS>(jfs_nr_zero_extend(data, N, BITS));
   }
 
   // Implementation for where result is not a native BitVector
