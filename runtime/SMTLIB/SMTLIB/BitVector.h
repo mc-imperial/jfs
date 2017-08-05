@@ -164,24 +164,7 @@ public:
 
   template <uint64_t BITS>
   BitVector<BITS> extract(uint64_t highBit, uint64_t lowBit) const {
-    jassert(highBit >= lowBit && "Invalid highBit and/or lowBit value");
-    jassert(highBit < N && "Invalid highBit bit");
-    jassert(lowBit < N && "Invalid lowBit bit");
-    jassert(((highBit - lowBit) + 1) == BITS);
-    if (((highBit - lowBit) + 1) == N)
-      return BitVector<BITS>(data); // no-op
-    dataTy temp = data;
-    // Remove higher bits that we don't want
-    dataTy mask = 0;
-    if ((highBit + 1) == N)
-      mask = UINT64_MAX;
-    else
-      mask = (UINT64_C(1) << (highBit + 1)) - 1;
-    temp &= mask;
-
-    // Remove lower bits that we don't want.
-    temp >>= lowBit;
-    return BitVector<BITS>(temp);
+    return BitVector<BITS>(jfs_nr_extract(data, N, highBit, lowBit));
   }
 
   // Implementation for where result is a native BitVector

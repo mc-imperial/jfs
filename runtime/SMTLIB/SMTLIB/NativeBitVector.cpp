@@ -63,6 +63,29 @@ jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
   return newValue;
 }
 
+// Extract bits [highBit, lowBit]
+jfs_nr_bitvector_ty jfs_nr_extract(const jfs_nr_bitvector_ty value,
+                                   const jfs_nr_width_ty bitWidth,
+                                   const jfs_nr_width_ty highBit,
+                                   const jfs_nr_width_ty lowBit) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  jassert(highBit >= lowBit && "Invalid highBit and/or lowBit value");
+  jassert(highBit < bitWidth && "Invalid highBit bit");
+  jassert(lowBit < bitWidth && "Invalid lowBit bit");
+  const jfs_nr_width_ty newWidth = (highBit - lowBit) + 1;
+  if (newWidth == bitWidth)
+    return value;
+  jfs_nr_bitvector_ty temp = value;
+  // Remove higher bits that we don't want
+  jfs_nr_bitvector_ty mask = jfs_nr_get_bitvector_mask(highBit + 1);
+  temp &= mask;
+
+  // Remove lower bits that we don't want.
+  temp >>= lowBit;
+  jassert(jfs_nr_is_valid(temp, newWidth));
+  return temp;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].
