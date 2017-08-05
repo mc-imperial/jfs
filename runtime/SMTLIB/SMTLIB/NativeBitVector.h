@@ -37,6 +37,10 @@ jfs_nr_bitvector_ty jfs_nr_zero_extend(const jfs_nr_bitvector_ty value,
                                        const jfs_nr_width_ty bitWidth,
                                        const jfs_nr_width_ty extraBits);
 
+jfs_nr_bitvector_ty jfs_nr_sign_extend(const jfs_nr_bitvector_ty value,
+                                       const jfs_nr_width_ty bitWidth,
+                                       const jfs_nr_width_ty extraBits);
+
 jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t bufferSize,
                                           const uint64_t lowBit,

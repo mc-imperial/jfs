@@ -38,6 +38,12 @@ jfs_nr_bitvector_ty jfs_nr_get_bitvector_mod(const jfs_nr_bitvector_ty value,
   }
 }
 
+jfs_nr_bitvector_ty
+jfs_nr_get_most_signficiant_bit_mask(const jfs_nr_width_ty bitWidth) {
+  jassert(bitWidth <= jfs_nr_bitvector_ty_bit_width);
+  return (UINT64_C(1) << (bitWidth - 1));
+}
+
 bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
                      const jfs_nr_width_ty width) {
   return jfs_nr_get_bitvector_mod(value, width) == value;
@@ -95,6 +101,24 @@ jfs_nr_bitvector_ty jfs_nr_zero_extend(const jfs_nr_bitvector_ty value,
   jassert(jfs_nr_is_valid(value, bitWidth));
   jassert((bitWidth + extraBits) <= jfs_nr_bitvector_ty_bit_width);
   return value;
+}
+
+jfs_nr_bitvector_ty jfs_nr_sign_extend(const jfs_nr_bitvector_ty value,
+                                       const jfs_nr_width_ty bitWidth,
+                                       const jfs_nr_width_ty extraBits) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  jassert((bitWidth + extraBits) <= jfs_nr_bitvector_ty_bit_width);
+  if (value & jfs_nr_get_most_signficiant_bit_mask(bitWidth)) {
+    // msb is not zero. Must do sign extend with ones.
+    const jfs_nr_bitvector_ty currentWidthMask =
+        jfs_nr_get_bitvector_mask(bitWidth);
+    const jfs_nr_bitvector_ty newWidthMask =
+        jfs_nr_get_bitvector_mask(bitWidth + extraBits);
+    return (value | (~currentWidthMask)) & newWidthMask;
+  } else {
+    // Just do zero extend
+    return jfs_nr_zero_extend(value, bitWidth, extraBits);
+  }
 }
 
 // Convenience function for creating a BitVector

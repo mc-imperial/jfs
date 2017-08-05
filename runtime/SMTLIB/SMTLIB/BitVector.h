@@ -194,14 +194,7 @@ public:
             typename std::enable_if<((N + BITS) <= 64)>::type* = nullptr>
   BitVector<N + BITS> signExtend() const {
     static_assert((N + BITS) <= 64, "too many bits");
-    if (data & mostSignificantBitMask()) {
-      // msb is zero. Must do sign extend
-      uint64_t resultMask = computeSignExtendMask(BITS);
-      return (data | (~mask())) & resultMask;
-    } else {
-      // Just do zero extend
-      return zeroExtend<BITS>();
-    }
+    return BitVector<N + BITS>(jfs_nr_sign_extend(data, N, BITS));
   }
 
   // Implementation for where result is not a native BitVector
