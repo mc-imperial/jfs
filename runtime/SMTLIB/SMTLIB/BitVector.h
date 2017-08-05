@@ -228,16 +228,8 @@ public:
   }
 
   // Arithmetic operators
-  BitVector<N> bvneg() const {
-    // [[(bvneg s)]] := nat2bv[m](2^m - bv2nat([[s]]))
-    if (data == 0) {
-      return BitVector<N>(0);
-    }
+  BitVector<N> bvneg() const { return BitVector<N>(jfs_nr_bvneg(data, N)); }
 
-    // In two's complement, flipping bits and adding one negates
-    // the number.
-    return BitVector<N>(((~data) & mask()) + 1);
-  }
   BitVector<N> bvadd(const BitVector<N>& other) const {
     // [[(bvadd s t)]] := nat2bv[m](bv2nat([[s]]) + bv2nat([[t]]))
     return BitVector<N>(doMod(data + other.data));

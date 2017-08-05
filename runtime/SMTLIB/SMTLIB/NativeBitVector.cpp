@@ -121,6 +121,19 @@ jfs_nr_bitvector_ty jfs_nr_sign_extend(const jfs_nr_bitvector_ty value,
   }
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvneg(const jfs_nr_bitvector_ty value,
+                                 const jfs_nr_width_ty bitWidth) {
+  // [[(bvneg s)]] := nat2bv[m](2^m - bv2nat([[s]]))
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  if (value == 0) {
+    return 0;
+  }
+
+  // In two's complement, flipping bits and adding one negates
+  // the number.
+  return ((~value) & jfs_nr_get_bitvector_mask(bitWidth)) + 1;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].
