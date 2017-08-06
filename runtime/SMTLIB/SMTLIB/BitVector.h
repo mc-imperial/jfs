@@ -247,13 +247,7 @@ public:
   }
 
   BitVector<N> bvurem(const BitVector<N>& divisor) const {
-    //  [[(bvurem s t)]] := if bv2nat([[t]]) = 0
-    //                      then [[s]]
-    //                      else nat2bv[m](bv2nat([[s]]) rem bv2nat([[t]]))
-    if (divisor == 0) {
-      return BitVector<N>(*this);
-    }
-    return data % divisor.data;
+    return BitVector<N>(jfs_nr_bvurem(data, divisor.data, N));
   }
 
   BitVector<N> bvsdiv(const BitVector<N>& divisor) const {
