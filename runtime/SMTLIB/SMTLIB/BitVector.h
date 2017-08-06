@@ -308,7 +308,7 @@ public:
   }
 
   BitVector<N> bvxnor(const BitVector<N>& other) const {
-    return BitVector<N>((~(data ^ other.data)) & mask());
+    return BitVector<N>(jfs_nr_bvxnor(data, other.data, N));
   }
 
   // Comparison operators

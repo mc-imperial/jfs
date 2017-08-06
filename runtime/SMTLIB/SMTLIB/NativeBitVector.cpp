@@ -488,6 +488,17 @@ jfs_nr_bitvector_ty jfs_nr_bvxor(const jfs_nr_bitvector_ty lhs,
   return result;
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvxnor(const jfs_nr_bitvector_ty lhs,
+                                  const jfs_nr_bitvector_ty rhs,
+                                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  jfs_nr_bitvector_ty result =
+      (~(lhs ^ rhs)) & jfs_nr_get_bitvector_mask(bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
                                  const jfs_nr_width_ty bitWidth) {
   jassert(jfs_nr_is_valid(value, bitWidth));
