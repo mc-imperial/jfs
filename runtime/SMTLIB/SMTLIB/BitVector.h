@@ -231,8 +231,7 @@ public:
   BitVector<N> bvneg() const { return BitVector<N>(jfs_nr_bvneg(data, N)); }
 
   BitVector<N> bvadd(const BitVector<N>& other) const {
-    // [[(bvadd s t)]] := nat2bv[m](bv2nat([[s]]) + bv2nat([[t]]))
-    return BitVector<N>(doMod(data + other.data));
+    return BitVector<N>(jfs_nr_bvadd(data, other.data, N));
   }
   BitVector<N> bvsub(const BitVector<N>& other) const {
     // (bvsub s t) abbreviates (bvadd s (bvneg t))

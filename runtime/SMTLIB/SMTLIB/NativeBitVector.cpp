@@ -134,6 +134,15 @@ jfs_nr_bitvector_ty jfs_nr_bvneg(const jfs_nr_bitvector_ty value,
   return ((~value) & jfs_nr_get_bitvector_mask(bitWidth)) + 1;
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvadd(const jfs_nr_bitvector_ty lhs,
+                                 const jfs_nr_bitvector_ty rhs,
+                                 const jfs_nr_width_ty bitWidth) {
+  // [[(bvadd s t)]] := nat2bv[m](bv2nat([[s]]) + bv2nat([[t]]))
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  return jfs_nr_get_bitvector_mod(lhs + rhs, bitWidth);
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].
