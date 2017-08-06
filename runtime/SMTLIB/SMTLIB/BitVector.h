@@ -234,11 +234,7 @@ public:
     return BitVector<N>(jfs_nr_bvadd(data, other.data, N));
   }
   BitVector<N> bvsub(const BitVector<N>& other) const {
-    // (bvsub s t) abbreviates (bvadd s (bvneg t))
-
-    // TODO: Verify the implementation is semantically equivalent
-    // to SMT-LIBv2
-    return BitVector<N>(doMod(data - other.data));
+    return BitVector<N>(jfs_nr_bvsub(data, other.data, N));
   }
   BitVector<N> bvmul(const BitVector<N>& other) const {
     // [[(bvmul s t)]] := nat2bv[m](bv2nat([[s]]) * bv2nat([[t]]))
