@@ -237,8 +237,7 @@ public:
     return BitVector<N>(jfs_nr_bvsub(data, other.data, N));
   }
   BitVector<N> bvmul(const BitVector<N>& other) const {
-    // [[(bvmul s t)]] := nat2bv[m](bv2nat([[s]]) * bv2nat([[t]]))
-    return BitVector<N>(doMod(data * other.data));
+    return BitVector<N>(jfs_nr_bvmul(data, other.data, N));
   }
   BitVector<N> bvudiv(const BitVector<N>& divisor) const {
     //   [[(bvudiv s t)]] := if bv2nat([[t]]) = 0

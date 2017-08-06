@@ -52,6 +52,10 @@ jfs_nr_bitvector_ty jfs_nr_bvsub(const jfs_nr_bitvector_ty lhs,
                                  const jfs_nr_bitvector_ty rhs,
                                  const jfs_nr_width_ty bitWidth);
 
+jfs_nr_bitvector_ty jfs_nr_bvmul(const jfs_nr_bitvector_ty lhs,
+                                 const jfs_nr_bitvector_ty rhs,
+                                 const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t bufferSize,
                                           const uint64_t lowBit,
