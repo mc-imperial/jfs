@@ -286,7 +286,7 @@ public:
 
   // Bitwise operators
   BitVector<N> bvand(const BitVector<N>& other) const {
-    return BitVector<N>((data & other.data) & mask());
+    return BitVector<N>(jfs_nr_bvand(data, other.data, N));
   }
 
   BitVector<N> bvor(const BitVector<N>& other) const {
