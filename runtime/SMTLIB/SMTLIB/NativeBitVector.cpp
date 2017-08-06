@@ -507,6 +507,80 @@ jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
   return result;
 }
 
+bool jfs_nr_bvult(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  return lhs < rhs;
+}
+
+bool jfs_nr_bvule(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  return lhs <= rhs;
+}
+
+bool jfs_nr_bvugt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  return lhs > rhs;
+}
+
+bool jfs_nr_bvuge(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  return lhs >= rhs;
+}
+
+bool jfs_nr_bvslt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  // (bvslt s t) abbreviates:
+  //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
+  //           (= ((_ extract |m-1| |m-1|) t) #b0))
+  //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
+  //           (bvult s t)))
+  bool lhsNeg = lhs & jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  bool rhsNeg = rhs & jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  if (lhsNeg && !rhsNeg) {
+    return true;
+  }
+  return (lhsNeg == rhsNeg) && jfs_nr_bvult(lhs, rhs, bitWidth);
+}
+
+bool jfs_nr_bvsle(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(lhs, bitWidth));
+  jassert(jfs_nr_is_valid(rhs, bitWidth));
+  // (bvsle s t) abbreviates:
+  //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
+  //           (= ((_ extract |m-1| |m-1|) t) #b0))
+  //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
+  //           (bvule s t)))
+  bool lhsNeg = lhs & jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  bool rhsNeg = rhs & jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  if (lhsNeg && !rhsNeg) {
+    return true;
+  }
+  return (lhsNeg == rhsNeg) && jfs_nr_bvule(lhs, rhs, bitWidth);
+}
+
+bool jfs_nr_bvsgt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  // (bvsgt s t) abbreviates (bvslt t s)
+  return jfs_nr_bvslt(rhs, lhs, bitWidth);
+}
+
+bool jfs_nr_bvsge(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth) {
+  // (bvsge s t) abbreviates (bvsle t s)
+  return jfs_nr_bvsle(rhs, lhs, bitWidth);
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].

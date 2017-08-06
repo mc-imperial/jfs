@@ -123,6 +123,30 @@ jfs_nr_bitvector_ty jfs_nr_bvxnor(const jfs_nr_bitvector_ty lhs,
 jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
                                  const jfs_nr_width_ty bitWidth);
 
+bool jfs_nr_bvult(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvule(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvugt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvuge(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvslt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvsle(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvsgt(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
+bool jfs_nr_bvsge(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
+                  const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t bufferSize,
                                           const uint64_t lowBit,

@@ -315,42 +315,33 @@ public:
   bool operator==(const BitVector<N>& rhs) const { return data == rhs.data; }
   bool operator!=(const BitVector<N>& rhs) const { return !(*this == rhs); }
 
-  bool bvule(const BitVector<N>& rhs) const { return data <= rhs.data; }
-  bool bvult(const BitVector<N>& rhs) const { return data < rhs.data; }
-  bool bvugt(const BitVector<N>& rhs) const { return data > rhs.data; }
-  bool bvuge(const BitVector<N>& rhs) const { return data >= rhs.data; }
+  bool bvult(const BitVector<N>& rhs) const {
+    return jfs_nr_bvult(data, rhs.data, N);
+  }
+  bool bvule(const BitVector<N>& rhs) const {
+    return jfs_nr_bvule(data, rhs.data, N);
+  }
+  bool bvugt(const BitVector<N>& rhs) const {
+    return jfs_nr_bvugt(data, rhs.data, N);
+  }
+  bool bvuge(const BitVector<N>& rhs) const {
+    return jfs_nr_bvuge(data, rhs.data, N);
+  }
 
   bool bvslt(const BitVector<N>& rhs) const {
-    // (bvslt s t) abbreviates:
-    //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
-    //           (= ((_ extract |m-1| |m-1|) t) #b0))
-    //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
-    //           (bvult s t)))
-    bool lhsNeg = data & mostSignificantBitMask();
-    bool rhsNeg = rhs.data & mostSignificantBitMask();
-    if (lhsNeg && !rhsNeg) {
-      return true;
-    }
-    return (lhsNeg == rhsNeg) && this->bvult(rhs);
+    return jfs_nr_bvslt(data, rhs.data, N);
   }
 
   bool bvsle(const BitVector<N>& rhs) const {
-    // (bvsle s t) abbreviates:
-    //  (or (and (= ((_ extract |m-1| |m-1|) s) #b1)
-    //           (= ((_ extract |m-1| |m-1|) t) #b0))
-    //      (and (= ((_ extract |m-1| |m-1|) s) ((_ extract |m-1| |m-1|) t))
-    //           (bvule s t)))
-    return data == rhs.data || bvslt(rhs);
+    return jfs_nr_bvsle(data, rhs.data, N);
   }
 
   bool bvsgt(const BitVector<N>& rhs) const {
-    // (bvsgt s t) abbreviates (bvslt t s)
-    return rhs.bvslt(*this);
+    return jfs_nr_bvsgt(data, rhs.data, N);
   }
 
   bool bvsge(const BitVector<N>& rhs) const {
-    // (bvsge s t) abbreviates (bvsle t s)
-    return rhs.bvsle(*this);
+    return jfs_nr_bvsge(data, rhs.data, N);
   }
 
   BitVector<1> bvcomp(const BitVector<N>& rhs) const {
