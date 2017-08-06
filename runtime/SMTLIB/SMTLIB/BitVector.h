@@ -265,12 +265,7 @@ public:
   // Shift operators
 
   BitVector<N> bvshl(const BitVector<N>& shift) const {
-    //  [[(bvshl s t)]] := nat2bv[m](bv2nat([[s]]) * 2^(bv2nat([[t]])))
-    if (shift.data >= N) {
-      // Overshift to zero
-      return BitVector<N>(0);
-    }
-    return BitVector<N>((data << shift.data) & mask());
+    return BitVector<N>(jfs_nr_bvshl(data, shift.data, N));
   }
 
   BitVector<N> bvlshr(const BitVector<N>& shift) const {
