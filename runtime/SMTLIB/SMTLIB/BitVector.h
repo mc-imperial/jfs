@@ -325,6 +325,7 @@ public:
 
   // Comparison operators
   bool operator==(const BitVector<N>& rhs) const { return data == rhs.data; }
+  bool operator!=(const BitVector<N>& rhs) const { return data != rhs.data; }
 
   bool bvult(const BitVector<N>& rhs) const {
     return jfs_nr_bvult(data, rhs.data, N);
