@@ -277,19 +277,7 @@ public:
   }
 
   BitVector<N> rotate_left(uint64_t shift) const {
-    // ((_ rotate_left 0) t) stands for t
-    // ((_ rotate_left i) t) abbreviates t if m = 1, and
-    //   ((_ rotate_left |i-1|)
-    //     (concat ((_ extract |m-2| 0) t) ((_ extract |m-1| |m-1|) t))
-    //   otherwise
-    uint64_t effective_shift = shift % N;
-    // Shift bits to the left
-    uint64_t result = data << effective_shift;
-    // bitwise or with the bits that got shifted out and
-    // should now appear in the lsb.
-    result |= data >> (N - effective_shift);
-    result &= mask();
-    return BitVector<N>(result);
+    return BitVector<N>(jfs_nr_rotate_left(data, shift, N));
   }
 
   BitVector<N> rotate_right(uint64_t shift) const {

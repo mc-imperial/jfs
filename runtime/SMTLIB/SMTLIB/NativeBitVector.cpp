@@ -391,6 +391,28 @@ jfs_nr_bitvector_ty jfs_nr_bvashr(const jfs_nr_bitvector_ty value,
   return result;
 }
 
+jfs_nr_bitvector_ty jfs_nr_rotate_left(const jfs_nr_bitvector_ty value,
+                                       const jfs_nr_width_ty shift,
+                                       const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  // ((_ rotate_left 0) t) stands for t
+  // ((_ rotate_left i) t) abbreviates t if m = 1, and
+  //   ((_ rotate_left |i-1|)
+  //     (concat ((_ extract |m-2| 0) t) ((_ extract |m-1| |m-1|) t))
+  //   otherwise
+  jfs_nr_bitvector_ty effective_shift = shift % bitWidth;
+  // Shift bits to the left
+  jassert(effective_shift < jfs_nr_bitvector_ty_bit_width);
+  jfs_nr_bitvector_ty result = value << effective_shift;
+  // bitwise or with the bits that got shifted out and
+  // should now appear in the lsb.
+  jassert((bitWidth - effective_shift) < jfs_nr_bitvector_ty_bit_width);
+  result |= value >> (bitWidth - effective_shift);
+  result &= jfs_nr_get_bitvector_mask(bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
                                  const jfs_nr_width_ty bitWidth) {
   jassert(jfs_nr_is_valid(value, bitWidth));
