@@ -273,15 +273,7 @@ public:
   }
 
   BitVector<N> bvashr(const BitVector<N>& shift) const {
-    // (bvashr s t) abbreviates
-    //  (ite (= ((_ extract |m-1| |m-1|) s) #b0)
-    //       (bvlshr s t)
-    //       (bvnot (bvlshr (bvnot s) t)))
-    // TODO: Can we do this more efficiently?
-    bool lhsNeg = data & mostSignificantBitMask();
-    if (!lhsNeg)
-      return bvlshr(shift);
-    return ((this->bvnot()).bvlshr(shift)).bvnot();
+    return BitVector<N>(jfs_nr_bvashr(data, shift.data, N));
   }
 
   BitVector<N> rotate_left(uint64_t shift) const {
@@ -324,7 +316,8 @@ public:
   BitVector<N> bvor(const BitVector<N>& other) const {
     return BitVector<N>((data | other.data) & mask());
   }
-  BitVector<N> bvnot() const { return BitVector<N>((~data) & mask()); }
+
+  BitVector<N> bvnot() const { return BitVector<N>(jfs_nr_bvnot(data, N)); }
 
   BitVector<N> bvnand(const BitVector<N>& other) const {
     return BitVector<N>((~(data & other.data)) & mask());

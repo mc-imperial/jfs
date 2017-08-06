@@ -368,6 +368,37 @@ jfs_nr_bitvector_ty jfs_nr_bvlshr(const jfs_nr_bitvector_ty value,
   return result;
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvashr(const jfs_nr_bitvector_ty value,
+                                  const jfs_nr_bitvector_ty shift,
+                                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  jassert(jfs_nr_is_valid(shift, bitWidth));
+  // (bvashr s t) abbreviates
+  //  (ite (= ((_ extract |m-1| |m-1|) s) #b0)
+  //       (bvlshr s t)
+  //       (bvnot (bvlshr (bvnot s) t)))
+  // TODO: Can we do this more efficiently?
+  bool lhsNeg = value & jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  jfs_nr_bitvector_ty result = 0;
+  if (!lhsNeg) {
+    result = jfs_nr_bvlshr(value, shift, bitWidth);
+  } else {
+    result = jfs_nr_bvnot(
+        jfs_nr_bvlshr(jfs_nr_bvnot(value, bitWidth), shift, bitWidth),
+        bitWidth);
+  }
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
+jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
+                                 const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  jfs_nr_bitvector_ty result = (~value) & jfs_nr_get_bitvector_mask(bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].
