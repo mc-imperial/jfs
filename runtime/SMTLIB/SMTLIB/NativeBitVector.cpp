@@ -240,6 +240,50 @@ jfs_nr_bitvector_ty jfs_nr_bvsdiv(const jfs_nr_bitvector_ty dividend,
   return result;
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvsrem(const jfs_nr_bitvector_ty dividend,
+                                  const jfs_nr_bitvector_ty divisor,
+                                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(dividend, bitWidth));
+  jassert(jfs_nr_is_valid(divisor, bitWidth));
+  // 2's complement signed remainder (sign follows dividend)
+  // (bvsrem s t) abbreviates
+  //  (let ((?msb_s ((_ extract |m-1| |m-1|) s))
+  //        (?msb_t ((_ extract |m-1| |m-1|) t)))
+  //    (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
+  //         (bvurem s t)
+  //    (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
+  //         (bvneg (bvurem (bvneg s) t))
+  //    (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
+  //         (bvurem s (bvneg t)))
+  //         (bvneg (bvurem (bvneg s) (bvneg t))))))
+  const jfs_nr_bitvector_ty msbMask =
+      jfs_nr_get_most_signficiant_bit_mask(bitWidth);
+  bool msb_s = dividend & msbMask;
+  bool msb_t = divisor & msbMask;
+  jfs_nr_bitvector_ty result = 0;
+  // TODO: Can we write this more efficiently?
+  if (!msb_s && !msb_t) {
+    // Both operands are postive in two's complement
+    result = jfs_nr_bvurem(dividend, divisor, bitWidth);
+  } else if (msb_s && !msb_t) {
+    // lhs is negative and rhs is positive in two's complement
+    result = jfs_nr_bvneg(
+        jfs_nr_bvurem(jfs_nr_bvneg(dividend, bitWidth), divisor, bitWidth),
+        bitWidth);
+  } else if (!msb_s && msb_t) {
+    // lhs is positive and rhs is negative in two's complement
+    result = jfs_nr_bvurem(dividend, jfs_nr_bvneg(divisor, bitWidth), bitWidth);
+  } else {
+    // Both operands are negative in two's complement
+    result =
+        jfs_nr_bvneg(jfs_nr_bvurem(jfs_nr_bvneg(dividend, bitWidth),
+                                   jfs_nr_bvneg(divisor, bitWidth), bitWidth),
+                     bitWidth);
+  }
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].

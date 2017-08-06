@@ -255,32 +255,7 @@ public:
   }
 
   BitVector<N> bvsrem(const BitVector<N>& divisor) const {
-    // 2's complement signed remainder (sign follows dividend)
-    // (bvsrem s t) abbreviates
-    //  (let ((?msb_s ((_ extract |m-1| |m-1|) s))
-    //        (?msb_t ((_ extract |m-1| |m-1|) t)))
-    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b0))
-    //         (bvurem s t)
-    //    (ite (and (= ?msb_s #b1) (= ?msb_t #b0))
-    //         (bvneg (bvurem (bvneg s) t))
-    //    (ite (and (= ?msb_s #b0) (= ?msb_t #b1))
-    //         (bvurem s (bvneg t)))
-    //         (bvneg (bvurem (bvneg s) (bvneg t))))))
-    bool msb_s = data & mostSignificantBitMask();
-    bool msb_t = divisor.data & mostSignificantBitMask();
-    // TODO: Can we write this more efficiently?
-    if (!msb_s && !msb_t) {
-      // Both operands are postive in two's complement
-      return bvurem(divisor);
-    } else if (msb_s && !msb_t) {
-      // lhs is negative and rhs is positive in two's complement
-      return (this->bvneg()).bvurem(divisor).bvneg();
-    } else if (!msb_s && msb_t) {
-      // lhs is positive and rhs is negative in two's complement
-      return bvurem(divisor.bvneg());
-    }
-    // Both operands are negative in two's complement
-    return ((this->bvneg()).bvurem(divisor.bvneg())).bvneg();
+    return BitVector<N>(jfs_nr_bvsrem(data, divisor.data, N));
   }
 
   BitVector<N> bvsmod(const BitVector<N>& t) const {
