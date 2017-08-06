@@ -290,7 +290,7 @@ public:
   }
 
   BitVector<N> bvor(const BitVector<N>& other) const {
-    return BitVector<N>((data | other.data) & mask());
+    return BitVector<N>(jfs_nr_bvor(data, other.data, N));
   }
 
   BitVector<N> bvnot() const { return BitVector<N>(jfs_nr_bvnot(data, N)); }
