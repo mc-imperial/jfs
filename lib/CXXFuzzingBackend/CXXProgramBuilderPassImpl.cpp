@@ -358,7 +358,6 @@ void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
 }
 
 void CXXProgramBuilderPassImpl::build(const Query& q) {
-  JFSContext& ctx = q.getContext();
   auto fuzzFn = buildEntryPoint();
   entryPointMainBlock = fuzzFn->defn;
 
