@@ -269,12 +269,7 @@ public:
   }
 
   BitVector<N> bvlshr(const BitVector<N>& shift) const {
-    // [[(bvlshr s t)]] := nat2bv[m](bv2nat([[s]]) div 2^(bv2nat([[t]])))
-    if (shift.data >= N) {
-      // Overshift to zero
-      return BitVector<N>(0);
-    }
-    return BitVector<N>((data >> shift.data) & mask());
+    return BitVector<N>(jfs_nr_bvlshr(data, shift.data, N));
   }
 
   BitVector<N> bvashr(const BitVector<N>& shift) const {
