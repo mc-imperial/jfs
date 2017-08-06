@@ -27,9 +27,10 @@ template <uint64_t N, typename = void> class BitVector {};
 // <= 64 bits. This implementation uses native machine operations
 // for speed.
 template <uint64_t N>
-class BitVector<N, typename std::enable_if<(N <= 64)>::type> {
+class BitVector<
+    N, typename std::enable_if<(N <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type> {
 private:
-  typedef uint64_t dataTy;
+  typedef jfs_nr_bitvector_ty dataTy;
   dataTy data;
   constexpr dataTy mask() const {
     return (N >= 64) ? UINT64_MAX : ((UINT64_C(1) << N) - 1);
@@ -50,16 +51,19 @@ private:
 
 public:
   BitVector(uint64_t value) {
-    static_assert(N > 0 && N <= 64, "Invalid value for N");
+    static_assert(N > 0 && N <= JFS_NR_BITVECTOR_TY_BITWIDTH,
+                  "Invalid value for N");
     data = doMod(value);
     jassert(data == value);
   }
 
   BitVector() : BitVector(0) {
-    static_assert(N > 0 && N <= 64, "Invalid value for N");
+    static_assert(N > 0 && N <= JFS_NR_BITVECTOR_TY_BITWIDTH,
+                  "Invalid value for N");
   }
   BitVector(const BitVector<N>& other) : data(other.data) {
-    static_assert(N > 0 && N <= 64, "Invalid value for N");
+    static_assert(N > 0 && N <= JFS_NR_BITVECTOR_TY_BITWIDTH,
+                  "Invalid value for N");
   }
   BufferRef<uint8_t> getBuffer() const {
     return BufferRef<uint8_t>(
@@ -70,7 +74,8 @@ public:
   // Repeat operation producing a width that is native
   template <
       uint64_t M,
-      typename std::enable_if<(((N * M) < 64) && (N * M) > 0)>::type* = nullptr>
+      typename std::enable_if<(((N * M) <= JFS_NR_BITVECTOR_TY_BITWIDTH) &&
+                               (N * M) > 0)>::type* = nullptr>
   BitVector<(N * M)> repeat() const {
     // TODO:
     JFS_RUNTIME_FAIL();
@@ -79,7 +84,8 @@ public:
 
   // Repeat operation producing a width that is not native
   template <uint64_t M,
-            typename std::enable_if<((N * M) > 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N * M) > JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<(N * M)> repeat() const {
     // TODO:
     JFS_RUNTIME_FAIL();
@@ -92,7 +98,8 @@ public:
   //
   // Implementation for where result is a native BitVector
   template <uint64_t M,
-            typename std::enable_if<((N + M) <= 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + M) <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + M> concat(const BitVector<M>& rhs) const {
     // Concatentation produces native BitVector.
     static_assert((N + M) <= 64, "Too many bits");
@@ -101,7 +108,8 @@ public:
 
   // Implementation for where result is not a native BitVector
   template <uint64_t M,
-            typename std::enable_if<((N + M) > 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + M) > JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + M> concat(const BitVector<M>& rhs) const {
     // Concat produces bitvector that we can't represent natively.
     constexpr size_t bufferSize = (N + M + 7) / 8;
@@ -169,15 +177,17 @@ public:
 
   // Implementation for where result is a native BitVector
   template <uint64_t BITS,
-            typename std::enable_if<((N + BITS) <= 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + BITS) <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + BITS> zeroExtend() const {
-    static_assert((N + BITS) <= 64, "too many bits");
+    static_assert((N + BITS) <= JFS_NR_BITVECTOR_TY_BITWIDTH, "too many bits");
     return BitVector<N + BITS>(jfs_nr_zero_extend(data, N, BITS));
   }
 
   // Implementation for where result is not a native BitVector
   template <uint64_t BITS,
-            typename std::enable_if<((N + BITS) > 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + BITS) > JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + BITS> zeroExtend() const {
     constexpr size_t bufferSize = (N + BITS + 7) / 8;
     uint8_t rawData[bufferSize];
@@ -191,17 +201,19 @@ public:
 
   // Implementation for where result is a native BitVector
   template <uint64_t BITS,
-            typename std::enable_if<((N + BITS) <= 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + BITS) <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + BITS> signExtend() const {
-    static_assert((N + BITS) <= 64, "too many bits");
+    static_assert((N + BITS) <= JFS_NR_BITVECTOR_TY_BITWIDTH, "too many bits");
     return BitVector<N + BITS>(jfs_nr_sign_extend(data, N, BITS));
   }
 
   // Implementation for where result is not a native BitVector
   template <uint64_t BITS,
-            typename std::enable_if<((N + BITS) > 64)>::type* = nullptr>
+            typename std::enable_if<
+                ((N + BITS) > JFS_NR_BITVECTOR_TY_BITWIDTH)>::type* = nullptr>
   BitVector<N + BITS> signExtend() const {
-    static_assert((N + BITS) > 64, "too few bits");
+    static_assert((N + BITS) > JFS_NR_BITVECTOR_TY_BITWIDTH, "too few bits");
     if ((data & mostSignificantBitMask()) == 0) {
       // Can just zero extend
       return zeroExtend<BITS>();
@@ -363,7 +375,8 @@ public:
 };
 
 template <uint64_t N>
-class BitVector<N, typename std::enable_if<(N > 64)>::type> {
+class BitVector<
+    N, typename std::enable_if<(N > JFS_NR_BITVECTOR_TY_BITWIDTH)>::type> {
 private:
   uint8_t* data;
   constexpr size_t numBytesRequired(size_t bits) const {
