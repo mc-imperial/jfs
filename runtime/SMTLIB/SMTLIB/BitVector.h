@@ -233,21 +233,19 @@ public:
   BitVector<N> bvadd(const BitVector<N>& other) const {
     return BitVector<N>(jfs_nr_bvadd(data, other.data, N));
   }
+
   BitVector<N> bvsub(const BitVector<N>& other) const {
     return BitVector<N>(jfs_nr_bvsub(data, other.data, N));
   }
+
   BitVector<N> bvmul(const BitVector<N>& other) const {
     return BitVector<N>(jfs_nr_bvmul(data, other.data, N));
   }
+
   BitVector<N> bvudiv(const BitVector<N>& divisor) const {
-    //   [[(bvudiv s t)]] := if bv2nat([[t]]) = 0
-    //                       then λx:[0, m). 1
-    //                       else nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
-    if (divisor == 0) {
-      return BitVector<N>(mask());
-    }
-    return data / divisor.data;
+    return BitVector<N>(jfs_nr_bvudiv(data, divisor.data, N));
   }
+
   BitVector<N> bvurem(const BitVector<N>& divisor) const {
     //  [[(bvurem s t)]] := if bv2nat([[t]]) = 0
     //                      then [[s]]

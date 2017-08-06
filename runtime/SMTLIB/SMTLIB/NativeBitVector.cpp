@@ -163,6 +163,22 @@ jfs_nr_bitvector_ty jfs_nr_bvmul(const jfs_nr_bitvector_ty lhs,
   return jfs_nr_get_bitvector_mod(lhs * rhs, bitWidth);
 }
 
+jfs_nr_bitvector_ty jfs_nr_bvudiv(const jfs_nr_bitvector_ty dividend,
+                                  const jfs_nr_bitvector_ty divisor,
+                                  const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(dividend, bitWidth));
+  jassert(jfs_nr_is_valid(divisor, bitWidth));
+  //   [[(bvudiv s t)]] := if bv2nat([[t]]) = 0
+  //                       then λx:[0, m). 1
+  //                       else nat2bv[m](bv2nat([[s]]) div bv2nat([[t]]))
+  if (divisor == 0) {
+    return jfs_nr_get_bitvector_mask(bitWidth);
+  }
+  jfs_nr_bitvector_ty result = dividend / divisor;
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].
