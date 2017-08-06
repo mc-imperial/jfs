@@ -313,7 +313,6 @@ public:
 
   // Comparison operators
   bool operator==(const BitVector<N>& rhs) const { return data == rhs.data; }
-  bool operator!=(const BitVector<N>& rhs) const { return !(*this == rhs); }
 
   bool bvult(const BitVector<N>& rhs) const {
     return jfs_nr_bvult(data, rhs.data, N);
@@ -357,9 +356,6 @@ public:
     }
     return BitVector<1>(0);
   }
-
-  // TODO
-
   // This template is friends with all other instantiations
   // FIXME: It would be better if we were only friends where
   // N <= 64.
