@@ -64,6 +64,10 @@ jfs_nr_bitvector_ty jfs_nr_bvurem(const jfs_nr_bitvector_ty dividend,
                                   const jfs_nr_bitvector_ty divisor,
                                   const jfs_nr_width_ty bitWidth);
 
+jfs_nr_bitvector_ty jfs_nr_bvsdiv(const jfs_nr_bitvector_ty dividend,
+                                  const jfs_nr_bitvector_ty divisor,
+                                  const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t bufferSize,
                                           const uint64_t lowBit,
