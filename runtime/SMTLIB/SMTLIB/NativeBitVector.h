@@ -92,6 +92,10 @@ jfs_nr_bitvector_ty jfs_nr_rotate_left(const jfs_nr_bitvector_ty value,
                                        const jfs_nr_bitvector_ty shift,
                                        const jfs_nr_width_ty bitWidth);
 
+jfs_nr_bitvector_ty jfs_nr_rotate_right(const jfs_nr_bitvector_ty value,
+                                        const jfs_nr_bitvector_ty shift,
+                                        const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
                                  const jfs_nr_width_ty bitWidth);
 

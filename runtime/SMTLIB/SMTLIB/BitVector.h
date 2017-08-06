@@ -281,19 +281,7 @@ public:
   }
 
   BitVector<N> rotate_right(uint64_t shift) const {
-    // ((_ rotate_right 0) t) stands for t
-    // ((_ rotate_right i) t) abbreviates t if m = 1, and
-    //   ((_ rotate_right |i-1|)
-    //     (concat ((_ extract 0 0) t) ((_ extract |m-1| 1) t)))
-    //   otherwise
-    uint64_t effective_shift = shift % N;
-    // Shift bits to the right
-    uint64_t result = data >> effective_shift;
-    // bitwise or with the bits that got shifted out and
-    // should now appear in the msb.
-    result |= data << (N - effective_shift);
-    result &= mask();
-    return BitVector<N>(result);
+    return BitVector<N>(jfs_nr_rotate_right(data, shift, N));
   }
 
   // Bitwise operators
