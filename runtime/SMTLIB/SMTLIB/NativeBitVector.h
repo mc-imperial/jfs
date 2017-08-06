@@ -104,6 +104,10 @@ jfs_nr_bitvector_ty jfs_nr_bvor(const jfs_nr_bitvector_ty lhs,
                                 const jfs_nr_bitvector_ty rhs,
                                 const jfs_nr_width_ty bitWidth);
 
+jfs_nr_bitvector_ty jfs_nr_bvnand(const jfs_nr_bitvector_ty lhs,
+                                  const jfs_nr_bitvector_ty rhs,
+                                  const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_bvnot(const jfs_nr_bitvector_ty value,
                                  const jfs_nr_width_ty bitWidth);
 
