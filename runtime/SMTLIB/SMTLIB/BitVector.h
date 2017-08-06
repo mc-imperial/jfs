@@ -304,7 +304,7 @@ public:
   }
 
   BitVector<N> bvxor(const BitVector<N>& other) const {
-    return BitVector<N>((data ^ other.data) & mask());
+    return BitVector<N>(jfs_nr_bvxor(data, other.data, N));
   }
 
   BitVector<N> bvxnor(const BitVector<N>& other) const {
