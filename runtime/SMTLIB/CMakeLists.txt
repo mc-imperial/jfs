@@ -110,6 +110,7 @@ macro(AddJFSRuntimeBuild)
       "-DUSE_ASAN=${jfs_runtime_arg_ASAN}"
       "-DUSE_UBSAN=${jfs_runtime_arg_UBSAN}"
       "-DENABLE_JFS_RUNTIME_ASSERTS=${jfs_runtime_arg_RUNTIME_ASSERTS}"
+      "-DJFS_RUNTIME_ASSERTS_CALL_ABORT=OFF"
     CMAKE_CACHE_ARGS
       # HACK: We have to pass `LIT_ARGS` this way because
       # its a list and passing it in `CMAKE_ARGS` doesn't
