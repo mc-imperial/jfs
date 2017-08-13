@@ -38,6 +38,7 @@ void Query::dump() const {
 }
 
 void Query::print(llvm::raw_ostream& os) const {
+  Z3_context z3Ctx = ctx.getZ3Ctx();
   std::list<Z3ASTHandle> workList;
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
     workList.push_front(*bi);
@@ -86,11 +87,10 @@ void Query::print(llvm::raw_ostream& os) const {
   os << "; Start decls (" << variables.size() << ")\n";
   for (auto vi = sortedVariables.begin(), ve = sortedVariables.end(); vi != ve;
        ++vi) {
-    Z3ASTHandle asAst =
-        Z3ASTHandle(::Z3_func_decl_to_ast(ctx.z3Ctx, *vi), ctx.z3Ctx);
+    Z3ASTHandle asAst = Z3ASTHandle(::Z3_func_decl_to_ast(z3Ctx, *vi), z3Ctx);
     // FIXME: should really use .toStr() method but I want to avoid alloc
     // overhead for now.
-    os << ::Z3_ast_to_string(ctx.z3Ctx, asAst) << "\n";
+    os << ::Z3_ast_to_string(z3Ctx, asAst) << "\n";
   }
   os << "; End decls\n";
   // Print constraints
@@ -98,7 +98,7 @@ void Query::print(llvm::raw_ostream& os) const {
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
     // FIXME: should really use .toStr() method but I want to avoid alloc
     // overhead for now.
-    os << "(assert " << ::Z3_ast_to_string(ctx.z3Ctx, *bi) << ")\n";
+    os << "(assert " << ::Z3_ast_to_string(z3Ctx, *bi) << ")\n";
   }
   os << "; End constraints\n";
 }

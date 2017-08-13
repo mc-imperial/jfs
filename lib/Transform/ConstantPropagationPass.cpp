@@ -23,7 +23,7 @@ namespace transform {
 bool ConstantPropagationPass::run(Query &q) {
   JFSContext& ctx = q.getContext();
   std::vector<Z3ASTHandle> newConstraints;
-  z3Ctx = q.getContext().z3Ctx;
+  z3Ctx = ctx.getZ3Ctx();
   Z3TacticHandle propagateValuesTactic(
       ::Z3_mk_tactic(z3Ctx, "propagate-values"), z3Ctx);
 

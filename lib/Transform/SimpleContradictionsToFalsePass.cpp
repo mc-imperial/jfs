@@ -64,6 +64,8 @@ bool simplifyTopLevelNot(Query& q, std::atomic<bool>* cancelled) {
   assert(q.constraints.size() >= newConstraints.size() &&
          "newConstraints was too large");
   newConstraints.reserve(q.constraints.size() - newConstraints.size());
+  Z3_context z3Ctx = ctx.getZ3Ctx();
+  Z3ASTHandle falseExpr = Z3ASTHandle(::Z3_mk_false(z3Ctx), z3Ctx);
   for (auto ci = q.constraints.cbegin(), ce = q.constraints.cend(); ci != ce;
        ++ci) {
 
@@ -73,8 +75,7 @@ bool simplifyTopLevelNot(Query& q, std::atomic<bool>* cancelled) {
 
     if (contradictingConstraints.count(*ci) > 0) {
       // Replace contradicting constraint with false
-      newConstraints.push_back(
-          Z3ASTHandle(::Z3_mk_false(ctx.z3Ctx), ctx.z3Ctx));
+      newConstraints.push_back(falseExpr);
       continue;
     }
     // Not detected as a contradiction. Keep this constraint

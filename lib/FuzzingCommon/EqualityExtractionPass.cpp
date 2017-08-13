@@ -31,6 +31,7 @@ void EqualityExtractionPass::cleanUp() {
 
 bool EqualityExtractionPass::run(jfs::core::Query& q) {
   JFSContext& ctx = q.getContext();
+  Z3_context z3Ctx = ctx.getZ3Ctx();
   mapping.clear();
   equalities.clear();
   // Maps from expr to set of equivalent expressions.
@@ -59,7 +60,7 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
       // this is equivalent to
       // `(= <variable> true)`
       equalOperands.push_back(node);
-      equalOperands.push_back(Z3ASTHandle(::Z3_mk_true(ctx.z3Ctx), ctx.z3Ctx));
+      equalOperands.push_back(Z3ASTHandle(::Z3_mk_true(z3Ctx), z3Ctx));
     } else if (node.isAppOf(Z3_OP_NOT)) {
       // Match
       // `(not <variable>)` where <variable> has boolean sort
@@ -68,8 +69,7 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
       Z3ASTHandle child = node.asApp().getKid(0);
       if (child.isFreeVariable() && child.getSort().isBoolTy()) {
         equalOperands.push_back(child);
-        equalOperands.push_back(
-            Z3ASTHandle(::Z3_mk_false(ctx.z3Ctx), ctx.z3Ctx));
+        equalOperands.push_back(Z3ASTHandle(::Z3_mk_false(z3Ctx), z3Ctx));
       }
     } else if (node.isAppOf(Z3_OP_EQ)) {
       // Match
@@ -187,7 +187,7 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
     if (constantCount > 1) {
       // Found inconsistency. Replace constraints with false
       q.constraints.clear();
-      q.constraints.push_back(Z3ASTHandle(::Z3_mk_false(ctx.z3Ctx), ctx.z3Ctx));
+      q.constraints.push_back(Z3ASTHandle(::Z3_mk_false(z3Ctx), z3Ctx));
       return true;
     }
   }

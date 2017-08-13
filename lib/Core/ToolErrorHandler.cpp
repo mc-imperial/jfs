@@ -16,7 +16,7 @@ namespace core {
 
 JFSContextErrorHandler::ErrorAction
 ToolErrorHandler::handleZ3error(JFSContext& ctx, Z3_error_code ec) {
-  auto msg = Z3_get_error_msg(ctx.z3Ctx, ec);
+  auto msg = Z3_get_error_msg(ctx.getZ3Ctx(), ec);
   if (strcmp(msg, "canceled") == 0 && ignoreCanceled) {
     // Ignore
     IF_VERB(ctx, ctx.getDebugStream() << "(ignore \"Z3 canceled event\")\n");

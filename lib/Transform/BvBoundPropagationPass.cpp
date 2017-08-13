@@ -24,7 +24,7 @@ namespace transform {
 bool BvBoundPropagationPass::run(Query &q) {
   JFSContext& ctx = q.getContext();
   std::vector<Z3ASTHandle> newConstraints;
-  z3Ctx = q.getContext().z3Ctx;
+  z3Ctx = ctx.getZ3Ctx();
   // NOTE: This tactic only modifies bvule and bvsle so the SimplificationPass
   // needs to be run first.
   Z3TacticHandle propagateValuesTactic(

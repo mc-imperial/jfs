@@ -13,7 +13,7 @@
 #include "z3.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/Support/raw_ostream.h"
-#include <list>
+#include <algorithm>
 
 namespace jfs {
 namespace core {
@@ -32,13 +32,13 @@ public:
                                          llvm::StringRef msg) = 0;
 };
 
+class JFSContextImpl;
+
 class JFSContext {
 private:
-  std::list<JFSContextErrorHandler*> errorHandlers;
-  unsigned verbosity;
+  const std::unique_ptr<JFSContextImpl> impl;
 
 public:
-  Z3_context z3Ctx;
   JFSContext(const JFSContextConfig& ctxCfg);
   ~JFSContext();
 
@@ -51,11 +51,10 @@ public:
 
   bool registerErrorHandler(JFSContextErrorHandler* h);
   bool unRegisterErrorHandler(JFSContextErrorHandler* h);
-  // FIXME: Should not be public
-  void z3ErrorHandler(Z3_error_code ec);
 
+  Z3_context getZ3Ctx() const;
   // TODO: Rethink this API.
-  unsigned getVerbosity() const { return verbosity; }
+  unsigned getVerbosity() const;
   // Message streams
   llvm::raw_ostream& getErrorStream();
   llvm::raw_ostream& getWarningStream();

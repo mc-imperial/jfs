@@ -41,16 +41,16 @@ SMTLIB2Parser::~SMTLIB2Parser() {}
 
 std::shared_ptr<Query> SMTLIB2Parser::parseFile(llvm::StringRef fileName) {
   Z3ASTHandle constraint;
+  Z3_context z3Ctx = ctx.getZ3Ctx();
   ScopedJFSContextErrorHandler errorHandler(ctx, this);
-  constraint =
-      Z3ASTHandle(Z3_parse_smtlib2_file(ctx.z3Ctx, fileName.str().c_str(),
-                                        /*num_sorts=*/0,
-                                        /*sort_names=*/0,
-                                        /*sorts=*/0,
-                                        /*num_decls=*/0,
-                                        /*decl_names=*/0,
-                                        /*decls=*/0),
-                  ctx.z3Ctx);
+  constraint = Z3ASTHandle(Z3_parse_smtlib2_file(z3Ctx, fileName.str().c_str(),
+                                                 /*num_sorts=*/0,
+                                                 /*sort_names=*/0,
+                                                 /*sorts=*/0,
+                                                 /*num_decls=*/0,
+                                                 /*decl_names=*/0,
+                                                 /*decls=*/0),
+                           z3Ctx);
   if (errorCount > 0) {
     return nullptr;
   }
@@ -63,16 +63,17 @@ std::shared_ptr<Query> SMTLIB2Parser::parseFile(llvm::StringRef fileName) {
 }
 
 std::shared_ptr<Query> SMTLIB2Parser::parseStr(llvm::StringRef str) {
+  Z3_context z3Ctx = ctx.getZ3Ctx();
   Z3ASTHandle constraint;
   ScopedJFSContextErrorHandler errorHandler(ctx, this);
-  constraint = Z3ASTHandle(Z3_parse_smtlib2_string(ctx.z3Ctx, str.data(),
+  constraint = Z3ASTHandle(Z3_parse_smtlib2_string(z3Ctx, str.data(),
                                                    /*num_sorts=*/0,
                                                    /*sort_names=*/0,
                                                    /*sorts=*/0,
                                                    /*num_decls=*/0,
                                                    /*decl_names=*/0,
                                                    /*decls=*/0),
-                           ctx.z3Ctx);
+                           z3Ctx);
   if (errorCount > 0) {
     return nullptr;
   }
