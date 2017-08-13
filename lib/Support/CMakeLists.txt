@@ -11,9 +11,11 @@
 jfs_add_component(JFSSupport
   version.cpp
   CancellableProcess.cpp
-  FileUtils.cpp
   ErrorMessages.cpp
+  FileUtils.cpp
+  JFSStat.cpp
   ScopedTimer.cpp
+  StatisticsManager.cpp
 )
 
 # Needed for command line support

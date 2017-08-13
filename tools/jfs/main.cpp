@@ -21,6 +21,7 @@
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
 #include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/ScopedTimer.h"
+#include "jfs/Support/StatisticsManager.h"
 #include "jfs/Support/version.h"
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Transform/StandardPasses.h"
@@ -57,6 +58,12 @@ llvm::cl::opt<std::string> OutputDirectory(
 llvm::cl::opt<bool>
     KeepOutputDirectory("keep-output-dir", llvm::cl::init(false),
                         llvm::cl::desc("Keep output directory (default false)"));
+
+llvm::cl::opt<std::string>
+    StatsFilename("stats-file",
+                  llvm::cl::desc("Location to write stats file. `-` writes to "
+                                 "stdout. (default don't write file)"),
+                  llvm::cl::init(""));
 
 enum BackendTy {
   DUMMY_FUZZING_SOLVER,
@@ -162,6 +169,8 @@ int main(int argc, char** argv) {
   // Create context
   JFSContextConfig ctxCfg;
   ctxCfg.verbosity = Verbosity;
+  ctxCfg.gathericStatistics = (StatsFilename != "");
+
   JFSContext ctx(ctxCfg);
   ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
@@ -234,5 +243,30 @@ int main(int argc, char** argv) {
 
   auto response = solver->solve(*query, /*produceModel=*/false);
   llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";
+
+  // Write statistics out
+  if (StatsFilename != "") {
+    if (Verbosity > 0) {
+      ctx.getDebugStream() << "(writing stats to \"" << StatsFilename
+                           << "\")\n";
+    }
+    auto stats = ctx.getStats();
+    assert(stats != nullptr);
+    if (StatsFilename == "-") {
+      stats->printYAML(llvm::outs());
+    } else {
+      std::error_code ec;
+      llvm::raw_fd_ostream sf(StatsFilename, ec, llvm::sys::fs::F_Excl);
+      // FIXME: Refactor this
+      if (ec) {
+        ctx.getErrorStream()
+            << "(error \"Failed to open output stream: " << ec.message()
+            << "\")\n";
+        return 1;
+      }
+      stats->printYAML(sf);
+      sf.close();
+    }
+  }
   return 0;
 }

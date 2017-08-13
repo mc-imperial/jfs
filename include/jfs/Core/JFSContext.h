@@ -13,12 +13,18 @@
 #include "z3.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/Support/raw_ostream.h"
-#include <algorithm>
+
+namespace jfs {
+namespace support {
+class StatisticsManager;
+}
+}
 
 namespace jfs {
 namespace core {
 struct JFSContextConfig {
   unsigned verbosity = 0;
+  bool gathericStatistics = false;
 };
 
 class JFSContext;
@@ -66,6 +72,8 @@ public:
   __attribute__((noreturn)) void raiseFatalError(llvm::StringRef msg);
 
   void raiseError(llvm::StringRef msg);
+  jfs::support::StatisticsManager* getStats() const;
+  const JFSContextConfig& getConfig() const;
 };
 }
 }

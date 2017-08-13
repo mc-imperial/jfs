@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/JFSContext.h"
+#include "jfs/Support/StatisticsManager.h"
 #include "llvm/Support/raw_os_ostream.h"
 #include <assert.h>
 #include <list>
@@ -31,13 +32,14 @@ public:
   std::list<JFSContextErrorHandler*> errorHandlers;
   Z3_context z3Ctx;
   JFSContextConfig config;
+  std::unique_ptr<jfs::support::StatisticsManager> stats;
   // Global to all instances
   static std::unordered_map<Z3_context, jfs::core::JFSContextImpl*>
       activeContexts;
   static std::mutex activeContextsMutex; // protects
 public:
   JFSContextImpl(JFSContext* ctx, const JFSContextConfig& ctxCfg)
-      : publicContext(ctx), config(ctxCfg) {
+      : publicContext(ctx), config(ctxCfg), stats(nullptr) {
     std::lock_guard<std::mutex> lock(activeContextsMutex);
     // TODO use ctxCfg
     Z3_config z3Cfg = Z3_mk_config();
@@ -49,6 +51,11 @@ public:
     Z3_del_config(z3Cfg);
     auto success = activeContexts.insert(std::make_pair(z3Ctx, this));
     assert(success.second && "insert failed");
+
+    // Set up stats
+    if (config.gathericStatistics) {
+      stats.reset(new jfs::support::StatisticsManager());
+    }
   }
 
   ~JFSContextImpl() {
@@ -133,6 +140,9 @@ public:
       }
     }
   }
+
+  jfs::support::StatisticsManager* getStats() const { return stats.get(); }
+  const JFSContextConfig& getConfig() const { return config; }
 };
 
 std::unordered_map<Z3_context, jfs::core::JFSContextImpl*>
@@ -202,6 +212,14 @@ llvm::raw_ostream &JFSContext::getWarningStream() {
 
 llvm::raw_ostream &JFSContext::getDebugStream() {
   return impl->getDebugStream();
+}
+
+jfs::support::StatisticsManager* JFSContext::getStats() const {
+  return impl->getStats();
+}
+
+const JFSContextConfig& JFSContext::getConfig() const {
+  return impl->getConfig();
 }
 }
 }

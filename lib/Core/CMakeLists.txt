@@ -20,4 +20,4 @@ jfs_add_component(JFSCore
 # Needed for command line support
 jfs_get_llvm_components(llvm_components support)
 
-target_link_libraries(JFSCore PUBLIC "${Z3_LIBRARIES}" ${llvm_components})
+target_link_libraries(JFSCore PUBLIC JFSSupport "${Z3_LIBRARIES}" ${llvm_components})
