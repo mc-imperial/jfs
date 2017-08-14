@@ -176,6 +176,20 @@ int main(int argc, char** argv) {
   ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
 
+  std::unique_ptr<llvm::raw_fd_ostream> sf;
+  if (StatsFilename != "") {
+    // Open stats file early so we fail early if it can't be opened
+    std::error_code ec;
+    sf.reset(
+        new llvm::raw_fd_ostream(StatsFilename, ec, llvm::sys::fs::F_Excl));
+    if (ec) {
+      ctx.getErrorStream()
+          << jfs::support::getMessageForFailedOpenFileForWriting(StatsFilename,
+                                                                 ec);
+      return 1;
+    }
+  }
+
   // Create parser
   SMTLIB2Parser parser(ctx);
 
@@ -251,26 +265,13 @@ int main(int argc, char** argv) {
 
   // Write statistics out
   if (StatsFilename != "") {
+    assert(sf.get() != nullptr);
     if (Verbosity > 0) {
       ctx.getDebugStream() << "(writing stats to \"" << StatsFilename
                            << "\")\n";
     }
-    auto stats = ctx.getStats();
-    assert(stats != nullptr);
-    if (StatsFilename == "-") {
-      stats->printYAML(llvm::outs());
-    } else {
-      std::error_code ec;
-      llvm::raw_fd_ostream sf(StatsFilename, ec, llvm::sys::fs::F_Excl);
-      if (ec) {
-        ctx.getErrorStream()
-            << jfs::support::getMessageForFailedOpenFileForWriting(
-                   StatsFilename, ec);
-        return 1;
-      }
-      stats->printYAML(sf);
-      sf.close();
-    }
+    ctx.getStats()->printYAML(*sf);
+    sf->close();
   }
   return 0;
 }
