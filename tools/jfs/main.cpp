@@ -14,6 +14,7 @@
 #include "jfs/CXXFuzzingBackend/CmdLine/ClangOptionsBuilder.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
+#include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
@@ -216,16 +217,20 @@ int main(int argc, char** argv) {
   });
 
   // Parse query
+  std::shared_ptr<Query> query;
   IF_VERB(ctx, ctx.getDebugStream() << "(Parser starting)\n");
-  auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
-  if (auto error = bufferOrError.getError()) {
-    ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
-        InputFilename, error);
-    return 1;
+  {
+    JFS_SM_TIMER(parse_query, ctx);
+    auto bufferOrError = llvm::MemoryBuffer::getFileOrSTDIN(InputFilename);
+    if (auto error = bufferOrError.getError()) {
+      ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileOrSTDIN(
+          InputFilename, error);
+      return 1;
+    }
+    auto buffer(std::move(bufferOrError.get()));
+    // NOTE: the ToolErrorHandler will deal with parsing errors.
+    query = parser.parseMemoryBuffer(std::move(buffer));
   }
-  auto buffer(std::move(bufferOrError.get()));
-  // NOTE: the ToolErrorHandler will deal with parsing errors.
-  auto query = parser.parseMemoryBuffer(std::move(buffer));
   parsingDone = true;
   IF_VERB(ctx, ctx.getDebugStream() << "(Parser finished)\n");
   if (Verbosity > 10)

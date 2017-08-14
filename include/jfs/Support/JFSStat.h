@@ -34,9 +34,9 @@ protected:
   JFSStat(JFSStatKind kind, llvm::StringRef name);
 
 public:
-  JFSStat();
   virtual ~JFSStat();
   JFSStatKind getKind() const { return kind; }
+  // FIXME: We should switch to llvm::yaml API.
   virtual void printYAML(llvm::ScopedPrinter& os) const = 0;
   void dump() const;
   llvm::StringRef getName() const;

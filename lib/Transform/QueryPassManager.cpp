@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Transform/QueryPassManager.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/Core/JFSTimerMacros.h"
 #include <atomic>
 #include <mutex>
 #include <vector>
@@ -52,6 +53,7 @@ public:
     // FIXME: We can't hold passesMutex here otherwise `cancel` will not
     // cancel until this method finishes.
     JFSContext &ctx = q.getContext();
+    JFS_AG_COL(pass_times, ctx);
     IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager starting)\n";);
     for (auto pi = passes.begin(), pe = passes.end(); pi != pe; ++pi) {
       IF_VERB(ctx,
@@ -65,8 +67,11 @@ public:
         IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager cancelled)\n";);
         return;
       }
-      // Now run the pass
-      (*pi)->run(q);
+      {
+        JFS_AG_TIMER(pass_timer, (*pi)->getName(), pass_times, ctx);
+        // Now run the pass
+        (*pi)->run(q);
+      }
 
       IF_VERB_GT(ctx, 1,
                  ctx.getDebugStream() << ";After \"" << (*pi)->getName() << "\n"

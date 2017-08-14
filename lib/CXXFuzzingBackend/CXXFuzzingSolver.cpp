@@ -14,6 +14,7 @@
 #include "jfs/CXXFuzzingBackend/ClangInvocationManager.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
@@ -182,29 +183,34 @@ public:
     // directly
     // to Clang so we don't need to write it disk and then immediatly read it
     // back.
-    std::string sourceFilePath = wdm->getPathToFileInDirectory("program.cpp");
-    std::string outputFilePath = wdm->getPathToFileInDirectory("fuzzer");
-    std::string clangStdOutFile;
-    std::string clangStdErrFile;
-    if (ctx.getVerbosity() == 0) {
-      // When being quiet redirect to files
-      clangStdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
-      clangStdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
-    }
-    bool compileSuccess = cim.compile(
-        /*program=*/pbp->getProgram().get(), /*sourceFile=*/sourceFilePath,
-        /*outputFile=*/outputFilePath,
-        /*clangOptions=*/options->getClangOptions(),
-        /*stdOutFile=*/clangStdOutFile,
-        /*stdErrFile=*/clangStdErrFile);
-    if (!compileSuccess) {
-      return std::unique_ptr<SolverResponse>(
-          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    std::string outputFilePath;
+    {
+      JFS_SM_TIMER(compile, ctx);
+      std::string sourceFilePath = wdm->getPathToFileInDirectory("program.cpp");
+      outputFilePath = wdm->getPathToFileInDirectory("fuzzer");
+      std::string clangStdOutFile;
+      std::string clangStdErrFile;
+      if (ctx.getVerbosity() == 0) {
+        // When being quiet redirect to files
+        clangStdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
+        clangStdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
+      }
+      bool compileSuccess = cim.compile(
+          /*program=*/pbp->getProgram().get(), /*sourceFile=*/sourceFilePath,
+          /*outputFile=*/outputFilePath,
+          /*clangOptions=*/options->getClangOptions(),
+          /*stdOutFile=*/clangStdOutFile,
+          /*stdErrFile=*/clangStdErrFile);
+      if (!compileSuccess) {
+        return std::unique_ptr<SolverResponse>(
+            new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+      }
     }
     // Cancellation point
     CHECK_CANCELLED();
 
     // Set LibFuzzer options
+    JFS_SM_TIMER(fuzz, ctx);
     LibFuzzerOptions* lfo = options->getLibFuzzerOptions();
     // FIXME: We've already computed this earlier so we should cache it
     // somewhere.

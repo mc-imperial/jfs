@@ -31,7 +31,22 @@ public:
   void clear() { stats.clear(); }
   size_t size() const { return stats.size(); }
   void printYAML(llvm::raw_ostream& os) const {
-    // TODO
+    llvm::ScopedPrinter sp(os);
+    sp.getOStream() << "stats:";
+
+    if (stats.size() == 0) {
+      sp.getOStream() << "[]\n";
+      return;
+    }
+    sp.getOStream() << "\n";
+
+    sp.indent();
+    for (const auto& stat : stats) {
+      sp.printIndent();
+      sp.getOStream() << "-";
+      stat->printYAML(sp);
+    }
+    sp.unindent();
   }
   void dump() const { printYAML(llvm::errs()); }
 };

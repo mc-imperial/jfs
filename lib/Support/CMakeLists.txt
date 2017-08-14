@@ -9,13 +9,14 @@
 #
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSSupport
-  version.cpp
   CancellableProcess.cpp
   ErrorMessages.cpp
   FileUtils.cpp
   JFSStat.cpp
   ScopedTimer.cpp
   StatisticsManager.cpp
+  Timer.cpp
+  version.cpp
 )
 
 # Needed for command line support
