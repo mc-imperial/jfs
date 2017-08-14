@@ -1,3 +1,4 @@
+
 #===------------------------------------------------------------------------===#
 #
 #                         JFS - The JIT Fuzzing Solver
@@ -8,7 +9,14 @@
 # See LICENSE.txt for details.
 #
 #===------------------------------------------------------------------------===#
-add_subdirectory(jfs)
-add_subdirectory(jfs-opt)
-add_subdirectory(jfs-smt2cxx)
-add_subdirectory(yaml-syntax-check)
+add_executable(yaml_syntax_check
+  main.cpp
+)
+
+# Needed for command line support
+jfs_get_llvm_components(llvm_components support)
+target_link_libraries(yaml_syntax_check
+  PRIVATE
+  ${llvm_components}
+  JFSSupport # HACK: Not really needed but this will give us the compiler flags
+)
