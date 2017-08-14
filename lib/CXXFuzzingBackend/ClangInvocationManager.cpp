@@ -47,6 +47,11 @@ public:
   // FIXME: Not sure if this belongs here or in ClangOptions
   jfs::fuzzingCommon::SMTLIBRuntimeTy
   computeSMTLIBRuntime(const ClangOptions* options) const {
+    assert((std::find(options->sanitizerCoverageOptions.cbegin(),
+                      options->sanitizerCoverageOptions.cend(),
+                      ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD) !=
+            options->sanitizerCoverageOptions.end()) &&
+           "must use trace-pc-guard");
     // FIXME: We ignore `debugSymbols` and `optimizationLevel` clang options
     // right now because we don't produce separate runtimes for these
     // combinations.
@@ -57,23 +62,24 @@ public:
         // though. If we're debugging we should really have the asserts on.
         ctx.raiseFatalError("Can't use ASan/UBSan without JFS runtime asserts");
       }
-      return jfs::fuzzingCommon::SMTLIBRuntimeTy::DEBUGSYMBOLS_OPTIMIZED;
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::
+          DEBUGSYMBOLS_OPTIMIZED_TRACEPCGUARD;
     }
 
     // Build has runtime asserts
     if (options->useASan && options->useUBSan) {
       return jfs::fuzzingCommon::SMTLIBRuntimeTy::
-          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN_UBSAN;
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN_UBSAN_TRACEPCGUARD;
     } else if (options->useASan) {
       return jfs::fuzzingCommon::SMTLIBRuntimeTy::
-          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN;
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_ASAN_TRACEPCGUARD;
     } else if (options->useUBSan) {
       return jfs::fuzzingCommon::SMTLIBRuntimeTy::
-          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_UBSAN;
+          DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_UBSAN_TRACEPCGUARD;
     }
     // Just with runtime asserts
     return jfs::fuzzingCommon::SMTLIBRuntimeTy::
-        DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS;
+        DEBUGSYMBOLS_OPTIMIZED_RUNTIMEASSERTS_TRACEPCGUARD;
   }
 
   // FIXME: Not sure if this belongs here or in ClangOptions

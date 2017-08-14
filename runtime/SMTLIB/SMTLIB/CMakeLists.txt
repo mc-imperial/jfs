@@ -79,6 +79,27 @@ else()
 endif()
 
 ###############################################################################
+# Sanitizer Coverage
+###############################################################################
+set(SANITIZER_COVERAGE_valid_options "TRACE_PC_GUARD;TRACE_CMP")
+set(SANITIZER_COVERAGE
+  ""
+  CACHE
+  STRING
+  "Valid values: ${SANITIZER_COVERAGE_valid_options}"
+)
+foreach (sanitizer_cov_opt ${SANITIZER_COVERAGE})
+  message(STATUS "Enable SanitizerCoverage: ${sanitizer_cov_opt}")
+  if ("${sanitizer_cov_opt}" STREQUAL "TRACE_PC_GUARD")
+    string(APPEND CMAKE_CXX_FLAGS " -fsanitize-coverage=trace-pc-guard")
+  elseif ("${sanitizer_cov_opt}" STREQUAL "TRACE_CMP")
+    string(APPEND CMAKE_CXX_FLAGS " -fsanitize-coverage=trace-cmp")
+  else()
+    message(FATAL_ERROR "Unsupported SANITIZER_COVERAGE value \"${sanitizer_cov_opt}\"")
+  endif()
+endforeach()
+
+###############################################################################
 # SMTLIB runtime
 ###############################################################################
 

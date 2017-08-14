@@ -56,7 +56,7 @@ define_property(
 
 macro(AddJFSRuntimeBuild)
   cmake_parse_arguments(jfs_runtime_arg
-    "ASAN;UBSAN;RUNTIME_ASSERTS;DEBUG_SYMBOLS;OPTIMIZED;RUN_UNIT_TESTS"
+    "ASAN;UBSAN;RUNTIME_ASSERTS;DEBUG_SYMBOLS;OPTIMIZED;RUN_UNIT_TESTS;TRACE_PC_GUARD;TRACE_CMP"
     ""
     ""
     ${ARGN}
@@ -78,6 +78,12 @@ macro(AddJFSRuntimeBuild)
   if (jfs_runtime_arg_UBSAN)
     string(APPEND buildName "_UBSan")
   endif()
+  if (jfs_runtime_arg_TRACE_PC_GUARD)
+    string(APPEND buildName "_TracePCGuard")
+  endif()
+  if (jfs_runtime_arg_TRACE_CMP)
+    string(APPEND buildName "_TraceCmp")
+  endif()
   message(STATUS "Adding JFS runtime ${buildName}")
   set(buildDir "${CMAKE_CURRENT_BINARY_DIR}/SMTLIB_${buildName}")
 
@@ -90,6 +96,15 @@ macro(AddJFSRuntimeBuild)
     endif()
   else()
     set(jfs_runtime_cmake_build_type "Debug")
+  endif()
+
+  # Compute SANITIZER_COVERAGE_OPTS
+  set(SANITIZER_COVERAGE_OPTS "")
+  if (jfs_runtime_arg_TRACE_PC_GUARD)
+    list(APPEND SANITIZER_COVERAGE_OPTS "TRACE_PC_GUARD")
+  endif()
+  if (jfs_runtime_arg_TRACE_CMP)
+    list(APPEND SANITIZER_COVERAGE_OPTS "TRACE_CMP")
   endif()
 
   jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
@@ -117,6 +132,7 @@ macro(AddJFSRuntimeBuild)
       # seem to work.
       "-DLIT_ARGS:string=${LIT_ARGS}"
       "-DENABLE_UNIT_TESTS:bool=${jfs_runtime_arg_RUN_UNIT_TESTS}"
+      "-DSANITIZER_COVERAGE:string=${SANITIZER_COVERAGE_OPTS}"
     BINARY_DIR "${buildDir}"
     BUILD_ALWAYS 1
     ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
@@ -174,12 +190,15 @@ AddJFSRuntimeBuild(
   OPTIMIZED
   DEBUG_SYMBOLS
   RUN_UNIT_TESTS
+  TRACE_PC_GUARD
 )
+
 AddJFSRuntimeBuild(
   OPTIMIZED
   DEBUG_SYMBOLS
   RUNTIME_ASSERTS
   RUN_UNIT_TESTS
+  TRACE_PC_GUARD
 )
 # NOTE: There's no config to run with ASan/UBSan but not have runtime
 # asserts. It's unlikely we'd want to do that so don't build that
@@ -191,12 +210,14 @@ AddJFSRuntimeBuild(
   ASAN
   UBSAN
   RUN_UNIT_TESTS
+  TRACE_PC_GUARD
 )
 AddJFSRuntimeBuild(
   DEBUG_SYMBOLS
   OPTIMIZED
   RUNTIME_ASSERTS
   ASAN
+  TRACE_PC_GUARD
   # Don't run tests as covered by config that mixes ASan and UBSan together
 )
 AddJFSRuntimeBuild(
@@ -204,5 +225,6 @@ AddJFSRuntimeBuild(
   OPTIMIZED
   RUNTIME_ASSERTS
   UBSAN
+  TRACE_PC_GUARD
   # Don't run tests as covered by config that mixes ASan and UBSan together
 )
