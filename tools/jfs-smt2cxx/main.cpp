@@ -72,8 +72,8 @@ int main(int argc, char** argv) {
   std::error_code ec;
   llvm::raw_fd_ostream output(OutputFile, ec, llvm::sys::fs::F_Excl);
   if (ec) {
-    ctx.getErrorStream() << "(error \"Failed to open output stream: "
-                         << ec.message() << "\")\n";
+    ctx.getErrorStream() << jfs::support::getMessageForFailedOpenFileForWriting(
+        OutputFile, ec);
     return 1;
   }
 

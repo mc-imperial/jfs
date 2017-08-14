@@ -19,6 +19,10 @@ namespace jfs {
 namespace support {
 std::string getMessageForFailedOpenFileOrSTDIN(llvm::StringRef inputFileName,
                                                std::error_code ec);
+
+std::string
+getMessageForFailedOpenFileForWriting(llvm::StringRef outputFileName,
+                                      std::error_code ec);
 }
 }
 #endif

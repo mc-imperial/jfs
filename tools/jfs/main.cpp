@@ -262,11 +262,10 @@ int main(int argc, char** argv) {
     } else {
       std::error_code ec;
       llvm::raw_fd_ostream sf(StatsFilename, ec, llvm::sys::fs::F_Excl);
-      // FIXME: Refactor this
       if (ec) {
         ctx.getErrorStream()
-            << "(error \"Failed to open output stream: " << ec.message()
-            << "\")\n";
+            << jfs::support::getMessageForFailedOpenFileForWriting(
+                   StatsFilename, ec);
         return 1;
       }
       stats->printYAML(sf);

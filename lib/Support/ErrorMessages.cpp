@@ -22,5 +22,15 @@ std::string getMessageForFailedOpenFileOrSTDIN(llvm::StringRef inputFileName,
      << ec.message() << "\")\n";
   return ss.str();
 }
+
+std::string
+getMessageForFailedOpenFileForWriting(llvm::StringRef outputFileName,
+                                      std::error_code ec) {
+  std::string s;
+  llvm::raw_string_ostream ss(s);
+  ss << "(error \"Could not open " << outputFileName << " for writing because "
+     << ec.message() << "\")\n";
+  return ss.str();
+}
 }
 }

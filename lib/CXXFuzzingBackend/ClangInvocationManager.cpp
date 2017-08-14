@@ -110,6 +110,7 @@ public:
                                       llvm::sys::fs::OpenFlags::F_Excl);
     if (ec) {
       // Failed to open file for writing
+      // FIXME: Call `jfs::support::getMessageForFailedOpenFileForWriting()`
       std::string underlyingString;
       llvm::raw_string_ostream ss(underlyingString);
       ss << "Failed to open " << sourceFile << " for writing because "
