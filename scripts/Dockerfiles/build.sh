@@ -32,6 +32,13 @@ else
   )
 fi
 
+if [ -n "${BUILD_CPU_SETS}" ]; then
+  BUILD_OPTS+=( \
+    "--cpuset-cpus" \
+    "${BUILD_CPU_SETS}" \
+  )
+fi
+
 docker build \
   -t "${FINAL_TAG}" \
   -f "${DOCKER_BUILD_FILE}" \
