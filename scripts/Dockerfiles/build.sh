@@ -10,8 +10,8 @@ FINAL_TAG="jfs_build:ubuntu1604"
 # Build base that we can use for other tools
 docker build -t "${BASE_TAG}" - < "${SCRIPT_DIR}/jfs_base_ubuntu_16.04.Dockerfile"
 
-DOCKER_MAJOR_VERSION=$(docker info --format '{{.ServerVersion}}' | sed 's/^\([0-9]\+\)\.\([0-9]\+\).*$/\1/')
-DOCKER_MINOR_VERSION=$(docker info --format '{{.ServerVersion}}' | sed 's/^\([0-9]\+\)\.\([0-9]\+\).*$/\2/')
+DOCKER_MAJOR_VERSION=$(docker --version | sed 's/^Docker version \([0-9]\+\)\.\([0-9]\+\).*$/\1/')
+DOCKER_MINOR_VERSION=$(docker --version | sed 's/^Docker version \([0-9]\+\)\.\([0-9]\+\).*$/\2/')
 DOCKER_BUILD_FILE="${SCRIPT_DIR}/jfs_build_ubuntu_16.04.Dockerfile"
 
 BUILD_OPTS=()
