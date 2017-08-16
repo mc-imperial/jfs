@@ -1,3 +1,4 @@
+#!/bin/bash
 # This script builds LLVM
 set -x
 set -e
