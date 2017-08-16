@@ -20,7 +20,8 @@ RUN apt-get update && \
         python3 \
         python3-setuptools \
         sudo && \
-    apt-get clean
+    apt-get clean && \
+    ln -s /usr/bin/python3 /usr/bin/python
 
 # Create `user` user for container with password `user`.  and give it
 # password-less sudo access
