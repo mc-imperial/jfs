@@ -1,6 +1,6 @@
 ; This test just checks that the different flags can be used to change the runtime
 ; FIXME: we don't actually check the right runtime gets used.
-; RUN: rm %t.yml
+; RUN: rm -f %t.yml
 ; RUN: %jfs -cxx -stats-file=%t.yml %s | %FileCheck %s
 ; RUN: %yaml-syntax-check %t.yml
 (set-logic QF_BV)
