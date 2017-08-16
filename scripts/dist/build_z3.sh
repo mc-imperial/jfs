@@ -22,7 +22,7 @@ else
   ADDITIONAL_Z3_OPTS+=('-DBUILD_LIBZ3_SHARED=ON')
 fi
 
-source "${JFS_SRC_DIR}/scripts/dist/isolcpus_workaround.sh"
+source "${ISOLCPUS_WORKAROUND_SCRIPT}"
 
 # Setup source tree
 mkdir -p "${Z3_SRC_DIR}"

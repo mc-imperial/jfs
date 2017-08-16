@@ -21,7 +21,7 @@ if [ "X${LLVM_ENABLE_ASSERTIONS}" = "X1" ]; then
   ADDITIONAL_LLVM_OPTS+=('-DLLVM_ENABLE_ASSERTIONS=ON')
 fi
 
-source "${JFS_SRC_DIR}/scripts/dist/isolcpus_workaround.sh"
+source "${ISOLCPUS_WORKAROUND_SCRIPT}"
 
 # Setup source tree
 mkdir -p "${LLVM_SRC_DIR}"

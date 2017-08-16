@@ -20,7 +20,7 @@ JFS_ENABLE_ASSERTIONS="${JFS_ENABLE_ASSERTIONS:-ON}"
 mkdir -p "${JFS_BUILD_DIR}"
 cd "${JFS_BUILD_DIR}"
 
-source "${JFS_SRC_DIR}/scripts/dist/isolcpus_workaround.sh"
+source "${ISOLCPUS_WORKAROUND_SCRIPT}"
 
 # Configure
 cmake \
