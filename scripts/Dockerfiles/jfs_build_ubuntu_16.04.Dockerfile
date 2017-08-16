@@ -7,11 +7,6 @@ RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
   sudo python3 get-pip.py && \
   sudo pip install lit==0.5.0
 
-ARG ISOLCPUS_WORKAROUND=0
-ENV ISOLCPUS_WORKAROUND=${ISOLCPUS_WORKAROUND} \
-  ISOLCPUS_WORKAROUND_SCRIPT=/home/user/isolcpus_workaround.sh
-ADD /scripts/dist/isolcpus_workaround.sh /home/user/
-
 # NOTE: We stagger copying across files (i.e. don't do `ADD / ${JFS_SRC_DIR}`
 # first) to avoid triggering a rebuild of CMake/Z3/LLVM unnecessarily.
 

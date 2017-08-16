@@ -20,8 +20,6 @@ JFS_ENABLE_ASSERTIONS="${JFS_ENABLE_ASSERTIONS:-ON}"
 mkdir -p "${JFS_BUILD_DIR}"
 cd "${JFS_BUILD_DIR}"
 
-source "${ISOLCPUS_WORKAROUND_SCRIPT}"
-
 # Configure
 cmake \
   -G "${JFS_CMAKE_GENERATOR}" \

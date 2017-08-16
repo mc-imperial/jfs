@@ -22,8 +22,6 @@ else
   ADDITIONAL_Z3_OPTS+=('-DBUILD_LIBZ3_SHARED=ON')
 fi
 
-source "${ISOLCPUS_WORKAROUND_SCRIPT}"
-
 # Setup source tree
 mkdir -p "${Z3_SRC_DIR}"
 git clone "${Z3_GIT_URL}" "${Z3_SRC_DIR}"
