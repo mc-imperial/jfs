@@ -39,14 +39,23 @@ if [ -n "${BUILD_CPU_SETS}" ]; then
   )
 fi
 
-# NOTE: SYS_PTRACE is required by LSan. We use it
-# when using the asanified runtime.
-# See: https://github.com/google/sanitizers/issues/764
 docker build \
-  --cap-add SYS_PTRACE \
   -t "${FINAL_TAG}" \
   -f "${DOCKER_BUILD_FILE}" \
   "${BUILD_OPTS[@]}" \
   "${ROOT_DIR}"
+
+# Run tests. We do this separate from the build because
+# we need SYS_PTRACE which we can't set via `docker build`.
+# NOTE: SYS_PTRACE is required by LSan. We use it
+# when using the asanified runtime.
+# See: https://github.com/google/sanitizers/issues/764
+docker run \
+  --rm \
+  --cap-add SYS_PTRACE \
+  "${FINAL_TAG}"
+  "/bin/bash"
+  "/home/user/jfs/src/scripts/dist/test_jfs.sh"
+
 
 # TODO: Should squash image

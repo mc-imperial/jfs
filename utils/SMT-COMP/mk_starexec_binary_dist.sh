@@ -124,6 +124,14 @@ docker build \
   -f "${PATH_TO_DOCKER_FILE}" \
   "${REPO_ROOT}"
 
+# Run tests
+docker run \
+  --rm \
+  --cap-add SYS_PTRACE \
+  "${TEMP_DOCKER_IMAGE_NAME}"
+  "/bin/bash"
+  "/home/user/jfs/src/scripts/dist/test_jfs.sh"
+
 # Create temporary container than we can extract build artifacts from
 docker create --name "${TEMP_DOCKER_CONTAINER_NAME}" "${TEMP_DOCKER_IMAGE_NAME}" /bin/true
 
