@@ -5,4 +5,5 @@
 **/.*.swp
 **/*.Dockerfile
 scripts/Dockerfiles/*.patched
+scripts/Dockerfiles/build.sh
 utils/SMT-COMP

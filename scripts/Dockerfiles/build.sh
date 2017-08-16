@@ -53,8 +53,8 @@ docker build \
 docker run \
   --rm \
   --cap-add SYS_PTRACE \
-  "${FINAL_TAG}"
-  "/bin/bash"
+  "${FINAL_TAG}" \
+  "/bin/bash" \
   "/home/user/jfs/src/scripts/dist/test_jfs.sh"
 
 
