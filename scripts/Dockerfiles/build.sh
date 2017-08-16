@@ -39,6 +39,14 @@ if [ -n "${BUILD_CPU_SETS}" ]; then
   )
 fi
 
+if [ "X${ISOLCPUS_WORKAROUND}" = "X1" ]; then
+  # HACK: See https://github.com/moby/moby/issues/31086
+  BUILD_OPTS+=( \
+    "--build-arg"
+    "ISOLCPUS_WORKAROUND=1" \
+  )
+fi
+
 docker build \
   -t "${FINAL_TAG}" \
   -f "${DOCKER_BUILD_FILE}" \

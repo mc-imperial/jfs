@@ -21,6 +21,8 @@ if [ "X${LLVM_ENABLE_ASSERTIONS}" = "X1" ]; then
   ADDITIONAL_LLVM_OPTS+=('-DLLVM_ENABLE_ASSERTIONS=ON')
 fi
 
+source "${JFS_SRC_DIR}/scripts/dist/isolcpus_workaround.sh"
+
 # Setup source tree
 mkdir -p "${LLVM_SRC_DIR}"
 git clone --depth 1 -b "${LLVM_BRANCH}" "${LLVM_GIT_URL}" "${LLVM_SRC_DIR}"
