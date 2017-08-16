@@ -39,7 +39,11 @@ if [ -n "${BUILD_CPU_SETS}" ]; then
   )
 fi
 
+# NOTE: SYS_PTRACE is required by LSan. We use it
+# when using the asanified runtime.
+# See: https://github.com/google/sanitizers/issues/764
 docker build \
+  --cap-add SYS_PTRACE \
   -t "${FINAL_TAG}" \
   -f "${DOCKER_BUILD_FILE}" \
   "${BUILD_OPTS[@]}" \
