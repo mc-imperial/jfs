@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/Support/CancellableProcess.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/Twine.h"
@@ -202,7 +203,10 @@ public:
     }
 
     // Setup the seeds
-    setupSeeds(options);
+    {
+      JFS_SM_TIMER(add_fuzzer_seeds, ctx);
+      setupSeeds(options);
+    }
 
     // Invoke Fuzzer
     int exitCode = proc.execute(/*program=*/options->targetBinary,
