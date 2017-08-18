@@ -45,42 +45,55 @@ public:
     proc.cancel();
   }
 
+  void writeSeed(const LibFuzzerOptions* options, uint8_t* start, size_t length,
+                 llvm::StringRef name) {
+    assert(name.size() > 0);
+    IF_VERB(ctx,
+            ctx.getDebugStream()
+                << "(LibFuzzerInvocationManager Adding " << name << "seed)\n");
+    llvm::SmallVector<char, 256> mutablePath(options->corpusDir.begin(),
+                                             options->corpusDir.end());
+    llvm::sys::path::append(mutablePath, name);
+    mutablePath.push_back('\0');
+    llvm::StringRef seedFilePath(mutablePath.data(), mutablePath.size());
+    std::error_code ec;
+    llvm::raw_fd_ostream seedFileStream(seedFilePath, ec,
+                                        llvm::sys::fs::F_Excl);
+    if (ec) {
+      std::string underlyingString;
+      llvm::raw_string_ostream ss(underlyingString);
+      ss << "Failed to open " << seedFilePath << " for writing because "
+         << ec.message();
+      ss.flush();
+      ctx.raiseFatalError(underlyingString);
+    }
+    seedFileStream.write(reinterpret_cast<const char*>(start), length);
+    assert(!seedFileStream.has_error());
+    seedFileStream.close();
+    IF_VERB(ctx,
+            ctx.getDebugStream()
+                << "(LibFuzzerInvocationManager Finished Adding " << name
+                << " seed)\n");
+  }
+
   void setupSeeds(const LibFuzzerOptions* options) {
+    assert(options->maxLength > 0);
+    std::unique_ptr<uint8_t, decltype(std::free)*> buffer(
+        (uint8_t*)malloc(options->maxLength), std::free);
+    // TODO: We need to be smarter about how create seeds
+    // For certain variable types in the buffer we might want to consider
+    // special values (e.g. NaN/Inf/0 for Floats)
     if (options->addAllZeroMaxLengthSeed) {
-      IF_VERB(ctx,
-              ctx.getDebugStream()
-                  << "(LibFuzzerInvocationManager Adding AllZero seed)\n");
       // Create a seed in the corpus directory that's the maximum size
       // all filled with zeros.
-      // FIXME: We should probably just teach LibFuzzer about this rather than
-      // using this hack.
-      assert(options->maxLength > 0);
-      std::unique_ptr<uint8_t> buffer((uint8_t*)malloc(options->maxLength));
       memset(buffer.get(), 0, options->maxLength);
-      llvm::SmallVector<char, 256> mutablePath(options->corpusDir.begin(),
-                                               options->corpusDir.end());
-      llvm::sys::path::append(mutablePath, "zeroSeed");
-      mutablePath.push_back('\0');
-      llvm::StringRef zeroSeedFilePath(mutablePath.data(), mutablePath.size());
-      std::error_code ec;
-      llvm::raw_fd_ostream zeroSeedFileStream(zeroSeedFilePath, ec,
-                                              llvm::sys::fs::F_Excl);
-      if (ec) {
-        std::string underlyingString;
-        llvm::raw_string_ostream ss(underlyingString);
-        ss << "Failed to open " << zeroSeedFilePath << " for writing because "
-           << ec.message();
-        ss.flush();
-        ctx.raiseFatalError(underlyingString);
-      }
-      zeroSeedFileStream.write(reinterpret_cast<const char*>(buffer.get()),
-                               options->maxLength);
-      assert(!zeroSeedFileStream.has_error());
-      zeroSeedFileStream.close();
-      IF_VERB(
-          ctx,
-          ctx.getDebugStream()
-              << "(LibFuzzerInvocationManager Finished Adding AllZero seed)\n");
+      writeSeed(options, buffer.get(), options->maxLength, "zeroSeed");
+    }
+    if (options->addAllOneMaxLengthSeed) {
+      // Create a seed in the corpus directory that's the maximum size
+      // all filled with ones.
+      memset(buffer.get(), 0xff, options->maxLength);
+      writeSeed(options, buffer.get(), options->maxLength, "onesSeed");
     }
   }
   std::unique_ptr<LibFuzzerResponse> fuzz(const LibFuzzerOptions* options,

@@ -36,6 +36,7 @@ struct LibFuzzerOptions {
   bool handleSIGXFSZ;
 
   bool addAllZeroMaxLengthSeed;
+  bool addAllOneMaxLengthSeed;
 
   std::string targetBinary;
   std::string artifactDir;

@@ -41,6 +41,13 @@ llvm::cl::opt<bool>
                                    "zeros to the corpus (default: true)"),
                     llvm::cl::init(true),
                     llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
+llvm::cl::opt<bool>
+    AddAllOnesSeed("libfuzzer-oness-seed",
+                   llvm::cl::desc("Add an appropriately sized seed of all "
+                                  "ones to the corpus (default: true)"),
+                   llvm::cl::init(true),
+                   llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 }
 
 namespace jfs {
@@ -63,6 +70,9 @@ buildLibFuzzerOptionsFromCmdLine() {
 
   // All zeros seed
   libFuzzerOptions->addAllZeroMaxLengthSeed = AddAllZerosSeed;
+
+  // All ones seed
+  libFuzzerOptions->addAllOneMaxLengthSeed = AddAllOnesSeed;
 
   return libFuzzerOptions;
 }
