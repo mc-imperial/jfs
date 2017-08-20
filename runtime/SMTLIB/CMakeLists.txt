@@ -36,6 +36,34 @@ include(ExternalProject)
 include(CMakeParseArguments)
 include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
 
+# Build a copy of GTest using the runtime compiler. All the runtime
+# builds share this. The reason for not using the other build of GTest
+# is because that might get built with ASan which will break these builds.
+# TODO: Consider moving the build into each runtime itself so the GTest
+# is built appropriately.
+set(RuntimeGTestBuildDir "${CMAKE_CURRENT_BINARY_DIR}/gtest")
+jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${RuntimeGTestBuildDir})
+ExternalProject_Add(BuildRuntimeGTest
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/gtest"
+  # FIXME: We should allow other generators
+  CMAKE_GENERATOR "Unix Makefiles"
+  CMAKE_ARGS
+    "-DCMAKE_CXX_COMPILER=${LLVM_CLANG_CXX_TOOL}"
+    "-DGTEST_SRC_DIR=${GTEST_SRC_DIR}"
+  BINARY_DIR
+    "${RuntimeGTestBuildDir}"
+  BUILD_ALWAYS 1
+  ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
+  # Don't run install command
+  INSTALL_COMMAND ""
+  # FIXME: Guard these based on CMake version
+  USES_TERMINAL_BUILD 1
+  USES_TERMINAL_CONFIGURE 1
+)
+set(JFS_GTEST_EXPORT_FILE
+  "${RuntimeGTestBuildDir}/jfs_gtest_exported_targets.cmake")
+
+
 # Properties populated by the `AddJFSRuntimeBuild()` macro.
 # They need to be global properties so that they can be consumed from
 # other parts of the build system
@@ -110,7 +138,7 @@ macro(AddJFSRuntimeBuild)
   jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
   set(external_project_target_name "BuildSMTLIBRuntime${buildName}")
   ExternalProject_Add(${external_project_target_name}
-    DEPENDS jfs_gtest_main jfs_gtest
+    DEPENDS BuildRuntimeGTest
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMTLIB"
     # FIXME: We should allow other generators
     CMAKE_GENERATOR "Unix Makefiles"

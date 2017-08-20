@@ -403,10 +403,6 @@ endif()
 ################################################################################
 set(GTEST_SRC_DIR "${CMAKE_SOURCE_DIR}/utils/googletest/googletest")
 add_subdirectory(utils)
-# Sanity check: JFS runtime tests depend on this
-if (NOT DEFINED JFS_GTEST_EXPORT_FILE)
-  message(FATAL_ERROR "JFS_GTEST_EXPORT_FILE not defined")
-endif()
 
 ################################################################################
 # Runtime
