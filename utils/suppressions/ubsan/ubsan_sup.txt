@@ -1,0 +1,6 @@
+# Apparently `vptr` is incompatible with
+# `-fno-rtti` which we use. I guess this is
+# why UBSan complains. This suppression file
+# suppresses these warnings.
+vptr:gtest.cc
+vptr:gtest.h
