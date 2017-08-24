@@ -90,7 +90,7 @@ void BufferAssignment::appendElement(BufferElement& el) {
   chunks.push_back(el);
 }
 
-// FIXME: We are assuming everything can aligned to a byte boundary.
+// FIXME: We are assuming everything can aligned to a bit boundary.
 // This might not be correct.
 unsigned BufferAssignment::computeWidth() const {
   unsigned totalWidth = 0;
@@ -101,7 +101,7 @@ unsigned BufferAssignment::computeWidth() const {
 }
 
 void BufferAssignment::print(llvm::raw_ostream& os) const {
-  os << "(BufferAssignment " << computeWidth() << " bytes\n";
+  os << "(BufferAssignment " << computeWidth() << " bits\n";
   for (const auto& be : chunks) {
     os << "  ";
     be.print(os);
