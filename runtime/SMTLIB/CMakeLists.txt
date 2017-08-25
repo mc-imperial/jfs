@@ -16,7 +16,9 @@ set(RUNTIME_HEADERS
   "BitVector.h"
   "BufferRef.h"
   "Core.h"
+  "Float.h"
   "NativeBitVector.h"
+  "NativeFloat.h"
   "jassert.h"
 )
 foreach (runtime_header ${RUNTIME_HEADERS})
@@ -214,6 +216,14 @@ endmacro()
 
 
 # TODO: Add more configurations so we can experiment with them from jfs.
+
+# For debugging
+AddJFSRuntimeBuild(
+  DEBUG_SYMBOLS
+  RUN_UNIT_TESTS
+  TRACE_PC_GUARD
+)
+
 AddJFSRuntimeBuild(
   OPTIMIZED
   DEBUG_SYMBOLS

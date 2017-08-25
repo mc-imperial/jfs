@@ -23,6 +23,9 @@
 // that mimics the semantics of SMT-LIBv2
 template <uint64_t N, typename = void> class BitVector {};
 
+// Foward declaration
+template <uint64_t EB, uint64_t SB> class Float;
+
 // Use template magic to specialize BitVector for widths
 // <= 64 bits. This implementation uses native machine operations
 // for speed.
@@ -373,6 +376,8 @@ public:
   // FIXME: It would be better if we were only friends where
   // N <= 64.
   template <uint64_t W, typename T> friend class BitVector;
+  // Float needs raw access
+  template <uint64_t EB, uint64_t SB> friend class Float;
 };
 
 template <uint64_t N>

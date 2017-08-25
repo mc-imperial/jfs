@@ -27,7 +27,7 @@
 #define jassert(X)                                                             \
   do {                                                                         \
     if (!(X)) {                                                                \
-      fprintf(stderr, "JFS runtime assertion failure `" #X "` at %s:%d\n",     \
+      fprintf(stderr, "JFS runtime assertion failure `%s` at %s:%d\n", #X,     \
               __FILE__, __LINE__);                                             \
       JFS_RUNTIME_FAIL();                                                      \
     }                                                                          \
