@@ -11,6 +11,7 @@
 add_jfs_unit_test(Float
   Native/MakeFromBuffer.cpp
   Native/MakeFromTriple.cpp
+  Native/SMTLIBEquals.cpp
   Native/SpecialConstants.cpp
 )
 
