@@ -56,6 +56,8 @@ unsigned BufferElement::getBitWidth() const {
     return 1;
   case Z3_BV_SORT:
     return sort.getBitVectorWidth();
+  case Z3_FLOATING_POINT_SORT:
+    return sort.getFloatingPointBitWidth();
   default:
     llvm_unreachable("Unhandled sort");
   }

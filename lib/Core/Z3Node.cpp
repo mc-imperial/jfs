@@ -98,6 +98,25 @@ unsigned Z3SortHandle::getBitVectorWidth() const {
   return width;
 }
 
+unsigned Z3SortHandle::getFloatingPointExponentBitWidth() const {
+  if (!isFloatingPointTy())
+    return 0;
+  return ::Z3_fpa_get_ebits(context, node);
+}
+
+unsigned Z3SortHandle::getFloatingPointSignificandBitWidth() const {
+  if (!isFloatingPointTy())
+    return 0;
+  return ::Z3_fpa_get_sbits(context, node);
+}
+
+unsigned Z3SortHandle::getFloatingPointBitWidth() const {
+  if (!isFloatingPointTy())
+    return 0;
+  return getFloatingPointExponentBitWidth() +
+         getFloatingPointSignificandBitWidth();
+}
+
 Z3ASTHandle Z3SortHandle::asAST() const {
   return Z3ASTHandle(::Z3_sort_to_ast(context, node), context);
 }

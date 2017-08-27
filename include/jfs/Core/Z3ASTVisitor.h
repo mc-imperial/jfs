@@ -88,6 +88,9 @@ protected:
   virtual void visitBvSignExtend(Z3AppHandle e) = 0;
   virtual void visitBvZeroExtend(Z3AppHandle e) = 0;
   virtual void visitBvExtract(Z3AppHandle e) = 0;
+
+  // Floating point operations
+  virtual void visitFloatingPointFromTriple(Z3AppHandle e) = 0;
 };
 }
 }

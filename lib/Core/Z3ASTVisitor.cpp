@@ -36,6 +36,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBoolConstant(asApp))
   case Z3_OP_BNUM:
     ACTION(visitBitVector(asApp))
+  // FIXME: Add handler for this.
+  // case Z3_OP_FPA_NUM:
   // Overloaded operations
   case Z3_OP_EQ:
     ACTION(visitEqual(asApp))
@@ -140,6 +142,9 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_EXTRACT:
     ACTION(visitBvExtract(asApp))
   // TODO: Add more application kinds
+  // Floating point operations
+  case Z3_OP_FPA_FP:
+    ACTION(visitFloatingPointFromTriple(asApp));
   default:
     llvm_unreachable("unsupported kind");
   }

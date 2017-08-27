@@ -134,6 +134,9 @@ private:
   // Constants
   void visitBoolConstant(jfs::core::Z3AppHandle e) override;
   void visitBitVector(jfs::core::Z3AppHandle e) override;
+
+  // Floating point
+  void visitFloatingPointFromTriple(jfs::core::Z3AppHandle e) override;
 };
 }
 }

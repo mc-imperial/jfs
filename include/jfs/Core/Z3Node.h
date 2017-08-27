@@ -111,6 +111,10 @@ public:
   bool isFloatingPointTy() const;
   // Return 0 if not a bitvector
   unsigned getBitVectorWidth() const;
+  // Return 0 if not floating point
+  unsigned getFloatingPointBitWidth() const;
+  unsigned getFloatingPointExponentBitWidth() const;
+  unsigned getFloatingPointSignificandBitWidth() const; // Includes implicit bit
   Z3ASTHandle asAST() const;
 };
 

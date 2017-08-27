@@ -60,6 +60,19 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
     sortToCXXTypeCache.insert(std::make_pair(sort, ty));
     return ty;
   }
+  case Z3_FLOATING_POINT_SORT: {
+    unsigned exponentBits = sort.getFloatingPointExponentBitWidth();
+    unsigned significandBits = sort.getFloatingPointSignificandBitWidth();
+    std::string underlyingString;
+    llvm::raw_string_ostream ss(underlyingString);
+    ss << "Float<" << exponentBits << "," << significandBits << ">";
+    ss.flush();
+    // Make const type so that Compiler enforces SSA.
+    auto ty = std::make_shared<CXXType>(program.get(), underlyingString,
+                                        /*isConst=*/true);
+    sortToCXXTypeCache.insert(std::make_pair(sort, ty));
+    return ty;
+  }
   default:
     llvm_unreachable("Unhandled sort");
   }
@@ -75,6 +88,8 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
                                                        /*systemHeader=*/false));
   program->appendDecl(std::make_shared<CXXIncludeDecl>(
       program.get(), "SMTLIB/BitVector.h", /*systemHeader=*/false));
+  program->appendDecl(std::make_shared<CXXIncludeDecl>(
+      program.get(), "SMTLIB/Float.h", /*systemHeader=*/false));
   // Int types header for LibFuzzer entry point definition.
   program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
                                                        "stdint.h",
@@ -272,6 +287,13 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
       ss << "makeBitVectorFrom"
          << "<" << be.getBitWidth() << ">(" << bufferRefName << ", "
          << currentBufferBit << ", " << endBufferBit << ")";
+      break;
+    }
+    case Z3_FLOATING_POINT_SORT: {
+      ss << "makeFloatFrom<" << be.getSort().getFloatingPointExponentBitWidth()
+         << "," << be.getSort().getFloatingPointSignificandBitWidth() << ">("
+         << bufferRefName << ", " << currentBufferBit << ", " << endBufferBit
+         << ")";
       break;
     }
     default:
@@ -843,6 +865,23 @@ void CXXProgramBuilderPassImpl::visitBoolConstant(Z3AppHandle e) {
 
 void CXXProgramBuilderPassImpl::visitBitVector(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), getBitVectorConstantStr(e));
+}
+
+// Floating point
+void CXXProgramBuilderPassImpl::visitFloatingPointFromTriple(
+    jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 3);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto sort = e.getSort();
+  auto signValue = e.getKid(0);
+  auto exponentValue = e.getKid(1);
+  auto significandValue = e.getKid(2);
+  ss << "Float<" << sort.getFloatingPointExponentBitWidth() << ","
+     << sort.getFloatingPointSignificandBitWidth() << ">("
+     << getSymbolFor(signValue) << ", " << getSymbolFor(exponentValue) << ", "
+     << getSymbolFor(significandValue) << ")";
+  insertSSAStmt(e.asAST(), ss.str());
 }
 }
 }
