@@ -45,6 +45,7 @@ public:
   }
   // For testing
   uint32_t getRawBits() const { return jfs_nr_float32_get_raw_bits(data); }
+  jfs_nr_float32 getRawData() const { return data; }
 };
 
 template <> class Float<11, 53> {
@@ -66,6 +67,7 @@ public:
   }
   // For testing
   uint64_t getRawBits() const { return jfs_nr_float64_get_raw_bits(data); }
+  jfs_nr_float64 getRawData() const { return data; }
 };
 
 template <uint64_t EB, uint64_t SB>
