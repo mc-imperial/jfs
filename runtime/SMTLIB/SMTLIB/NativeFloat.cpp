@@ -59,6 +59,42 @@ uint64_t jfs_nr_float64_get_raw_bits(const jfs_nr_float64 value) {
   return jfs_nr_internal_float_get_raw_bits<uint64_t, jfs_nr_float64>(value);
 }
 
+jfs_nr_float32 jfs_nr_float32_get_infinity(bool positive) {
+  if (positive)
+    return INFINITY;
+  return -INFINITY;
+}
+
+jfs_nr_float64 jfs_nr_float64_get_infinity(bool positive) {
+  if (positive)
+    return INFINITY;
+  return -INFINITY;
+}
+
+jfs_nr_float32 jfs_nr_float32_get_zero(bool positive) {
+  if (positive)
+    return jfs_nr_bitcast_bv_to_float32(0x0);
+  return jfs_nr_bitcast_bv_to_float32(UINT32_C(0x80000000));
+}
+
+jfs_nr_float64 jfs_nr_float64_get_zero(bool positive) {
+  if (positive)
+    return jfs_nr_bitcast_bv_to_float64(0x0);
+  return jfs_nr_bitcast_bv_to_float64(UINT64_C(0x8000000000000000));
+}
+
+jfs_nr_float32 jfs_nr_float32_get_nan(bool quiet) {
+  if (quiet)
+    return jfs_nr_bitcast_bv_to_float32(UINT64_C(0x7fc00000));
+  return jfs_nr_bitcast_bv_to_float32(UINT64_C(0x7f800001));
+}
+
+jfs_nr_float64 jfs_nr_float64_get_nan(bool quiet) {
+  if (quiet)
+    return jfs_nr_bitcast_bv_to_float64(UINT64_C(0x7ff8000000000000));
+  return jfs_nr_bitcast_bv_to_float64(UINT64_C(0x7ff0000000000001));
+}
+
 bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs) {
   // In SMT-LIBv2 no distinction is made between the different types of NaN
@@ -88,6 +124,19 @@ bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
   // Positive and negative 0 are distinct but C's `==` operator considers them
   // equal so just do bit comparison.
   return jfs_nr_float32_get_raw_bits(lhs) == jfs_nr_float32_get_raw_bits(rhs);
+}
+
+bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs) {
+  // In SMT-LIBv2 no distinction is made between the different types of NaN
+  bool lhsIsNaN = isnan(lhs);
+  bool rhsIsNaN = isnan(rhs);
+  if (lhsIsNaN && rhsIsNaN) {
+    return true;
+  }
+  // Positive and negative 0 are distinct but C's `==` operator considers them
+  // equal so just do bit comparison.
+  return jfs_nr_float64_get_raw_bits(lhs) == jfs_nr_float64_get_raw_bits(rhs);
 }
 
 jfs_nr_float32 jfs_nr_bitcast_bv_to_float32(const jfs_nr_bitvector_ty value) {

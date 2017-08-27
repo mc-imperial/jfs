@@ -39,6 +39,17 @@ public:
                                            significand.data);
   }
 
+  // Special constants
+  static Float32 getPositiveInfinity() {
+    return jfs_nr_float32_get_infinity(true);
+  }
+  static Float32 getNegativeInfinity() {
+    return jfs_nr_float32_get_infinity(false);
+  }
+  static Float32 getPositiveZero() { return jfs_nr_float32_get_zero(true); }
+  static Float32 getNegativeZero() { return jfs_nr_float32_get_zero(false); }
+  static Float32 getNaN() { return jfs_nr_float32_get_nan(true); }
+
   // SMT-LIBv2 bit comparison
   bool operator==(const Float32& other) const {
     return jfs_nr_float32_smtlib_equals(data, other.data);
@@ -60,6 +71,17 @@ public:
     data = jfs_nr_make_float64_from_triple(sign.data, exponent.data,
                                            significand.data);
   }
+
+  // Special constants
+  static Float64 getPositiveInfinity() {
+    return jfs_nr_float64_get_infinity(true);
+  }
+  static Float64 getNegativeInfinity() {
+    return jfs_nr_float64_get_infinity(false);
+  }
+  static Float64 getPositiveZero() { return jfs_nr_float64_get_zero(true); }
+  static Float64 getNegativeZero() { return jfs_nr_float64_get_zero(false); }
+  static Float64 getNaN() { return jfs_nr_float64_get_nan(true); }
 
   // SMT-LIBv2 bit comparison
   bool operator==(const Float64& other) const {

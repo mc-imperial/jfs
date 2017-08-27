@@ -23,6 +23,14 @@ typedef double jfs_nr_float64;
 uint32_t jfs_nr_float32_get_raw_bits(const jfs_nr_float32 value);
 uint64_t jfs_nr_float64_get_raw_bits(const jfs_nr_float64 value);
 
+jfs_nr_float32 jfs_nr_float32_get_infinity(bool positive);
+jfs_nr_float64 jfs_nr_float64_get_infinity(bool positive);
+jfs_nr_float32 jfs_nr_float32_get_zero(bool positive);
+jfs_nr_float64 jfs_nr_float64_get_zero(bool positive);
+// TODO: Add parameter to get QNaN/SNaN
+jfs_nr_float32 jfs_nr_float32_get_nan(bool quiet);
+jfs_nr_float64 jfs_nr_float64_get_nan(bool quiet);
+
 bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
 bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
