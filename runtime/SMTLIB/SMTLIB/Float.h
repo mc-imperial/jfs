@@ -74,20 +74,13 @@ template <uint64_t EB, uint64_t SB>
 Float<EB, SB> makeFloatFrom(BufferRef<const uint8_t> buffer, uint64_t lowBit,
                             uint64_t highBit);
 
+// Specialize for Float32
 template <>
 Float32 makeFloatFrom(BufferRef<const uint8_t> buffer, uint64_t lowBit,
-                      uint64_t highBit) {
-  jassert((lowBit + 31) == highBit);
-  return jfs_nr_make_float32_from_buffer(buffer.get(), buffer.getSize(),
-                                         lowBit);
-}
+                      uint64_t highBit);
 
+// Specialize for Float64
 template <>
 Float64 makeFloatFrom(BufferRef<const uint8_t> buffer, uint64_t lowBit,
-                      uint64_t highBit) {
-  jassert((lowBit + 63) == highBit);
-  return jfs_nr_make_float64_from_buffer(buffer.get(), buffer.getSize(),
-                                         lowBit);
-}
-
+                      uint64_t highBit);
 #endif

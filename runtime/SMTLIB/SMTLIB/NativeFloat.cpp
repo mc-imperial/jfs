@@ -90,6 +90,50 @@ bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
   return jfs_nr_float32_get_raw_bits(lhs) == jfs_nr_float32_get_raw_bits(rhs);
 }
 
+jfs_nr_float32 jfs_nr_bitcast_bv_to_float32(const jfs_nr_bitvector_ty value) {
+  jassert((value & UINT64_C(0xffffffff00000000)) == 0);
+  jfs_nr_float32 data = 0.0;
+  memcpy(&data, &value, sizeof(data));
+  return data;
+}
+
+jfs_nr_float64 jfs_nr_bitcast_bv_to_float64(const jfs_nr_bitvector_ty value) {
+  jfs_nr_float64 data = 0.0;
+  memcpy(&data, &value, sizeof(data));
+  return data;
+}
+
+// Note significand does not contain implicit bit
+jfs_nr_float32
+jfs_nr_make_float32_from_triple(const jfs_nr_bitvector_ty sign,
+                                const jfs_nr_bitvector_ty exponent,
+                                const jfs_nr_bitvector_ty significand) {
+  static_assert((sizeof(jfs_nr_bitvector_ty) * 8) >= 32, "not enough bits");
+  jassert((sign & (~(UINT64_C(0x1)))) == 0);             // only 1 bit
+  jassert((exponent & (~(UINT64_C(0xff)))) == 0);        // only 8-bits
+  jassert((significand & (~(UINT64_C(0x7fffff)))) == 0); // only 23-bits
+  jfs_nr_bitvector_ty rawBits = significand;
+  rawBits |= (exponent << 23);
+  rawBits |= (sign << 31);
+  return jfs_nr_bitcast_bv_to_float32(rawBits);
+}
+
+jfs_nr_float64
+jfs_nr_make_float64_from_triple(const jfs_nr_bitvector_ty sign,
+                                const jfs_nr_bitvector_ty exponent,
+                                const jfs_nr_bitvector_ty significand) {
+  // TODO: Finish!
+  static_assert((sizeof(jfs_nr_bitvector_ty) * 8) >= 64, "not enough bits");
+  jassert((sign & (~(UINT64_C(0x1)))) == 0);       // only 1 bit
+  jassert((exponent & (~(UINT64_C(0x7ff)))) == 0); // only 11-bits
+  jassert((significand & (~(UINT64_C(0x000fffffffffffff)))) ==
+          0); // only 52-bits
+  jfs_nr_bitvector_ty rawBits = significand;
+  rawBits |= (exponent << 52);
+  rawBits |= (sign << 63);
+  return jfs_nr_bitcast_bv_to_float64(rawBits);
+}
+
 jfs_nr_float32 jfs_nr_make_float32_from_buffer(const uint8_t* bufferData,
                                                const uint64_t bufferSize,
                                                const uint64_t lowBit) {

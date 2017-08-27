@@ -106,6 +106,7 @@ endforeach()
 add_library(JFSSMTLIBRuntime
   STATIC
   Core.cpp
+  Float.cpp
   NativeBitVector.cpp
   NativeFloat.cpp
 )

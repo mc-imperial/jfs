@@ -82,6 +82,11 @@ TEST(MakeFromBuffer, NegativeOnes) {
   testFloat64Value(-1.0);
 }
 
+TEST(MakeFromBuffer, NaN) {
+  testFloat32Bits(NAN, jfs_nr_float32_get_raw_bits(NAN));
+  testFloat64Bits(NAN, jfs_nr_float64_get_raw_bits(NAN));
+}
+
 TEST(MakeFromBuffer, simpleValuesFloat32) {
   float values[] = {1.0f, 2.0f, 0.1f, 256.0f};
   uint8_t* view = reinterpret_cast<uint8_t*>(values);

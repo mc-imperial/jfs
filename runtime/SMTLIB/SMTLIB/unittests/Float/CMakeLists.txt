@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 add_jfs_unit_test(Float
   Native/MakeFromBuffer.cpp
+  Native/MakeFromTriple.cpp
 )
 
 target_link_libraries(Float${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)
