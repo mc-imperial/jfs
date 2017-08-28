@@ -132,6 +132,20 @@ bool jfs_nr_float64_is_positive(const jfs_nr_float64 value) {
   return jfs_nr_float64_get_zero(/*positive=*/true) < value;
 }
 
+bool jfs_nr_float32_is_negative(const jfs_nr_float32 value) {
+  // -zero is treated as negative
+  if (jfs_nr_float32_get_raw_bits(value) == UINT32_C(0x80000000))
+    return true;
+  return value < jfs_nr_float32_get_zero(/*positive=*/false);
+}
+
+bool jfs_nr_float64_is_negative(const jfs_nr_float64 value) {
+  // -zero is treated as negative
+  if (jfs_nr_float64_get_raw_bits(value) == UINT64_C(0x8000000000000000))
+    return true;
+  return value < jfs_nr_float64_get_zero(/*positive=*/false);
+}
+
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value) { return isnanf(value); }
 
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value) { return isnan(value); }

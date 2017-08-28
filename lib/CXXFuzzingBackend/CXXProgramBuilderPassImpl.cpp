@@ -913,6 +913,7 @@ FP_PREDICATE_OP(visitFloatIsNormal, isNormal)
 FP_PREDICATE_OP(visitFloatIsSubnormal, isSubnormal)
 FP_PREDICATE_OP(visitFloatIsZero, isZero)
 FP_PREDICATE_OP(visitFloatIsPositive, isPositive)
+FP_PREDICATE_OP(visitFloatIsNegative, isNegative)
 
 #undef FP_PREDICATE_OP
 }

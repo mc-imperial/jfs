@@ -143,6 +143,7 @@ private:
   void visitFloatIsSubnormal(jfs::core::Z3AppHandle e) override;
   void visitFloatIsZero(jfs::core::Z3AppHandle e) override;
   void visitFloatIsPositive(jfs::core::Z3AppHandle e) override;
+  void visitFloatIsNegative(jfs::core::Z3AppHandle e) override;
 };
 }
 }

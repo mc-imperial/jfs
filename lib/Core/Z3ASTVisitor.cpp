@@ -161,6 +161,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatIsZero(asApp))
   case Z3_OP_FPA_IS_POSITIVE:
     ACTION(visitFloatIsPositive(asApp))
+  case Z3_OP_FPA_IS_NEGATIVE:
+    ACTION(visitFloatIsNegative(asApp))
   default:
     llvm_unreachable("unsupported kind");
   }
