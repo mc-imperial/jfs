@@ -60,6 +60,7 @@ public:
   bool isNormal() const { return jfs_nr_float32_is_normal(data); }
   bool isSubnormal() const { return jfs_nr_float32_is_subnormal(data); }
   bool isZero() const { return jfs_nr_float32_is_zero(data); }
+  bool isInfinite() const { return jfs_nr_float32_is_infinite(data); }
   bool isPositive() const { return jfs_nr_float32_is_positive(data); }
   bool isNegative() const { return jfs_nr_float32_is_negative(data); }
   bool isNaN() const { return jfs_nr_float32_is_nan(data); }
@@ -104,6 +105,7 @@ public:
   bool isNormal() const { return jfs_nr_float64_is_normal(data); }
   bool isSubnormal() const { return jfs_nr_float64_is_subnormal(data); }
   bool isZero() const { return jfs_nr_float64_is_zero(data); }
+  bool isInfinite() const { return jfs_nr_float64_is_infinite(data); }
   bool isPositive() const { return jfs_nr_float64_is_positive(data); }
   bool isNegative() const { return jfs_nr_float64_is_negative(data); }
   bool isNaN() const { return jfs_nr_float64_is_nan(data); }

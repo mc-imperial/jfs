@@ -36,6 +36,8 @@ bool jfs_nr_float32_is_subnormal(const jfs_nr_float32 value);
 bool jfs_nr_float64_is_subnormal(const jfs_nr_float64 value);
 bool jfs_nr_float32_is_zero(const jfs_nr_float32 value);
 bool jfs_nr_float64_is_zero(const jfs_nr_float64 value);
+bool jfs_nr_float32_is_infinite(const jfs_nr_float32 value);
+bool jfs_nr_float64_is_infinite(const jfs_nr_float64 value);
 bool jfs_nr_float32_is_positive(const jfs_nr_float32 value);
 bool jfs_nr_float64_is_positive(const jfs_nr_float64 value);
 bool jfs_nr_float32_is_negative(const jfs_nr_float32 value);
