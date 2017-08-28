@@ -94,6 +94,7 @@ protected:
   virtual void visitFloatingPointFromIEEEBitVector(Z3AppHandle e) = 0;
   virtual void visitFloatIsNaN(Z3AppHandle e) = 0;
   virtual void visitFloatIsNormal(Z3AppHandle e) = 0;
+  virtual void visitFloatIsSubnormal(Z3AppHandle e) = 0;
 };
 }
 }

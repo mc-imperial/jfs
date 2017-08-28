@@ -910,6 +910,7 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
   }
 FP_PREDICATE_OP(visitFloatIsNaN, isNaN)
 FP_PREDICATE_OP(visitFloatIsNormal, isNormal)
+FP_PREDICATE_OP(visitFloatIsSubnormal, isSubnormal)
 
 #undef FP_PREDICATE_OP
 }
