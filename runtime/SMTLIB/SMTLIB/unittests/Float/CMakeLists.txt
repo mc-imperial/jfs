@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 add_jfs_unit_test(Float
+  Native/IsPositive.cpp
   Native/IsNaN.cpp
   Native/IsNormal.cpp
   Native/IsSubnormal.cpp

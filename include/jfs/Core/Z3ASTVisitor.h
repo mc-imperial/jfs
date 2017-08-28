@@ -96,6 +96,7 @@ protected:
   virtual void visitFloatIsNormal(Z3AppHandle e) = 0;
   virtual void visitFloatIsSubnormal(Z3AppHandle e) = 0;
   virtual void visitFloatIsZero(Z3AppHandle e) = 0;
+  virtual void visitFloatIsPositive(Z3AppHandle e) = 0;
 };
 }
 }

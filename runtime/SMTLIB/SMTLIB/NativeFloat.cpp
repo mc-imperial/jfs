@@ -118,6 +118,20 @@ bool jfs_nr_float64_is_zero(const jfs_nr_float64 value) {
   return fpclassify(value) == FP_ZERO;
 }
 
+bool jfs_nr_float32_is_positive(const jfs_nr_float32 value) {
+  // +zero is treated as positive
+  if (jfs_nr_float32_get_raw_bits(value) == UINT64_C(0x0))
+    return true;
+  return jfs_nr_float32_get_zero(/*positive=*/true) < value;
+}
+
+bool jfs_nr_float64_is_positive(const jfs_nr_float64 value) {
+  // +zero is treated as positive
+  if (jfs_nr_float64_get_raw_bits(value) == UINT64_C(0x0))
+    return true;
+  return jfs_nr_float64_get_zero(/*positive=*/true) < value;
+}
+
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value) { return isnanf(value); }
 
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value) { return isnan(value); }
