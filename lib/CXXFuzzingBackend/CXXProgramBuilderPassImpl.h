@@ -141,6 +141,7 @@ private:
   void visitFloatIsNaN(jfs::core::Z3AppHandle e) override;
   void visitFloatIsNormal(jfs::core::Z3AppHandle e) override;
   void visitFloatIsSubnormal(jfs::core::Z3AppHandle e) override;
+  void visitFloatIsZero(jfs::core::Z3AppHandle e) override;
 };
 }
 }

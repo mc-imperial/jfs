@@ -110,6 +110,14 @@ bool jfs_nr_float64_is_subnormal(const jfs_nr_float64 value) {
   return fpclassify(value) == FP_SUBNORMAL;
 }
 
+bool jfs_nr_float32_is_zero(const jfs_nr_float32 value) {
+  return fpclassify(value) == FP_ZERO;
+}
+
+bool jfs_nr_float64_is_zero(const jfs_nr_float64 value) {
+  return fpclassify(value) == FP_ZERO;
+}
+
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value) { return isnanf(value); }
 
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value) { return isnan(value); }
