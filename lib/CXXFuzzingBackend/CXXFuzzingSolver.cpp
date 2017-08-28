@@ -104,7 +104,17 @@ public:
                     << "(BitVector width " << width << " not supported)\n");
         return false;
       }
-      // TODO: Add support for floating point
+      case Z3_FLOATING_POINT_SORT: {
+        unsigned ebits = s.getFloatingPointExponentBitWidth();
+        unsigned sbits = s.getFloatingPointSignificandBitWidth();
+        if (ebits == 8 && sbits == 24) {
+          // Float32
+          return true;
+        } else if (ebits == 11 && sbits == 53) {
+          // Float64
+          return true;
+        }
+      }
       default: {
         // Sort not supported
         IF_VERB(ctx,
