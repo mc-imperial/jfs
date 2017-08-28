@@ -151,6 +151,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     visitFloatingPointFromIEEEBitVector(asApp);
     return;
   }
+  case Z3_OP_FPA_IS_NAN:
+    ACTION(visitFloatIsNaN(asApp))
   default:
     llvm_unreachable("unsupported kind");
   }

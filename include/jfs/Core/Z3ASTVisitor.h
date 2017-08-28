@@ -92,6 +92,7 @@ protected:
   // Floating point operations
   virtual void visitFloatingPointFromTriple(Z3AppHandle e) = 0;
   virtual void visitFloatingPointFromIEEEBitVector(Z3AppHandle e) = 0;
+  virtual void visitFloatIsNaN(Z3AppHandle e) = 0;
 };
 }
 }

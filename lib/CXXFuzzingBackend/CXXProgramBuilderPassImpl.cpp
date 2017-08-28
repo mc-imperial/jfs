@@ -898,5 +898,14 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
      << getSymbolFor(bvExpr) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+void CXXProgramBuilderPassImpl::visitFloatIsNaN(Z3AppHandle e) {
+  assert(e.getNumKids() == 1);
+  auto arg = e.getKid(0);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(arg) << ".isNaN()";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

@@ -56,6 +56,9 @@ public:
   bool operator==(const Float32& other) const {
     return jfs_nr_float32_smtlib_equals(data, other.data);
   }
+  // Prediactes
+  bool isNaN() const { return jfs_nr_float32_is_nan(data); }
+
   // For testing
   uint32_t getRawBits() const { return jfs_nr_float32_get_raw_bits(data); }
   jfs_nr_float32 getRawData() const { return data; }
@@ -91,6 +94,9 @@ public:
   bool operator==(const Float64& other) const {
     return jfs_nr_float64_smtlib_equals(data, other.data);
   }
+  // Prediactes
+  bool isNaN() const { return jfs_nr_float64_is_nan(data); }
+
   // For testing
   uint64_t getRawBits() const { return jfs_nr_float64_get_raw_bits(data); }
   jfs_nr_float64 getRawData() const { return data; }
