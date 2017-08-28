@@ -137,6 +137,7 @@ private:
 
   // Floating point
   void visitFloatingPointFromTriple(jfs::core::Z3AppHandle e) override;
+  void visitFloatingPointFromIEEEBitVector(jfs::core::Z3AppHandle e) override;
 };
 }
 }

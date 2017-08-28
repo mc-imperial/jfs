@@ -145,6 +145,12 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   // Floating point operations
   case Z3_OP_FPA_FP:
     ACTION(visitFloatingPointFromTriple(asApp));
+  case Z3_OP_FPA_TO_FP: {
+    assert(asApp.getNumKids() == 1);
+    assert(asApp.getKid(0).getSort().isBitVectorTy());
+    visitFloatingPointFromIEEEBitVector(asApp);
+    return;
+  }
   default:
     llvm_unreachable("unsupported kind");
   }

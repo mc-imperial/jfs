@@ -883,5 +883,20 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromTriple(
      << getSymbolFor(significandValue) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
+    Z3AppHandle e) {
+  assert(e.getNumKids() == 1);
+  auto bvExpr = e.getKid(0);
+  assert(bvExpr.getSort().isBitVectorTy());
+  auto resultSort = e.getSort();
+  assert(resultSort.isFloatingPointTy());
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "Float<" << resultSort.getFloatingPointExponentBitWidth() << ","
+     << resultSort.getFloatingPointSignificandBitWidth() << ">("
+     << getSymbolFor(bvExpr) << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

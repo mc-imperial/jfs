@@ -38,6 +38,8 @@ public:
     data = jfs_nr_make_float32_from_triple(sign.data, exponent.data,
                                            significand.data);
   }
+  Float(const BitVector<32> bits)
+      : data(jfs_nr_bitcast_bv_to_float32(bits.data)) {}
 
   // Special constants
   static Float32 getPositiveInfinity() {
@@ -71,6 +73,8 @@ public:
     data = jfs_nr_make_float64_from_triple(sign.data, exponent.data,
                                            significand.data);
   }
+  Float(const BitVector<64> bits)
+      : data(jfs_nr_bitcast_bv_to_float64(bits.data)) {}
 
   // Special constants
   static Float64 getPositiveInfinity() {
