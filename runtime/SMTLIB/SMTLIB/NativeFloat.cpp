@@ -95,6 +95,13 @@ jfs_nr_float64 jfs_nr_float64_get_nan(bool quiet) {
   return jfs_nr_bitcast_bv_to_float64(UINT64_C(0x7ff0000000000001));
 }
 
+bool jfs_nr_float32_is_normal(const jfs_nr_float32 value) {
+  return isnormal(value) != 0;
+}
+bool jfs_nr_float64_is_normal(const jfs_nr_float64 value) {
+  return isnormal(value) != 0;
+}
+
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value) { return isnanf(value); }
 
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value) { return isnan(value); }

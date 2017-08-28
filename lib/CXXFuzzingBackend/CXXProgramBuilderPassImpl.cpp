@@ -899,13 +899,18 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-void CXXProgramBuilderPassImpl::visitFloatIsNaN(Z3AppHandle e) {
-  assert(e.getNumKids() == 1);
-  auto arg = e.getKid(0);
-  std::string underlyingString;
-  llvm::raw_string_ostream ss(underlyingString);
-  ss << getSymbolFor(arg) << ".isNaN()";
-  insertSSAStmt(e.asAST(), ss.str());
-}
+#define FP_PREDICATE_OP(NAME, CALL_NAME)                                       \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 1);                                               \
+    auto arg = e.getKid(0);                                                    \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(arg) << "." #CALL_NAME "()";                            \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+FP_PREDICATE_OP(visitFloatIsNaN, isNaN)
+FP_PREDICATE_OP(visitFloatIsNormal, isNormal)
+
+#undef FP_PREDICATE_OP
 }
 }

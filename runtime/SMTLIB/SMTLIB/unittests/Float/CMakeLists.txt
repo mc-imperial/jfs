@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 add_jfs_unit_test(Float
   Native/IsNaN.cpp
+  Native/IsNormal.cpp
   Native/MakeFromIEEEBitVector.cpp
   Native/MakeFromBuffer.cpp
   Native/MakeFromTriple.cpp

@@ -30,6 +30,8 @@ jfs_nr_float64 jfs_nr_float64_get_zero(bool positive);
 jfs_nr_float32 jfs_nr_float32_get_nan(bool quiet);
 jfs_nr_float64 jfs_nr_float64_get_nan(bool quiet);
 
+bool jfs_nr_float32_is_normal(const jfs_nr_float32 value);
+bool jfs_nr_float64_is_normal(const jfs_nr_float64 value);
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value);
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value);
 

@@ -57,6 +57,7 @@ public:
     return jfs_nr_float32_smtlib_equals(data, other.data);
   }
   // Prediactes
+  bool isNormal() const { return jfs_nr_float32_is_normal(data); }
   bool isNaN() const { return jfs_nr_float32_is_nan(data); }
 
   // For testing
@@ -95,6 +96,7 @@ public:
     return jfs_nr_float64_smtlib_equals(data, other.data);
   }
   // Prediactes
+  bool isNormal() const { return jfs_nr_float64_is_normal(data); }
   bool isNaN() const { return jfs_nr_float64_is_nan(data); }
 
   // For testing
