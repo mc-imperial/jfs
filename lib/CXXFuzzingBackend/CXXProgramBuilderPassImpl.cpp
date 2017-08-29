@@ -917,5 +917,17 @@ FP_PREDICATE_OP(visitFloatIsNegative, isNegative)
 FP_PREDICATE_OP(visitFloatIsInfinite, isInfinite)
 
 #undef FP_PREDICATE_OP
+
+void CXXProgramBuilderPassImpl::visitFloatIEEEEquals(Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  auto lhs = e.getKid(0);
+  auto rhs = e.getKid(1);
+  assert(lhs.getSort().isFloatingPointTy());
+  assert(rhs.getSort().isFloatingPointTy());
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(lhs) << ".ieeeEquals(" << getSymbolFor(rhs) << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

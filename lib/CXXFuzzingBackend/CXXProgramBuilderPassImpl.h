@@ -145,6 +145,8 @@ private:
   void visitFloatIsPositive(jfs::core::Z3AppHandle e) override;
   void visitFloatIsNegative(jfs::core::Z3AppHandle e) override;
   void visitFloatIsInfinite(jfs::core::Z3AppHandle e) override;
+
+  void visitFloatIEEEEquals(jfs::core::Z3AppHandle e) override;
 };
 }
 }

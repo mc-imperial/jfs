@@ -158,6 +158,16 @@ bool jfs_nr_float32_is_nan(const jfs_nr_float32 value) { return isnanf(value); }
 
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value) { return isnan(value); }
 
+bool jfs_nr_float32_ieee_equals(const jfs_nr_float32 lhs,
+                                const jfs_nr_float32 rhs) {
+  return lhs == rhs;
+}
+
+bool jfs_nr_float64_ieee_equals(const jfs_nr_float64 lhs,
+                                const jfs_nr_float64 rhs) {
+  return lhs == rhs;
+}
+
 bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs) {
   // In SMT-LIBv2 no distinction is made between the different types of NaN

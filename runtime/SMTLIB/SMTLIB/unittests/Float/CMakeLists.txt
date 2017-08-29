@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 add_jfs_unit_test(Float
+  Native/IEEEEquals.cpp
   Native/IsInfinite.cpp
   Native/IsNegative.cpp
   Native/IsPositive.cpp

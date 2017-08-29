@@ -99,6 +99,8 @@ protected:
   virtual void visitFloatIsPositive(Z3AppHandle e) = 0;
   virtual void visitFloatIsNegative(Z3AppHandle e) = 0;
   virtual void visitFloatIsInfinite(Z3AppHandle e) = 0;
+
+  virtual void visitFloatIEEEEquals(Z3AppHandle e) = 0;
 };
 }
 }

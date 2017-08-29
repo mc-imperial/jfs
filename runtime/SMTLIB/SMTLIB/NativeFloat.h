@@ -45,6 +45,11 @@ bool jfs_nr_float64_is_negative(const jfs_nr_float64 value);
 bool jfs_nr_float32_is_nan(const jfs_nr_float32 value);
 bool jfs_nr_float64_is_nan(const jfs_nr_float64 value);
 
+bool jfs_nr_float32_ieee_equals(const jfs_nr_float32 lhs,
+                                const jfs_nr_float32 rhs);
+bool jfs_nr_float64_ieee_equals(const jfs_nr_float64 lhs,
+                                const jfs_nr_float64 rhs);
+
 bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
 bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,

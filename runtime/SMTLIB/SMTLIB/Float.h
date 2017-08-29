@@ -56,6 +56,11 @@ public:
   bool operator==(const Float32& other) const {
     return jfs_nr_float32_smtlib_equals(data, other.data);
   }
+
+  bool ieeeEquals(const Float32& other) const {
+    return jfs_nr_float32_ieee_equals(data, other.data);
+  }
+
   // Prediactes
   bool isNormal() const { return jfs_nr_float32_is_normal(data); }
   bool isSubnormal() const { return jfs_nr_float32_is_subnormal(data); }
@@ -99,6 +104,10 @@ public:
   // SMT-LIBv2 bit comparison
   bool operator==(const Float64& other) const {
     return jfs_nr_float64_smtlib_equals(data, other.data);
+  }
+
+  bool ieeeEquals(const Float64& other) const {
+    return jfs_nr_float64_ieee_equals(data, other.data);
   }
 
   // Predicates
