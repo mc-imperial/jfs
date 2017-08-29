@@ -147,6 +147,10 @@ private:
   void visitFloatIsInfinite(jfs::core::Z3AppHandle e) override;
 
   void visitFloatIEEEEquals(jfs::core::Z3AppHandle e) override;
+  void visitFloatLessThan(jfs::core::Z3AppHandle e) override;
+  void visitFloatLessThanOrEqual(jfs::core::Z3AppHandle e) override;
+  void visitFloatGreaterThan(jfs::core::Z3AppHandle e) override;
+  void visitFloatGreaterThanOrEqual(jfs::core::Z3AppHandle e) override;
 };
 }
 }

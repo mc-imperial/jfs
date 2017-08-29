@@ -61,6 +61,19 @@ public:
     return jfs_nr_float32_ieee_equals(data, other.data);
   }
 
+  bool fplt(const Float32& other) const {
+    return jfs_nr_float32_lt(data, other.data);
+  }
+  bool fpleq(const Float32& other) const {
+    return jfs_nr_float32_leq(data, other.data);
+  }
+  bool fpgt(const Float32& other) const {
+    return jfs_nr_float32_gt(data, other.data);
+  }
+  bool fpgeq(const Float32& other) const {
+    return jfs_nr_float32_geq(data, other.data);
+  }
+
   // Prediactes
   bool isNormal() const { return jfs_nr_float32_is_normal(data); }
   bool isSubnormal() const { return jfs_nr_float32_is_subnormal(data); }
@@ -108,6 +121,19 @@ public:
 
   bool ieeeEquals(const Float64& other) const {
     return jfs_nr_float64_ieee_equals(data, other.data);
+  }
+
+  bool fplt(const Float64& other) const {
+    return jfs_nr_float64_lt(data, other.data);
+  }
+  bool fpleq(const Float64& other) const {
+    return jfs_nr_float64_leq(data, other.data);
+  }
+  bool fpgt(const Float64& other) const {
+    return jfs_nr_float64_gt(data, other.data);
+  }
+  bool fpgeq(const Float64& other) const {
+    return jfs_nr_float64_geq(data, other.data);
   }
 
   // Predicates

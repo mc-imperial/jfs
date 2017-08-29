@@ -167,6 +167,14 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatIsInfinite(asApp))
   case Z3_OP_FPA_EQ:
     ACTION(visitFloatIEEEEquals(asApp))
+  case Z3_OP_FPA_LT:
+    ACTION(visitFloatLessThan(asApp))
+  case Z3_OP_FPA_LE:
+    ACTION(visitFloatLessThanOrEqual(asApp))
+  case Z3_OP_FPA_GT:
+    ACTION(visitFloatGreaterThan(asApp))
+  case Z3_OP_FPA_GE:
+    ACTION(visitFloatGreaterThanOrEqual(asApp))
   default:
     llvm_unreachable("unsupported kind");
   }

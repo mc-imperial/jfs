@@ -55,6 +55,15 @@ bool jfs_nr_float32_smtlib_equals(const jfs_nr_float32 lhs,
 bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
                                   const jfs_nr_float64 rhs);
 
+bool jfs_nr_float32_leq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs);
+bool jfs_nr_float64_leq(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs);
+bool jfs_nr_float32_lt(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs);
+bool jfs_nr_float64_lt(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs);
+bool jfs_nr_float32_gt(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs);
+bool jfs_nr_float64_gt(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs);
+bool jfs_nr_float32_geq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs);
+bool jfs_nr_float64_geq(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs);
+
 jfs_nr_float32 jfs_nr_bitcast_bv_to_float32(const jfs_nr_bitvector_ty value);
 jfs_nr_float64 jfs_nr_bitcast_bv_to_float64(const jfs_nr_bitvector_ty value);
 

@@ -9,6 +9,8 @@
 #
 #===------------------------------------------------------------------------===#
 add_jfs_unit_test(Float
+  Native/GreaterThan.cpp
+  Native/GreaterThanOrEqual.cpp
   Native/IEEEEquals.cpp
   Native/IsInfinite.cpp
   Native/IsNegative.cpp
@@ -17,6 +19,8 @@ add_jfs_unit_test(Float
   Native/IsNormal.cpp
   Native/IsSubnormal.cpp
   Native/IsZero.cpp
+  Native/LessThan.cpp
+  Native/LessThanOrEqual.cpp
   Native/MakeFromIEEEBitVector.cpp
   Native/MakeFromBuffer.cpp
   Native/MakeFromTriple.cpp

@@ -212,6 +212,38 @@ bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
   return jfs_nr_float64_get_raw_bits(lhs) == jfs_nr_float64_get_raw_bits(rhs);
 }
 
+bool jfs_nr_float32_leq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
+  return lhs <= rhs;
+}
+
+bool jfs_nr_float64_leq(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs) {
+  return lhs <= rhs;
+}
+
+bool jfs_nr_float32_lt(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
+  return lhs < rhs;
+}
+
+bool jfs_nr_float64_lt(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs) {
+  return lhs < rhs;
+}
+
+bool jfs_nr_float32_gt(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
+  return lhs > rhs;
+}
+
+bool jfs_nr_float64_gt(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs) {
+  return lhs > rhs;
+}
+
+bool jfs_nr_float32_geq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
+  return lhs >= rhs;
+}
+
+bool jfs_nr_float64_geq(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs) {
+  return lhs >= rhs;
+}
+
 jfs_nr_float32 jfs_nr_bitcast_bv_to_float32(const jfs_nr_bitvector_ty value) {
   jassert((value & UINT64_C(0xffffffff00000000)) == 0);
   jfs_nr_float32 data = 0.0;

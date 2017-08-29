@@ -101,6 +101,10 @@ protected:
   virtual void visitFloatIsInfinite(Z3AppHandle e) = 0;
 
   virtual void visitFloatIEEEEquals(Z3AppHandle e) = 0;
+  virtual void visitFloatLessThan(Z3AppHandle e) = 0;
+  virtual void visitFloatLessThanOrEqual(Z3AppHandle e) = 0;
+  virtual void visitFloatGreaterThan(Z3AppHandle e) = 0;
+  virtual void visitFloatGreaterThanOrEqual(Z3AppHandle e) = 0;
 };
 }
 }
