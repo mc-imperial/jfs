@@ -918,7 +918,7 @@ FP_PREDICATE_OP(visitFloatIsInfinite, isInfinite)
 
 #undef FP_PREDICATE_OP
 
-#define FP_CMP_OP(NAME, CALL_NAME)                                             \
+#define FP_BIN_OP(NAME, CALL_NAME)                                             \
   void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
     assert(e.getNumKids() == 2);                                               \
     auto lhs = e.getKid(0);                                                    \
@@ -931,13 +931,15 @@ FP_PREDICATE_OP(visitFloatIsInfinite, isInfinite)
     insertSSAStmt(e.asAST(), ss.str());                                        \
   }
 
-FP_CMP_OP(visitFloatIEEEEquals, ieeeEquals)
-FP_CMP_OP(visitFloatLessThan, fplt)
-FP_CMP_OP(visitFloatLessThanOrEqual, fpleq)
-FP_CMP_OP(visitFloatGreaterThan, fpgt)
-FP_CMP_OP(visitFloatGreaterThanOrEqual, fpgeq)
+FP_BIN_OP(visitFloatIEEEEquals, ieeeEquals)
+FP_BIN_OP(visitFloatLessThan, fplt)
+FP_BIN_OP(visitFloatLessThanOrEqual, fpleq)
+FP_BIN_OP(visitFloatGreaterThan, fpgt)
+FP_BIN_OP(visitFloatGreaterThanOrEqual, fpgeq)
 
-#undef FP_CMP_OP
+FP_BIN_OP(visitFloatMin, min)
+
+#undef FP_BIN_OP
 
 #define FP_SPECIAL_CONST(NAME, CALL_NAME)                                      \
   void CXXProgramBuilderPassImpl::NAME(jfs::core::Z3AppHandle e) {             \

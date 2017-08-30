@@ -185,6 +185,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatNegativeInfinity(asApp))
   case Z3_OP_FPA_NAN:
     ACTION(visitFloatNaN(asApp))
+  case Z3_OP_FPA_MIN:
+    ACTION(visitFloatMin(asApp))
   default:
     llvm_unreachable("unsupported kind");
   }

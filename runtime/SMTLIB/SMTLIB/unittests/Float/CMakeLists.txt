@@ -24,6 +24,7 @@ add_jfs_unit_test(Float
   Native/MakeFromIEEEBitVector.cpp
   Native/MakeFromBuffer.cpp
   Native/MakeFromTriple.cpp
+  Native/Min.cpp
   Native/SMTLIBEquals.cpp
   Native/SpecialConstants.cpp
 )

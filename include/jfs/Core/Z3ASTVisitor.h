@@ -112,6 +112,8 @@ protected:
   virtual void visitFloatPositiveInfinity(Z3AppHandle e) = 0;
   virtual void visitFloatNegativeInfinity(Z3AppHandle e) = 0;
   virtual void visitFloatNaN(Z3AppHandle e) = 0;
+
+  virtual void visitFloatMin(Z3AppHandle e) = 0;
 };
 }
 }

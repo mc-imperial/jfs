@@ -158,6 +158,8 @@ private:
   void visitFloatNegativeInfinity(jfs::core::Z3AppHandle e) override;
   void visitFloatNaN(jfs::core::Z3AppHandle e) override;
   void visitFloatingPointConstant(jfs::core::Z3AppHandle e) override;
+
+  void visitFloatMin(jfs::core::Z3AppHandle e) override;
 };
 }
 }

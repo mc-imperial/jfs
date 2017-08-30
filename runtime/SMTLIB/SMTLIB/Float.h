@@ -74,6 +74,11 @@ public:
     return jfs_nr_float32_geq(data, other.data);
   }
 
+  // Arithmetic
+  Float32 min(const Float32& other) const {
+    return jfs_nr_float32_min(data, other.data);
+  }
+
   // Prediactes
   bool isNormal() const { return jfs_nr_float32_is_normal(data); }
   bool isSubnormal() const { return jfs_nr_float32_is_subnormal(data); }
@@ -134,6 +139,11 @@ public:
   }
   bool fpgeq(const Float64& other) const {
     return jfs_nr_float64_geq(data, other.data);
+  }
+
+  // Arithmetic
+  Float64 min(const Float64& other) const {
+    return jfs_nr_float64_min(data, other.data);
   }
 
   // Predicates
