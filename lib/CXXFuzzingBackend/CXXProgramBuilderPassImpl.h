@@ -157,6 +157,7 @@ private:
   void visitFloatPositiveInfinity(jfs::core::Z3AppHandle e) override;
   void visitFloatNegativeInfinity(jfs::core::Z3AppHandle e) override;
   void visitFloatNaN(jfs::core::Z3AppHandle e) override;
+  void visitFloatingPointConstant(jfs::core::Z3AppHandle e) override;
 };
 }
 }

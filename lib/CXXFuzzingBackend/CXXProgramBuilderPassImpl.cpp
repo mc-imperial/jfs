@@ -958,5 +958,36 @@ FP_SPECIAL_CONST(visitFloatNegativeInfinity, getNegativeInfinity)
 FP_SPECIAL_CONST(visitFloatNaN, getNaN)
 
 #undef FP_SPECIAL_CONST
+
+void CXXProgramBuilderPassImpl::visitFloatingPointConstant(Z3AppHandle e) {
+  assert(e.getNumKids() == 0);
+  Z3ASTHandle signExpr(::Z3_fpa_get_numeral_sign_bv(e.getContext(), e.asAST()),
+                       e.getContext());
+  assert(signExpr.isConstant());
+  assert(signExpr.getSort().isBitVectorTy());
+  Z3ASTHandle exponentExpr(::Z3_fpa_get_numeral_exponent_bv(e.getContext(),
+                                                            e.asAST(),
+                                                            /*biased=*/true),
+                           e.getContext());
+  assert(exponentExpr.isConstant());
+  assert(exponentExpr.getSort().isBitVectorTy());
+  Z3ASTHandle significandExpr(
+      ::Z3_fpa_get_numeral_significand_bv(e.getContext(), e.asAST()),
+      e.getContext());
+  assert(significandExpr.isConstant());
+  assert(significandExpr.getSort().isBitVectorTy());
+  // Is this best way to do it?
+  // Construct the constants.
+  visit(signExpr);
+  visit(exponentExpr);
+  visit(significandExpr);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto cxxType = getOrInsertTy(e.getSort());
+  ss << cxxType->getName() << "(" << getSymbolFor(signExpr) << ", "
+     << getSymbolFor(exponentExpr) << ", " << getSymbolFor(significandExpr)
+     << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

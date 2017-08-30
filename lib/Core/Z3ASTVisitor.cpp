@@ -36,8 +36,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitBoolConstant(asApp))
   case Z3_OP_BNUM:
     ACTION(visitBitVector(asApp))
-  // FIXME: Add handler for this.
-  // case Z3_OP_FPA_NUM:
+  case Z3_OP_FPA_NUM:
+    ACTION(visitFloatingPointConstant(asApp))
   // Overloaded operations
   case Z3_OP_EQ:
     ACTION(visitEqual(asApp))
