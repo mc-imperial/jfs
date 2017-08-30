@@ -222,6 +222,16 @@ jfs_nr_float64 jfs_nr_float64_min(const jfs_nr_float64 lhs,
   return ::fmin(lhs, rhs);
 }
 
+jfs_nr_float32 jfs_nr_float32_max(const jfs_nr_float32 lhs,
+                                  const jfs_nr_float32 rhs) {
+  return ::fmaxf(lhs, rhs);
+}
+
+jfs_nr_float64 jfs_nr_float64_max(const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs) {
+  return ::fmax(lhs, rhs);
+}
+
 bool jfs_nr_float32_leq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
   return lhs <= rhs;
 }

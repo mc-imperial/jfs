@@ -938,6 +938,7 @@ FP_BIN_OP(visitFloatGreaterThan, fpgt)
 FP_BIN_OP(visitFloatGreaterThanOrEqual, fpgeq)
 
 FP_BIN_OP(visitFloatMin, min)
+FP_BIN_OP(visitFloatMax, max)
 
 #undef FP_BIN_OP
 

@@ -78,6 +78,9 @@ public:
   Float32 min(const Float32& other) const {
     return jfs_nr_float32_min(data, other.data);
   }
+  Float32 max(const Float32& other) const {
+    return jfs_nr_float32_max(data, other.data);
+  }
 
   // Prediactes
   bool isNormal() const { return jfs_nr_float32_is_normal(data); }
@@ -144,6 +147,9 @@ public:
   // Arithmetic
   Float64 min(const Float64& other) const {
     return jfs_nr_float64_min(data, other.data);
+  }
+  Float64 max(const Float64& other) const {
+    return jfs_nr_float64_max(data, other.data);
   }
 
   // Predicates

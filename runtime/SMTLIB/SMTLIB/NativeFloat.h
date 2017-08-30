@@ -59,6 +59,10 @@ jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
 jfs_nr_float64 jfs_nr_float64_min(const jfs_nr_float64 lhs,
                                   const jfs_nr_float64 rhs);
+jfs_nr_float32 jfs_nr_float32_max(const jfs_nr_float32 lhs,
+                                  const jfs_nr_float32 rhs);
+jfs_nr_float64 jfs_nr_float64_max(const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs);
 
 bool jfs_nr_float32_leq(const jfs_nr_float32 lhs, const jfs_nr_float32 rhs);
 bool jfs_nr_float64_leq(const jfs_nr_float64 lhs, const jfs_nr_float64 rhs);
