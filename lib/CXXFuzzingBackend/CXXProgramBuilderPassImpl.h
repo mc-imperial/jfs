@@ -151,6 +151,12 @@ private:
   void visitFloatLessThanOrEqual(jfs::core::Z3AppHandle e) override;
   void visitFloatGreaterThan(jfs::core::Z3AppHandle e) override;
   void visitFloatGreaterThanOrEqual(jfs::core::Z3AppHandle e) override;
+
+  void visitFloatPositiveZero(jfs::core::Z3AppHandle e) override;
+  void visitFloatNegativeZero(jfs::core::Z3AppHandle e) override;
+  void visitFloatPositiveInfinity(jfs::core::Z3AppHandle e) override;
+  void visitFloatNegativeInfinity(jfs::core::Z3AppHandle e) override;
+  void visitFloatNaN(jfs::core::Z3AppHandle e) override;
 };
 }
 }

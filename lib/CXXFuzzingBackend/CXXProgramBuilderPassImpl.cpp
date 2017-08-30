@@ -938,5 +938,25 @@ FP_CMP_OP(visitFloatGreaterThan, fpgt)
 FP_CMP_OP(visitFloatGreaterThanOrEqual, fpgeq)
 
 #undef FP_CMP_OP
+
+#define FP_SPECIAL_CONST(NAME, CALL_NAME)                                      \
+  void CXXProgramBuilderPassImpl::NAME(jfs::core::Z3AppHandle e) {             \
+    assert(e.getNumKids() == 0);                                               \
+    auto sort = e.getSort();                                                   \
+    assert(sort.isFloatingPointTy());                                          \
+    auto cxxType = getOrInsertTy(sort);                                        \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << cxxType->getName() << "::" #CALL_NAME "()";                          \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+
+FP_SPECIAL_CONST(visitFloatPositiveZero, getPositiveZero)
+FP_SPECIAL_CONST(visitFloatNegativeZero, getNegativeZero)
+FP_SPECIAL_CONST(visitFloatPositiveInfinity, getPositiveInfinity)
+FP_SPECIAL_CONST(visitFloatNegativeInfinity, getNegativeInfinity)
+FP_SPECIAL_CONST(visitFloatNaN, getNaN)
+
+#undef FP_SPECIAL_CONST
 }
 }

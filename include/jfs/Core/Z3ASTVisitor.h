@@ -105,6 +105,12 @@ protected:
   virtual void visitFloatLessThanOrEqual(Z3AppHandle e) = 0;
   virtual void visitFloatGreaterThan(Z3AppHandle e) = 0;
   virtual void visitFloatGreaterThanOrEqual(Z3AppHandle e) = 0;
+
+  virtual void visitFloatPositiveZero(Z3AppHandle e) = 0;
+  virtual void visitFloatNegativeZero(Z3AppHandle e) = 0;
+  virtual void visitFloatPositiveInfinity(Z3AppHandle e) = 0;
+  virtual void visitFloatNegativeInfinity(Z3AppHandle e) = 0;
+  virtual void visitFloatNaN(Z3AppHandle e) = 0;
 };
 }
 }
