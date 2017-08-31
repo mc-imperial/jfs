@@ -30,6 +30,7 @@ add_jfs_unit_test(Float
   Native/Max.cpp
   Native/Neg.cpp
   Native/SMTLIBEquals.cpp
+  Native/Sub.cpp
   Native/SpecialConstants.cpp
 )
 
