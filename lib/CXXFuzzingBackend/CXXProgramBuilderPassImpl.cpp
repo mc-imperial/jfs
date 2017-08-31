@@ -916,6 +916,7 @@ FP_UNARY_OP(visitFloatIsPositive, isPositive)
 FP_UNARY_OP(visitFloatIsNegative, isNegative)
 FP_UNARY_OP(visitFloatIsInfinite, isInfinite)
 FP_UNARY_OP(visitFloatAbs, abs)
+FP_UNARY_OP(visitFloatNeg, neg)
 
 #undef FP_UNARY_OP
 

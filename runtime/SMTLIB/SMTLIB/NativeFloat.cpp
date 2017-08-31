@@ -220,6 +220,20 @@ jfs_nr_float64 jfs_nr_float64_abs(const jfs_nr_float64 value) {
   return ::fabs(value);
 }
 
+jfs_nr_float32 jfs_nr_float32_neg(const jfs_nr_float32 value) {
+  uint32_t rawBits = jfs_nr_float32_get_raw_bits(value);
+  // Flip sign bit
+  rawBits ^= UINT32_C(0x80000000);
+  return jfs_nr_bitcast_bv_to_float32(rawBits);
+}
+
+jfs_nr_float64 jfs_nr_float64_neg(const jfs_nr_float64 value) {
+  uint64_t rawBits = jfs_nr_float64_get_raw_bits(value);
+  // Flip sign bit
+  rawBits ^= UINT64_C(0x8000000000000000);
+  return jfs_nr_bitcast_bv_to_float64(rawBits);
+}
+
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs) {
   return ::fminf(lhs, rhs);

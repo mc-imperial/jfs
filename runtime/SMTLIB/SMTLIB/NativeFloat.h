@@ -57,6 +57,8 @@ bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
 
 jfs_nr_float32 jfs_nr_float32_abs(const jfs_nr_float32 value);
 jfs_nr_float64 jfs_nr_float64_abs(const jfs_nr_float64 value);
+jfs_nr_float32 jfs_nr_float32_neg(const jfs_nr_float32 value);
+jfs_nr_float64 jfs_nr_float64_neg(const jfs_nr_float64 value);
 
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);

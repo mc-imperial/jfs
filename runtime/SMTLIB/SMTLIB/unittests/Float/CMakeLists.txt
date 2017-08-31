@@ -27,6 +27,7 @@ add_jfs_unit_test(Float
   Native/MakeFromTriple.cpp
   Native/Min.cpp
   Native/Max.cpp
+  Native/Neg.cpp
   Native/SMTLIBEquals.cpp
   Native/SpecialConstants.cpp
 )
