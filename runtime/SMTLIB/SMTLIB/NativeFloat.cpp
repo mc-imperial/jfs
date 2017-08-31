@@ -11,9 +11,11 @@
 // This is the implemenation of the runtime for SMTLIB Floats that
 // uses native machine operations. It is written with a C compatible interface
 // so that in the future we can easily use LLVM's JIT.
+#pragma STDC FENV_ACCESS ON
 #include "SMTLIB/NativeFloat.h"
 #include "SMTLIB/NativeBitVector.h"
 #include "SMTLIB/jassert.h"
+#include <fenv.h>
 #include <math.h>
 #include <string.h>
 
@@ -226,6 +228,90 @@ jfs_nr_float32 jfs_nr_float32_neg(const jfs_nr_float32 value) {
   rawBits ^= UINT32_C(0x80000000);
   return jfs_nr_bitcast_bv_to_float32(rawBits);
 }
+
+// FIXME: We are assuming that FE_TONEAREST is RNE but it could be
+// RNA which would be wrong. We should build a target specific version
+#ifndef __x86_64
+#error FIXME UNSUPPORTED PLATFORM
+#endif
+// FIXME: Do we need a barrier here to prevent Clang moving around the calls?
+#define JFS_NR_SET_RM(X)                                                       \
+  {                                                                            \
+    switch (X) {                                                               \
+    case JFS_RM_RNE: {                                                         \
+      /* This is the default so do nothing */                                  \
+      break;                                                                   \
+    }                                                                          \
+    case JFS_RM_RNA: {                                                         \
+      /* FIXME: Not supported by C */                                          \
+      JFS_RUNTIME_FAIL()                                                       \
+      break;                                                                   \
+    }                                                                          \
+    case JFS_RM_RTP: {                                                         \
+      int failed = fesetround(FE_UPWARD);                                      \
+      jassert(failed == 0);                                                    \
+      break;                                                                   \
+    }                                                                          \
+    case JFS_RM_RTN: {                                                         \
+      int failed = fesetround(FE_DOWNWARD);                                    \
+      jassert(failed == 0);                                                    \
+      break;                                                                   \
+    }                                                                          \
+    case JFS_RM_RTZ: {                                                         \
+      int failed = fesetround(FE_TOWARDZERO);                                  \
+      jassert(failed == 0);                                                    \
+      break;                                                                   \
+    }                                                                          \
+    default:                                                                   \
+      JFS_RUNTIME_FAIL()                                                       \
+    }                                                                          \
+  }
+#define JFS_NR_RESET_RM(PREVIOUS)                                              \
+  {                                                                            \
+    switch (PREVIOUS) {                                                        \
+    case JFS_RM_RNE: {                                                         \
+      /* The rounding mode switched was the default so do nothing */           \
+      break;                                                                   \
+    }                                                                          \
+    case JFS_RM_RTP:                                                           \
+    case JFS_RM_RTN:                                                           \
+    case JFS_RM_RTZ: {                                                         \
+      int failed = fesetround(FE_TONEAREST);                                   \
+      jassert(failed == 0);                                                    \
+      break;                                                                   \
+    }                                                                          \
+    default:                                                                   \
+      JFS_RUNTIME_FAIL();                                                      \
+    }                                                                          \
+  }
+
+// FIXME: This is a hack. Clang doesn't support the FENV_ACCESS pragma
+// and so incorrectly optimizes the code so the rounding mode change and
+// floating point operation get re-ordered. Using `asm volatile ("" : : :
+// "memory")`
+// didn't seem to work unfortunately so for now put this attribute on all
+// functions
+// that might change the rounding mode.
+// See https://bugs.llvm.org/show_bug.cgi?id=8100
+#define NO_OPT __attribute__((optnone))
+
+NO_OPT jfs_nr_float32 jfs_nr_float32_add(JFS_NR_RM rm, const jfs_nr_float32 lhs,
+                                         const jfs_nr_float32 rhs) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float32 result = lhs + rhs;
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
+NO_OPT jfs_nr_float64 jfs_nr_float64_add(JFS_NR_RM rm, const jfs_nr_float64 lhs,
+                                         const jfs_nr_float64 rhs) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float64 result = lhs + rhs;
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+#undef JFS_NR_SET_RM
+#undef JFS_NR_RESET_RM
 
 jfs_nr_float64 jfs_nr_float64_neg(const jfs_nr_float64 value) {
   uint64_t rawBits = jfs_nr_float64_get_raw_bits(value);

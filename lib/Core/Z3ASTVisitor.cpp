@@ -193,6 +193,13 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatMin(asApp))
   case Z3_OP_FPA_MAX:
     ACTION(visitFloatMax(asApp))
+  case Z3_OP_FPA_ADD:
+    ACTION(visitFloatAdd(asApp))
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
+  case Z3_OP_FPA_RM_TOWARD_POSITIVE:
+  case Z3_OP_FPA_RM_TOWARD_NEGATIVE:
+  case Z3_OP_FPA_RM_TOWARD_ZERO:
   default:
     llvm_unreachable("unsupported kind");
   }

@@ -115,6 +115,8 @@ public:
           return true;
         }
       }
+      case Z3_ROUNDING_MODE_SORT:
+        return true;
       default: {
         // Sort not supported
         IF_VERB(ctx,

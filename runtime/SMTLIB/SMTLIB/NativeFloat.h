@@ -20,6 +20,14 @@ extern "C" {
 typedef float jfs_nr_float32;
 typedef double jfs_nr_float64;
 
+enum JFS_NR_RM {
+  JFS_RM_RNE, // Round to nearest ties to even
+  JFS_RM_RNA, // Round to nearest ties away from zero
+  JFS_RM_RTP, // Round toward +inf
+  JFS_RM_RTN, // Round toward -inf
+  JFS_RM_RTZ, // Round toward zero
+};
+
 uint32_t jfs_nr_float32_get_raw_bits(const jfs_nr_float32 value);
 uint64_t jfs_nr_float64_get_raw_bits(const jfs_nr_float64 value);
 
@@ -59,6 +67,11 @@ jfs_nr_float32 jfs_nr_float32_abs(const jfs_nr_float32 value);
 jfs_nr_float64 jfs_nr_float64_abs(const jfs_nr_float64 value);
 jfs_nr_float32 jfs_nr_float32_neg(const jfs_nr_float32 value);
 jfs_nr_float64 jfs_nr_float64_neg(const jfs_nr_float64 value);
+
+jfs_nr_float32 jfs_nr_float32_add(JFS_NR_RM rm, const jfs_nr_float32 lhs,
+                                  const jfs_nr_float32 rhs);
+jfs_nr_float64 jfs_nr_float64_add(JFS_NR_RM rm, const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs);
 
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);

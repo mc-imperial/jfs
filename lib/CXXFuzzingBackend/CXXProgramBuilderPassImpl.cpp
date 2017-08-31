@@ -462,6 +462,24 @@ bool CXXProgramBuilderPassImpl::hasBeenVisited(jfs::core::Z3ASTHandle e) const {
   return exprToSymbolName.count(e) > 0;
 }
 
+bool CXXProgramBuilderPassImpl::shouldTraverseNode(
+    jfs::core::Z3ASTHandle e) const {
+  if (!e.isApp())
+    return true;
+
+  switch (e.asApp().getKind()) {
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
+  case Z3_OP_FPA_RM_TOWARD_POSITIVE:
+  case Z3_OP_FPA_RM_TOWARD_NEGATIVE:
+  case Z3_OP_FPA_RM_TOWARD_ZERO:
+    // Do not visit rounding modes
+    return false;
+  default:
+    return true;
+  }
+}
+
 void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
   // Do post-order DFS traversal. We do this non-recursively to avoid
   // hitting any recursion bounds.
@@ -479,7 +497,7 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
     if (node.asApp().getNumKids() == 0) {
       queue.pop_front();
       // Do "post order" visit
-      if (!hasBeenVisited(node)) {
+      if (!hasBeenVisited(node) && shouldTraverseNode(node)) {
         visit(node);
       }
       continue;
@@ -491,7 +509,7 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
       // We are visiting the node for a second time. Do "post order" visit
       queue.pop_front();
       traversingBackUpQueue.pop_front();
-      if (!hasBeenVisited(node)) {
+      if (!hasBeenVisited(node) && shouldTraverseNode(node)) {
         visit(node);
       }
       continue;
@@ -509,7 +527,7 @@ void CXXProgramBuilderPassImpl::doDFSPostOrderTraversal(Z3ASTHandle e) {
       // Only add the child expr to the queue if it has not been visited
       // before. This is to avoid traversing down a large AST subtree
       // that we've visited before.
-      if (!hasBeenVisited(childExpr)) {
+      if (!hasBeenVisited(childExpr) && shouldTraverseNode(node)) {
         queue.push_front(childExpr);
       }
     }
@@ -994,5 +1012,43 @@ void CXXProgramBuilderPassImpl::visitFloatingPointConstant(Z3AppHandle e) {
      << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+llvm::StringRef CXXProgramBuilderPassImpl::roundingModeToString(
+    jfs::core::Z3AppHandle rm) const {
+  switch (rm.getKind()) {
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
+    return "JFS_RM_RNE";
+  case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
+    return "JFS_RM_RNA";
+  case Z3_OP_FPA_RM_TOWARD_POSITIVE:
+    return "JFS_RM_RTP";
+  case Z3_OP_FPA_RM_TOWARD_NEGATIVE:
+    return "JFS_RM_RTN";
+  case Z3_OP_FPA_RM_TOWARD_ZERO:
+    return "JFS_RM_RTZ";
+  default:
+    llvm_unreachable("Unhandled argument");
+    return "";
+  }
+}
+
+#define FP_BIN_WITH_RM_OP(NAME, CALL_NAME)                                     \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 3);                                               \
+    assert(e.getKid(0).isApp());                                               \
+    auto roundingMode = roundingModeToString(e.getKid(0).asApp());             \
+    auto lhs = e.getKid(1);                                                    \
+    assert(lhs.getSort().isFloatingPointTy());                                 \
+    auto rhs = e.getKid(2);                                                    \
+    assert(rhs.getSort().isFloatingPointTy());                                 \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(lhs) << "." #CALL_NAME "(" << roundingMode << ", "      \
+       << getSymbolFor(rhs) << ")";                                            \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+
+FP_BIN_WITH_RM_OP(visitFloatAdd, add)
+#undef FP_BIN_WITH_RM_OP
 }
 }

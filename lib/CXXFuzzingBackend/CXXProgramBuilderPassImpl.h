@@ -73,6 +73,8 @@ private:
   llvm::StringRef getSymbolFor(jfs::core::Z3ASTHandle e) const;
 
   // Visitor methods
+  bool shouldTraverseNode(jfs::core::Z3ASTHandle e) const;
+  llvm::StringRef roundingModeToString(jfs::core::Z3AppHandle rm) const;
 
   // Overloaded operations
   void visitEqual(jfs::core::Z3AppHandle e) override;
@@ -163,6 +165,7 @@ private:
   void visitFloatNeg(jfs::core::Z3AppHandle e) override;
   void visitFloatMin(jfs::core::Z3AppHandle e) override;
   void visitFloatMax(jfs::core::Z3AppHandle e) override;
+  void visitFloatAdd(jfs::core::Z3AppHandle e) override;
 };
 }
 }
