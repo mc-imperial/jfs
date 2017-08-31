@@ -159,6 +159,7 @@ private:
   void visitFloatNaN(jfs::core::Z3AppHandle e) override;
   void visitFloatingPointConstant(jfs::core::Z3AppHandle e) override;
 
+  void visitFloatAbs(jfs::core::Z3AppHandle e) override;
   void visitFloatMin(jfs::core::Z3AppHandle e) override;
   void visitFloatMax(jfs::core::Z3AppHandle e) override;
 };

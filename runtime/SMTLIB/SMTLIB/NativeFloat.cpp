@@ -212,6 +212,14 @@ bool jfs_nr_float64_smtlib_equals(const jfs_nr_float64 lhs,
   return jfs_nr_float64_get_raw_bits(lhs) == jfs_nr_float64_get_raw_bits(rhs);
 }
 
+jfs_nr_float32 jfs_nr_float32_abs(const jfs_nr_float32 value) {
+  return ::fabsf(value);
+}
+
+jfs_nr_float64 jfs_nr_float64_abs(const jfs_nr_float64 value) {
+  return ::fabs(value);
+}
+
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs) {
   return ::fminf(lhs, rhs);

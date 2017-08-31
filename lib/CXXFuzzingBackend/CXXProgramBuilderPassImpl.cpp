@@ -899,7 +899,7 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-#define FP_PREDICATE_OP(NAME, CALL_NAME)                                       \
+#define FP_UNARY_OP(NAME, CALL_NAME)                                       \
   void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
     assert(e.getNumKids() == 1);                                               \
     auto arg = e.getKid(0);                                                    \
@@ -908,15 +908,16 @@ void CXXProgramBuilderPassImpl::visitFloatingPointFromIEEEBitVector(
     ss << getSymbolFor(arg) << "." #CALL_NAME "()";                            \
     insertSSAStmt(e.asAST(), ss.str());                                        \
   }
-FP_PREDICATE_OP(visitFloatIsNaN, isNaN)
-FP_PREDICATE_OP(visitFloatIsNormal, isNormal)
-FP_PREDICATE_OP(visitFloatIsSubnormal, isSubnormal)
-FP_PREDICATE_OP(visitFloatIsZero, isZero)
-FP_PREDICATE_OP(visitFloatIsPositive, isPositive)
-FP_PREDICATE_OP(visitFloatIsNegative, isNegative)
-FP_PREDICATE_OP(visitFloatIsInfinite, isInfinite)
+FP_UNARY_OP(visitFloatIsNaN, isNaN)
+FP_UNARY_OP(visitFloatIsNormal, isNormal)
+FP_UNARY_OP(visitFloatIsSubnormal, isSubnormal)
+FP_UNARY_OP(visitFloatIsZero, isZero)
+FP_UNARY_OP(visitFloatIsPositive, isPositive)
+FP_UNARY_OP(visitFloatIsNegative, isNegative)
+FP_UNARY_OP(visitFloatIsInfinite, isInfinite)
+FP_UNARY_OP(visitFloatAbs, abs)
 
-#undef FP_PREDICATE_OP
+#undef FP_UNARY_OP
 
 #define FP_BIN_OP(NAME, CALL_NAME)                                             \
   void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
