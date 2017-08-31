@@ -119,6 +119,7 @@ protected:
   virtual void visitFloatMax(Z3AppHandle e) = 0;
   virtual void visitFloatAdd(Z3AppHandle e) = 0;
   virtual void visitFloatSub(Z3AppHandle e) = 0;
+  virtual void visitFloatMul(Z3AppHandle e) = 0;
 };
 }
 }

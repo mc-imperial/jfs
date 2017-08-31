@@ -167,6 +167,7 @@ private:
   void visitFloatMax(jfs::core::Z3AppHandle e) override;
   void visitFloatAdd(jfs::core::Z3AppHandle e) override;
   void visitFloatSub(jfs::core::Z3AppHandle e) override;
+  void visitFloatMul(jfs::core::Z3AppHandle e) override;
 };
 }
 }

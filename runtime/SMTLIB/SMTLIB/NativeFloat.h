@@ -76,6 +76,10 @@ jfs_nr_float32 jfs_nr_float32_sub(JFS_NR_RM rm, const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
 jfs_nr_float64 jfs_nr_float64_sub(JFS_NR_RM rm, const jfs_nr_float64 lhs,
                                   const jfs_nr_float64 rhs);
+jfs_nr_float32 jfs_nr_float32_mul(JFS_NR_RM rm, const jfs_nr_float32 lhs,
+                                  const jfs_nr_float32 rhs);
+jfs_nr_float64 jfs_nr_float64_mul(JFS_NR_RM rm, const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs);
 
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
