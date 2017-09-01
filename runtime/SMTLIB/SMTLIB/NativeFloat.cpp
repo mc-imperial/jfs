@@ -394,6 +394,16 @@ jfs_nr_float64 jfs_nr_float64_sqrt(JFS_NR_RM rm, const jfs_nr_float64 value) {
 #undef JFS_NR_SET_RM
 #undef JFS_NR_RESET_RM
 
+jfs_nr_float32 jfs_nr_float32_rem(const jfs_nr_float32 lhs,
+                                  const jfs_nr_float32 rhs) {
+  return remainderf(lhs, rhs);
+}
+
+jfs_nr_float64 jfs_nr_float64_rem(const jfs_nr_float64 lhs,
+                                  const jfs_nr_float64 rhs) {
+  return remainder(lhs, rhs);
+}
+
 jfs_nr_float64 jfs_nr_float64_neg(const jfs_nr_float64 value) {
   uint64_t rawBits = jfs_nr_float64_get_raw_bits(value);
   // Flip sign bit

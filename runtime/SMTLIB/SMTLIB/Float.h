@@ -93,6 +93,9 @@ public:
     return jfs_nr_float32_fma(rm, data, b.data, c.data);
   };
   Float32 sqrt(JFS_NR_RM rm) const { return jfs_nr_float32_sqrt(rm, data); }
+  Float32 rem(const Float32& other) const {
+    return jfs_nr_float32_rem(data, other.data);
+  };
   Float32 min(const Float32& other) const {
     return jfs_nr_float32_min(data, other.data);
   }
@@ -181,6 +184,9 @@ public:
     return jfs_nr_float64_fma(rm, data, b.data, c.data);
   };
   Float64 sqrt(JFS_NR_RM rm) const { return jfs_nr_float64_sqrt(rm, data); }
+  Float64 rem(const Float64& other) const {
+    return jfs_nr_float64_rem(data, other.data);
+  };
   Float64 min(const Float64& other) const {
     return jfs_nr_float64_min(data, other.data);
   }

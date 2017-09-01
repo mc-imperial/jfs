@@ -205,6 +205,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatFMA(asApp))
   case Z3_OP_FPA_SQRT:
     ACTION(visitFloatSqrt(asApp))
+  case Z3_OP_FPA_REM:
+    ACTION(visitFloatRem(asApp))
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
   case Z3_OP_FPA_RM_TOWARD_POSITIVE:
