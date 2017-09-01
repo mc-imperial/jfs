@@ -84,6 +84,13 @@ jfs_nr_float32 jfs_nr_float32_div(JFS_NR_RM rm, const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
 jfs_nr_float64 jfs_nr_float64_div(JFS_NR_RM rm, const jfs_nr_float64 lhs,
                                   const jfs_nr_float64 rhs);
+// Computes (a * b) + c
+jfs_nr_float32 jfs_nr_float32_fma(JFS_NR_RM rm, const jfs_nr_float32 a,
+                                  const jfs_nr_float32 b,
+                                  const jfs_nr_float32 c);
+jfs_nr_float64 jfs_nr_float64_fma(JFS_NR_RM rm, const jfs_nr_float64 a,
+                                  const jfs_nr_float64 b,
+                                  const jfs_nr_float64 c);
 
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);

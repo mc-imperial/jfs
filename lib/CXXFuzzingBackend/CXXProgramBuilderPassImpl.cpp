@@ -1053,5 +1053,19 @@ FP_BIN_WITH_RM_OP(visitFloatSub, sub)
 FP_BIN_WITH_RM_OP(visitFloatMul, mul)
 FP_BIN_WITH_RM_OP(visitFloatDiv, div)
 #undef FP_BIN_WITH_RM_OP
+
+void CXXProgramBuilderPassImpl::visitFloatFMA(Z3AppHandle e) {
+  assert(e.getNumKids() == 4);
+  assert(e.getKid(0).isApp());
+  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
+  auto a = e.getKid(1);
+  auto b = e.getKid(2);
+  auto c = e.getKid(3);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(a) << ".fma(" << roundingMode << ", " << getSymbolFor(b)
+     << ", " << getSymbolFor(c) << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

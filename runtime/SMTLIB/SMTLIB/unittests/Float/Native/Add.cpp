@@ -44,6 +44,7 @@ TEST(Add, DiffResultRNE_RTP_Float32) {
   Float32 addRNE = a.add(JFS_RM_RNE, b);
   Float32 addRTP = a.add(JFS_RM_RTP, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTP));
+  // FIXME: Check the result values
 }
 
 TEST(Add, DiffResultRNE_RTP_Float64) {
@@ -67,6 +68,7 @@ TEST(Add, DiffResultRNE_RTP_Float64) {
   Float64 addRNE = a.add(JFS_RM_RNE, b);
   Float64 addRTP = a.add(JFS_RM_RTP, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTP));
+  // FIXME: Check the result values
 }
 
 TEST(Add, DiffResultRNE_RTN_Float32) {
@@ -92,6 +94,7 @@ TEST(Add, DiffResultRNE_RTN_Float32) {
   Float32 addRNE = a.add(JFS_RM_RNE, b);
   Float32 addRTN = a.add(JFS_RM_RTN, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTN));
+  // FIXME: Check the result values
 }
 
 TEST(Add, DiffResultRNE_RTN_Float64) {
@@ -115,6 +118,7 @@ TEST(Add, DiffResultRNE_RTN_Float64) {
   Float64 addRNE = a.add(JFS_RM_RNE, b);
   Float64 addRTN = a.add(JFS_RM_RTN, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTN));
+  // FIXME: Check the result values
 }
 
 TEST(Add, DiffResultRNE_RTZ_Float32) {
@@ -140,6 +144,7 @@ TEST(Add, DiffResultRNE_RTZ_Float32) {
   Float32 addRNE = a.add(JFS_RM_RNE, b);
   Float32 addRTZ = a.add(JFS_RM_RTZ, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTZ));
+  // FIXME: Check the result values
 }
 
 TEST(Add, DiffResultRNE_RTZ_Float64) {
@@ -163,4 +168,5 @@ TEST(Add, DiffResultRNE_RTZ_Float64) {
   Float64 addRNE = a.add(JFS_RM_RNE, b);
   Float64 addRTZ = a.add(JFS_RM_RTZ, b);
   ASSERT_FALSE(addRNE.ieeeEquals(addRTZ));
+  // FIXME: Check the result values
 }

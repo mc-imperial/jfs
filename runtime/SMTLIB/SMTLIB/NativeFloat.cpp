@@ -358,6 +358,25 @@ NO_OPT jfs_nr_float64 jfs_nr_float64_div(JFS_NR_RM rm, const jfs_nr_float64 lhs,
   JFS_NR_RESET_RM(rm)
   return result;
 }
+
+NO_OPT jfs_nr_float32 jfs_nr_float32_fma(JFS_NR_RM rm, const jfs_nr_float32 a,
+                                         const jfs_nr_float32 b,
+                                         const jfs_nr_float32 c) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float32 result = fmaf(a, b, c);
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
+NO_OPT jfs_nr_float64 jfs_nr_float64_fma(JFS_NR_RM rm, const jfs_nr_float64 a,
+                                         const jfs_nr_float64 b,
+                                         const jfs_nr_float64 c) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float64 result = fma(a, b, c);
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
 #undef JFS_NR_SET_RM
 #undef JFS_NR_RESET_RM
 
