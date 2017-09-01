@@ -127,6 +127,7 @@ protected:
   virtual void visitFloatRoundToIntegral(Z3AppHandle e) = 0;
   virtual void visitConvertToFloatFromFloat(Z3AppHandle e) = 0;
   virtual void visitConvertToFloatFromUnsignedBitVector(Z3AppHandle e) = 0;
+  virtual void visitConvertToFloatFromSignedBitVector(Z3AppHandle e) = 0;
 };
 }
 }

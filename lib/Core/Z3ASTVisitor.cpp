@@ -153,8 +153,13 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     }
     assert(asApp.getNumKids() == 2);
     assert(asApp.getKid(0).getSort().getKind() == Z3_ROUNDING_MODE_SORT);
-    assert(asApp.getKid(1).getSort().isFloatingPointTy());
-    visitConvertToFloatFromFloat(asApp);
+    auto argSort = asApp.getKid(1).getSort();
+    if (argSort.isFloatingPointTy()) {
+      visitConvertToFloatFromFloat(asApp);
+    } else {
+      assert(argSort.isBitVectorTy());
+      visitConvertToFloatFromSignedBitVector(asApp);
+    }
     return;
   }
   case Z3_OP_FPA_TO_FP_UNSIGNED:

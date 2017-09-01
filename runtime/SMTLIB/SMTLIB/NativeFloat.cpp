@@ -450,8 +450,52 @@ NO_OPT jfs_nr_float64 jfs_nr_convert_from_unsigned_bv_to_float64(
     const jfs_nr_width_ty bitWidth) {
   jassert(jfs_nr_is_valid(value, bitWidth));
   JFS_NR_SET_RM(rm)
-  jfs_nr_float64 result = (jfs_nr_float32)value;
+  jfs_nr_float64 result = (jfs_nr_float64)value;
   JFS_NR_RESET_RM(rm)
+  return result;
+}
+
+NO_OPT jfs_nr_float32 jfs_nr_convert_from_signed_bv_to_float32(
+    JFS_NR_RM rm, const jfs_nr_bitvector_ty value,
+    const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  // If the bitvector is negative turn it into a positive value and negate
+  // the float afterwards.
+  bool shouldNegateFloat = false;
+  jfs_nr_bitvector_ty positiveBv = value;
+  if (jfs_nr_bvslt(positiveBv, 0, bitWidth)) {
+    shouldNegateFloat = true;
+    positiveBv = jfs_nr_bvneg(value, bitWidth);
+  }
+  jassert(jfs_nr_bvsge(positiveBv, 0, bitWidth));
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float32 result = (jfs_nr_float32)positiveBv;
+  JFS_NR_RESET_RM(rm)
+  if (shouldNegateFloat) {
+    result = jfs_nr_float32_neg(result);
+  }
+  return result;
+}
+
+NO_OPT jfs_nr_float64 jfs_nr_convert_from_signed_bv_to_float64(
+    JFS_NR_RM rm, const jfs_nr_bitvector_ty value,
+    const jfs_nr_width_ty bitWidth) {
+  jassert(jfs_nr_is_valid(value, bitWidth));
+  // If the bitvector is negative turn it into a positive value and negate
+  // the float afterwards.
+  bool shouldNegateFloat = false;
+  jfs_nr_bitvector_ty positiveBv = value;
+  if (jfs_nr_bvslt(positiveBv, 0, bitWidth)) {
+    shouldNegateFloat = true;
+    positiveBv = jfs_nr_bvneg(value, bitWidth);
+  }
+  jassert(jfs_nr_bvsge(positiveBv, 0, bitWidth));
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float64 result = (jfs_nr_float64)positiveBv;
+  JFS_NR_RESET_RM(rm)
+  if (shouldNegateFloat) {
+    result = jfs_nr_float64_neg(result);
+  }
   return result;
 }
 
