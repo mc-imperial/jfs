@@ -1069,15 +1069,19 @@ void CXXProgramBuilderPassImpl::visitFloatFMA(Z3AppHandle e) {
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-void CXXProgramBuilderPassImpl::visitFloatSqrt(Z3AppHandle e) {
-  assert(e.getNumKids() == 2);
-  assert(e.getKid(0).isApp());
-  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
-  auto arg = e.getKid(1);
-  std::string underlyingString;
-  llvm::raw_string_ostream ss(underlyingString);
-  ss << getSymbolFor(arg) << ".sqrt(" << roundingMode << ")";
-  insertSSAStmt(e.asAST(), ss.str());
-}
+#define FP_UNARY_WITH_RM_OP(NAME, CALL_NAME)                                   \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 2);                                               \
+    assert(e.getKid(0).isApp());                                               \
+    auto roundingMode = roundingModeToString(e.getKid(0).asApp());             \
+    auto arg = e.getKid(1);                                                    \
+    std::string underlyingString;                                              \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(arg) << "." #CALL_NAME "(" << roundingMode << ")";      \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+FP_UNARY_WITH_RM_OP(visitFloatSqrt, sqrt)
+FP_UNARY_WITH_RM_OP(visitFloatRoundToIntegral, roundToIntegral)
+#undef FP_UNARY_WITH_RM_OP
 }
 }

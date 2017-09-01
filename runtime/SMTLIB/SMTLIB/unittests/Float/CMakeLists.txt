@@ -33,6 +33,7 @@ add_jfs_unit_test(Float
   Native/Mul.cpp
   Native/Neg.cpp
   Native/Rem.cpp
+  Native/RoundToIntegral.cpp
   Native/SMTLIBEquals.cpp
   Native/Sub.cpp
   Native/SpecialConstants.cpp

@@ -391,6 +391,26 @@ jfs_nr_float64 jfs_nr_float64_sqrt(JFS_NR_RM rm, const jfs_nr_float64 value) {
   return result;
 }
 
+NO_OPT jfs_nr_float32
+jfs_nr_float32_round_to_integral(JFS_NR_RM rm, const jfs_nr_float32 value) {
+  // FIXME: We can use the `round()` C math library function to support
+  // JFS_RM_RNA
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float32 result = nearbyintf(value);
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
+NO_OPT jfs_nr_float64
+jfs_nr_float64_round_to_integral(JFS_NR_RM rm, const jfs_nr_float64 value) {
+  // FIXME: We can use the `round()` C math library function to support
+  // JFS_RM_RNA
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float64 result = nearbyint(value);
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
 #undef JFS_NR_SET_RM
 #undef JFS_NR_RESET_RM
 

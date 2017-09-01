@@ -172,6 +172,7 @@ private:
   void visitFloatFMA(jfs::core::Z3AppHandle e) override;
   void visitFloatSqrt(jfs::core::Z3AppHandle e) override;
   void visitFloatRem(jfs::core::Z3AppHandle e) override;
+  void visitFloatRoundToIntegral(jfs::core::Z3AppHandle e) override;
 };
 }
 }

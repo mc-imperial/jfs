@@ -124,6 +124,7 @@ protected:
   virtual void visitFloatFMA(Z3AppHandle e) = 0;
   virtual void visitFloatSqrt(Z3AppHandle e) = 0;
   virtual void visitFloatRem(Z3AppHandle e) = 0;
+  virtual void visitFloatRoundToIntegral(Z3AppHandle e) = 0;
 };
 }
 }
