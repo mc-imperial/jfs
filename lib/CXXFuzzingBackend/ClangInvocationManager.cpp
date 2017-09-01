@@ -11,6 +11,7 @@
 #include "jfs/CXXFuzzingBackend/ClangInvocationManager.h"
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
+#include "jfs/Config/depsVersion.h" // For HACK
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/SMTLIBRuntimes.h"
 #include "jfs/Support/CancellableProcess.h"
@@ -194,6 +195,18 @@ public:
         llvm_unreachable("Unhandled SanitizerCoverageTy");
       }
     }
+
+// HACK: Instrumentation is broken in LLVM 4.0
+// See
+// https://github.com/google/sanitizers/issues/783
+// This was fixed upstream in r303827
+// https://reviews.llvm.org/D33511
+#if LLVM_VERSION_CODE == LLVM_VERSION(4, 0)
+    cmdLineArgs.push_back("-mllvm");
+    cmdLineArgs.push_back("-sanitizer-coverage-prune-blocks=0");
+#else
+#error FIXME Do we need the fix in other versions?
+#endif
 
     // JFS runtime asserts
     if (options->useJFSRuntimeAsserts) {

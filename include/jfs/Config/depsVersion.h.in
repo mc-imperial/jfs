@@ -13,4 +13,8 @@
 /* Z3 minor version number */
 #define Z3_VERSION_MINOR @Z3_VERSION_MINOR@
 
+/* Useful macro to compile code depending on LLVM version */
+#define LLVM_VERSION(major, minor) (((major) << 8) | (minor))
+#define LLVM_VERSION_CODE LLVM_VERSION(LLVM_VERSION_MAJOR, LLVM_VERSION_MINOR)
+
 #endif
