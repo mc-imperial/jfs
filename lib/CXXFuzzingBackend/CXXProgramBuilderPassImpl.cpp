@@ -1051,6 +1051,7 @@ llvm::StringRef CXXProgramBuilderPassImpl::roundingModeToString(
 FP_BIN_WITH_RM_OP(visitFloatAdd, add)
 FP_BIN_WITH_RM_OP(visitFloatSub, sub)
 FP_BIN_WITH_RM_OP(visitFloatMul, mul)
+FP_BIN_WITH_RM_OP(visitFloatDiv, div)
 #undef FP_BIN_WITH_RM_OP
 }
 }

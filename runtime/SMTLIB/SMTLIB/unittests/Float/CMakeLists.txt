@@ -11,6 +11,7 @@
 add_jfs_unit_test(Float
   Native/Add.cpp
   Native/Abs.cpp
+  Native/Div.cpp
   Native/GreaterThan.cpp
   Native/GreaterThanOrEqual.cpp
   Native/IEEEEquals.cpp

@@ -86,6 +86,9 @@ public:
   Float32 mul(JFS_NR_RM rm, const Float32& other) const {
     return jfs_nr_float32_mul(rm, data, other.data);
   };
+  Float32 div(JFS_NR_RM rm, const Float32& other) const {
+    return jfs_nr_float32_div(rm, data, other.data);
+  };
   Float32 min(const Float32& other) const {
     return jfs_nr_float32_min(data, other.data);
   }
@@ -166,6 +169,9 @@ public:
   };
   Float64 mul(JFS_NR_RM rm, const Float64& other) const {
     return jfs_nr_float64_mul(rm, data, other.data);
+  };
+  Float64 div(JFS_NR_RM rm, const Float64& other) const {
+    return jfs_nr_float64_div(rm, data, other.data);
   };
   Float64 min(const Float64& other) const {
     return jfs_nr_float64_min(data, other.data);
