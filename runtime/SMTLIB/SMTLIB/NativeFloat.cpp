@@ -499,6 +499,8 @@ NO_OPT jfs_nr_float64 jfs_nr_convert_from_signed_bv_to_float64(
   return result;
 }
 
+// FIXME: We should probably pick a single value to represent the
+// undefined case so we can test for it.
 NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float32_convert_to_unsigned_bv(
     JFS_NR_RM rm, jfs_nr_float32 value, const jfs_nr_width_ty bitWidth) {
   JFS_NR_SET_RM(rm)
@@ -510,6 +512,8 @@ NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float32_convert_to_unsigned_bv(
   return result;
 }
 
+// FIXME: We should probably pick a single value to represent the
+// undefined case so we can test for it.
 NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float64_convert_to_unsigned_bv(
     JFS_NR_RM rm, jfs_nr_float64 value, const jfs_nr_width_ty bitWidth) {
   JFS_NR_SET_RM(rm)
@@ -517,6 +521,56 @@ NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float64_convert_to_unsigned_bv(
   JFS_NR_RESET_RM(rm)
   // Mask off result
   result = jfs_nr_get_bitvector_mod(result, bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
+// FIXME: We should probably pick a single value to represent the
+// undefined case so we can test for it.
+NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float32_convert_to_signed_bv(
+    JFS_NR_RM rm, jfs_nr_float32 value, const jfs_nr_width_ty bitWidth) {
+  bool shouldNegateResult = false;
+  jfs_nr_float32 positiveFloat = value;
+  // if float is negative turn it into a positive value and negate the
+  // bitvector afterwards.
+  if (jfs_nr_float32_is_negative(value)) {
+    positiveFloat = jfs_nr_float32_neg(value);
+    shouldNegateResult = true;
+  }
+  jassert(jfs_nr_float32_is_positive(positiveFloat));
+  JFS_NR_SET_RM(rm)
+  jfs_nr_bitvector_ty result = (jfs_nr_bitvector_ty)positiveFloat;
+  JFS_NR_RESET_RM(rm)
+  // Mask off result
+  result = jfs_nr_get_bitvector_mod(result, bitWidth);
+  if (shouldNegateResult) {
+    result = jfs_nr_bvneg(result, bitWidth);
+  }
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
+// FIXME: We should probably pick a single value to represent the
+// undefined case so we can test for it.
+NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float64_convert_to_signed_bv(
+    JFS_NR_RM rm, jfs_nr_float64 value, const jfs_nr_width_ty bitWidth) {
+  bool shouldNegateResult = false;
+  jfs_nr_float64 positiveFloat = value;
+  // if float is negative turn it into a positive value and negate the
+  // bitvector afterwards.
+  if (jfs_nr_float64_is_negative(value)) {
+    positiveFloat = jfs_nr_float64_neg(value);
+    shouldNegateResult = true;
+  }
+  jassert(jfs_nr_float64_is_positive(positiveFloat));
+  JFS_NR_SET_RM(rm)
+  jfs_nr_bitvector_ty result = (jfs_nr_bitvector_ty)positiveFloat;
+  JFS_NR_RESET_RM(rm)
+  // Mask off result
+  result = jfs_nr_get_bitvector_mod(result, bitWidth);
+  if (shouldNegateResult) {
+    result = jfs_nr_bvneg(result, bitWidth);
+  }
   jassert(jfs_nr_is_valid(result, bitWidth));
   return result;
 }

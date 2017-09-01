@@ -69,6 +69,13 @@ public:
     return BitVector<BVWIDTH>(
         jfs_nr_float32_convert_to_unsigned_bv(rm, data, BVWIDTH));
   }
+  template <uint64_t BVWIDTH,
+            typename = typename std::enable_if<
+                (BVWIDTH <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type>
+  BitVector<BVWIDTH> convertToSignedBV(JFS_NR_RM rm) const {
+    return BitVector<BVWIDTH>(
+        jfs_nr_float32_convert_to_signed_bv(rm, data, BVWIDTH));
+  }
 
   // Special constants
   static Float32 getPositiveInfinity() {
@@ -190,6 +197,13 @@ public:
   BitVector<BVWIDTH> convertToUnsignedBV(JFS_NR_RM rm) const {
     return BitVector<BVWIDTH>(
         jfs_nr_float64_convert_to_unsigned_bv(rm, data, BVWIDTH));
+  }
+  template <uint64_t BVWIDTH,
+            typename = typename std::enable_if<
+                (BVWIDTH <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type>
+  BitVector<BVWIDTH> convertToSignedBV(JFS_NR_RM rm) const {
+    return BitVector<BVWIDTH>(
+        jfs_nr_float64_convert_to_signed_bv(rm, data, BVWIDTH));
   }
 
   // Special constants

@@ -151,6 +151,13 @@ jfs_nr_bitvector_ty
 jfs_nr_float64_convert_to_unsigned_bv(JFS_NR_RM rm, jfs_nr_float64 value,
                                       const jfs_nr_width_ty bitWidth);
 
+jfs_nr_bitvector_ty
+jfs_nr_float32_convert_to_signed_bv(JFS_NR_RM rm, jfs_nr_float32 value,
+                                    const jfs_nr_width_ty bitWidth);
+jfs_nr_bitvector_ty
+jfs_nr_float64_convert_to_signed_bv(JFS_NR_RM rm, jfs_nr_float64 value,
+                                    const jfs_nr_width_ty bitWidth);
+
 // Note significand does not contain implicit bit
 jfs_nr_float32
 jfs_nr_make_float32_from_triple(const jfs_nr_bitvector_ty sign,

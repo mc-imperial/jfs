@@ -180,6 +180,8 @@ private:
   visitConvertToFloatFromSignedBitVector(jfs::core::Z3AppHandle e) override;
   void
   visitConvertToUnsignedBitVectorFromFloat(jfs::core::Z3AppHandle e) override;
+  void
+  visitConvertToSignedBitVectorFromFloat(jfs::core::Z3AppHandle e) override;
 };
 }
 }

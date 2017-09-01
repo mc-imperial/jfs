@@ -1139,19 +1139,23 @@ void CXXProgramBuilderPassImpl::visitConvertToFloatFromSignedBitVector(
   insertSSAStmt(e.asAST(), ss.str());
 }
 
-void CXXProgramBuilderPassImpl::visitConvertToUnsignedBitVectorFromFloat(
-    Z3AppHandle e) {
-  assert(e.getNumKids() == 2);
-  assert(e.getKid(0).isApp());
-  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
-  auto arg = e.getKid(1);
-  std::string underlyingString;
-  auto resultSort = e.getSort();
-  assert(resultSort.isBitVectorTy());
-  llvm::raw_string_ostream ss(underlyingString);
-  ss << getSymbolFor(arg) << ".convertToUnsignedBV<"
-     << resultSort.getBitVectorWidth() << ">(" << roundingMode << ")";
-  insertSSAStmt(e.asAST(), ss.str());
-}
+#define FP_CONVERT_TO_BV_OP(NAME, CALL_NAME)                                   \
+  void CXXProgramBuilderPassImpl::NAME(Z3AppHandle e) {                        \
+    assert(e.getNumKids() == 2);                                               \
+    assert(e.getKid(0).isApp());                                               \
+    auto roundingMode = roundingModeToString(e.getKid(0).asApp());             \
+    auto arg = e.getKid(1);                                                    \
+    std::string underlyingString;                                              \
+    auto resultSort = e.getSort();                                             \
+    assert(resultSort.isBitVectorTy());                                        \
+    llvm::raw_string_ostream ss(underlyingString);                             \
+    ss << getSymbolFor(arg) << "." #CALL_NAME "<"                              \
+       << resultSort.getBitVectorWidth() << ">(" << roundingMode << ")";       \
+    insertSSAStmt(e.asAST(), ss.str());                                        \
+  }
+FP_CONVERT_TO_BV_OP(visitConvertToUnsignedBitVectorFromFloat,
+                    convertToUnsignedBV)
+FP_CONVERT_TO_BV_OP(visitConvertToSignedBitVectorFromFloat, convertToSignedBV)
+#undef FP_CONVERT_TO_BV_OP
 }
 }

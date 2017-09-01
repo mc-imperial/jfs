@@ -15,6 +15,7 @@ add_jfs_unit_test(Float
   Native/ConvertToFloatFromUnsignedBV.cpp
   Native/ConvertToFloatFromSignedBV.cpp
   Native/ConvertToUnsignedBVFromFloat.cpp
+  Native/ConvertToSignedBVFromFloat.cpp
   Native/Div.cpp
   Native/FMA.cpp
   Native/GreaterThan.cpp
