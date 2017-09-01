@@ -20,6 +20,7 @@
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
 #include "jfs/Transform/QueryPass.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include "llvm/Support/CommandLine.h"
 #include <algorithm>
 #include <atomic>
 #include <mutex>
@@ -28,6 +29,18 @@
 using namespace jfs::core;
 using namespace jfs::fuzzingCommon;
 using namespace jfs::transform;
+
+namespace {
+// FIXME: Should use an OptionCategory but
+// we shouldn't pull in `jfs::cxxfb::cl::CommandLineCategory` because
+// that defeats the purpose of having the separate libraries. So instead
+// just hide the option by default. It's only meant for internal testing
+// anyway.
+llvm::cl::opt<bool> DebugStopAfterCompilation(
+    "debug-stop-after-compile", llvm::cl::init(false),
+    llvm::cl::desc("Stop CXXFuzzingSolver after clang compilation"),
+    llvm::cl::Hidden);
+}
 
 namespace jfs {
 namespace cxxfb {
@@ -220,6 +233,14 @@ public:
     }
     // Cancellation point
     CHECK_CANCELLED();
+
+    if (DebugStopAfterCompilation) {
+      // For debugging it can be useful to check that JFS can successfully
+      // run and compile the fuzzing program without actually fuzzing.
+      IF_VERB(ctx, ctx.getDebugStream() << "(DebugStopAfterCompilation)\n");
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
 
     // Set LibFuzzer options
     JFS_SM_TIMER(fuzz, ctx);
