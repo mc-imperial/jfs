@@ -16,6 +16,15 @@ TEST(Div, NaN) {
   ASSERT_TRUE(Float64::getNaN().div(JFS_RM_RNE, Float64(1.0)).isNaN());
 }
 
+TEST(Div, DivByZero) {
+  ASSERT_TRUE(
+      Float32::getPositiveZero().div(JFS_RM_RNE, Float32(0.0f)).isNaN());
+  ASSERT_TRUE(
+      Float32::getNegativeZero().div(JFS_RM_RNE, Float32(0.0f)).isNaN());
+  ASSERT_TRUE(Float64::getPositiveZero().div(JFS_RM_RNE, Float64(0.0)).isNaN());
+  ASSERT_TRUE(Float64::getNegativeZero().div(JFS_RM_RNE, Float64(0.0)).isNaN());
+}
+
 TEST(Div, Simple) {
   ASSERT_EQ(4.0f, Float32(8.0f).div(JFS_RM_RNE, Float32(2.0f)).getRawData());
   ASSERT_EQ(4.0, Float64(8.0).div(JFS_RM_RNE, Float64(2.0)).getRawData());

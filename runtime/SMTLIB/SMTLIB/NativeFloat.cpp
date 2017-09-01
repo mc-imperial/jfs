@@ -343,21 +343,25 @@ NO_OPT jfs_nr_float64 jfs_nr_float64_mul(JFS_NR_RM rm, const jfs_nr_float64 lhs,
   return result;
 }
 
-NO_OPT jfs_nr_float32 jfs_nr_float32_div(JFS_NR_RM rm, const jfs_nr_float32 lhs,
-                                         const jfs_nr_float32 rhs) {
+// Use the attribute to prevent UBSan from raising errors when doing floating
+// point division by zero.
+#define ALLOW_DIV_BY_ZERO __attribute__((no_sanitize("float-divide-by-zero")))
+NO_OPT ALLOW_DIV_BY_ZERO jfs_nr_float32 jfs_nr_float32_div(
+    JFS_NR_RM rm, const jfs_nr_float32 lhs, const jfs_nr_float32 rhs) {
   JFS_NR_SET_RM(rm)
   jfs_nr_float32 result = lhs / rhs;
   JFS_NR_RESET_RM(rm)
   return result;
 }
 
-NO_OPT jfs_nr_float64 jfs_nr_float64_div(JFS_NR_RM rm, const jfs_nr_float64 lhs,
-                                         const jfs_nr_float64 rhs) {
+NO_OPT ALLOW_DIV_BY_ZERO jfs_nr_float64 jfs_nr_float64_div(
+    JFS_NR_RM rm, const jfs_nr_float64 lhs, const jfs_nr_float64 rhs) {
   JFS_NR_SET_RM(rm)
   jfs_nr_float64 result = lhs / rhs;
   JFS_NR_RESET_RM(rm)
   return result;
 }
+#undef ALLOW_DIV_BY_ZERO
 
 NO_OPT jfs_nr_float32 jfs_nr_float32_fma(JFS_NR_RM rm, const jfs_nr_float32 a,
                                          const jfs_nr_float32 b,
