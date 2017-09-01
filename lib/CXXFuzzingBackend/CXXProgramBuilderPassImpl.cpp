@@ -1067,5 +1067,16 @@ void CXXProgramBuilderPassImpl::visitFloatFMA(Z3AppHandle e) {
      << ", " << getSymbolFor(c) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+void CXXProgramBuilderPassImpl::visitFloatSqrt(Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  assert(e.getKid(0).isApp());
+  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
+  auto arg = e.getKid(1);
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(arg) << ".sqrt(" << roundingMode << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

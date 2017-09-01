@@ -35,6 +35,7 @@ add_jfs_unit_test(Float
   Native/SMTLIBEquals.cpp
   Native/Sub.cpp
   Native/SpecialConstants.cpp
+  Native/Sqrt.cpp
 )
 
 target_link_libraries(Float${UNIT_TEST_EXE_SUFFIX} PRIVATE JFSSMTLIBRuntime)

@@ -92,6 +92,7 @@ public:
   Float32 fma(JFS_NR_RM rm, const Float32& b, const Float32& c) const {
     return jfs_nr_float32_fma(rm, data, b.data, c.data);
   };
+  Float32 sqrt(JFS_NR_RM rm) const { return jfs_nr_float32_sqrt(rm, data); }
   Float32 min(const Float32& other) const {
     return jfs_nr_float32_min(data, other.data);
   }
@@ -179,6 +180,7 @@ public:
   Float64 fma(JFS_NR_RM rm, const Float64& b, const Float64& c) const {
     return jfs_nr_float64_fma(rm, data, b.data, c.data);
   };
+  Float64 sqrt(JFS_NR_RM rm) const { return jfs_nr_float64_sqrt(rm, data); }
   Float64 min(const Float64& other) const {
     return jfs_nr_float64_min(data, other.data);
   }

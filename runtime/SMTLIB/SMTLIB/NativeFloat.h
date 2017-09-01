@@ -91,6 +91,8 @@ jfs_nr_float32 jfs_nr_float32_fma(JFS_NR_RM rm, const jfs_nr_float32 a,
 jfs_nr_float64 jfs_nr_float64_fma(JFS_NR_RM rm, const jfs_nr_float64 a,
                                   const jfs_nr_float64 b,
                                   const jfs_nr_float64 c);
+jfs_nr_float32 jfs_nr_float32_sqrt(JFS_NR_RM rm, const jfs_nr_float32 value);
+jfs_nr_float64 jfs_nr_float64_sqrt(JFS_NR_RM rm, const jfs_nr_float64 value);
 
 jfs_nr_float32 jfs_nr_float32_min(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs);
