@@ -237,6 +237,13 @@ llvm::StringRef CXXProgramBuilderPassImpl::insertSSASymbolForExpr(
   return symbolNameRef;
 }
 
+void CXXProgramBuilderPassImpl::visitIfNotAlreadyVisited(
+    jfs::core::Z3ASTHandle e) {
+  if (exprToSymbolName.find(e) == exprToSymbolName.end()) {
+    visit(e);
+  }
+}
+
 void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
     CXXCodeBlockRef cb) {
   llvm::StringRef bufferRefName = insertSymbol("jfs_buffer_ref");
@@ -1000,11 +1007,15 @@ void CXXProgramBuilderPassImpl::visitFloatingPointConstant(Z3AppHandle e) {
       e.getContext());
   assert(significandExpr.isConstant());
   assert(significandExpr.getSort().isBitVectorTy());
-  // Is this best way to do it?
+
+  // FIXME: This is a bit of hack. We have to be careful
+  // and not call `visit()` directly because that will bypass
+  // the checking if the node has already been visited.
   // Construct the constants.
-  visit(signExpr);
-  visit(exponentExpr);
-  visit(significandExpr);
+  visitIfNotAlreadyVisited(signExpr);
+  visitIfNotAlreadyVisited(exponentExpr);
+  visitIfNotAlreadyVisited(significandExpr);
+
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
   auto cxxType = getOrInsertTy(e.getSort());
