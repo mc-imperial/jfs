@@ -413,8 +413,27 @@ jfs_nr_float64_round_to_integral(JFS_NR_RM rm, const jfs_nr_float64 value) {
   return result;
 }
 
+// Use this attribute to prevent UBSan from raising errors when doing float
+// casts.
+#define ALLOW_OVERFLOW __attribute__((no_sanitize("float-cast-overflow")))
+
+NO_OPT ALLOW_OVERFLOW jfs_nr_float32
+jfs_nr_convert_float64_to_float32(JFS_NR_RM rm, const jfs_nr_float64 value) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_float32 result = (jfs_nr_float32)value;
+  JFS_NR_RESET_RM(rm)
+  return result;
+}
+
+jfs_nr_float64 jfs_nr_convert_float32_to_float64(const jfs_nr_float32 value) {
+  // No rounding mode is required because every jfs_nr_float32 value can be
+  // precisely represented as a jfs_nr_float64.
+  return (jfs_nr_float64)value;
+}
+
 #undef JFS_NR_SET_RM
 #undef JFS_NR_RESET_RM
+#undef ALLOW_OVERFLOW
 
 jfs_nr_float32 jfs_nr_float32_rem(const jfs_nr_float32 lhs,
                                   const jfs_nr_float32 rhs) {

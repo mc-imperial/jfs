@@ -11,6 +11,7 @@
 add_jfs_unit_test(Float
   Native/Add.cpp
   Native/Abs.cpp
+  Native/ConvertToFloatFromFloat.cpp
   Native/Div.cpp
   Native/FMA.cpp
   Native/GreaterThan.cpp

@@ -1083,5 +1083,22 @@ void CXXProgramBuilderPassImpl::visitFloatFMA(Z3AppHandle e) {
 FP_UNARY_WITH_RM_OP(visitFloatSqrt, sqrt)
 FP_UNARY_WITH_RM_OP(visitFloatRoundToIntegral, roundToIntegral)
 #undef FP_UNARY_WITH_RM_OP
+
+void CXXProgramBuilderPassImpl::visitConvertToFloatFromFloat(
+    jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  assert(e.getKid(0).isApp());
+  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
+  auto arg = e.getKid(1);
+  std::string underlyingString;
+  auto resultSort = e.getSort();
+  assert(resultSort.isFloatingPointTy());
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(arg) << ".convertToFloat<"
+     << resultSort.getFloatingPointExponentBitWidth() << ","
+     << resultSort.getFloatingPointSignificandBitWidth() << ">(" << roundingMode
+     << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

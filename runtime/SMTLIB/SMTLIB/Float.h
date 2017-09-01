@@ -41,6 +41,10 @@ public:
   Float(const BitVector<32> bits)
       : data(jfs_nr_bitcast_bv_to_float32(bits.data)) {}
 
+  // Conversion
+  template <uint64_t NEW_EB, uint64_t NEW_SB>
+  Float<NEW_EB, NEW_SB> convertToFloat(JFS_NR_RM rm) const;
+
   // Special constants
   static Float32 getPositiveInfinity() {
     return jfs_nr_float32_get_infinity(true);
@@ -134,6 +138,10 @@ public:
   }
   Float(const BitVector<64> bits)
       : data(jfs_nr_bitcast_bv_to_float64(bits.data)) {}
+
+  // Conversion
+  template <uint64_t NEW_EB, uint64_t NEW_SB>
+  Float<NEW_EB, NEW_SB> convertToFloat(JFS_NR_RM rm) const;
 
   // Special constants
   static Float64 getPositiveInfinity() {
