@@ -128,9 +128,13 @@ jfs_nr_float32 jfs_nr_convert_float64_to_float32(JFS_NR_RM rm,
 jfs_nr_float64 jfs_nr_convert_float32_to_float64(const jfs_nr_float32 value);
 
 jfs_nr_float32
-jfs_nr_convert_from_unsigned_bv_to_float32(const jfs_nr_bitvector_ty value);
+jfs_nr_convert_from_unsigned_bv_to_float32(JFS_NR_RM rm,
+                                           const jfs_nr_bitvector_ty value,
+                                           const jfs_nr_width_ty bitWidth);
 jfs_nr_float64
-jfs_nr_convert_from_unsigned_bv_to_float64(const jfs_nr_bitvector_ty value);
+jfs_nr_convert_from_unsigned_bv_to_float64(JFS_NR_RM rm,
+                                           const jfs_nr_bitvector_ty value,
+                                           const jfs_nr_width_ty bitWidth);
 
 jfs_nr_float32
 jfs_nr_convert_from_signed_bv_to_float32(const jfs_nr_bitvector_ty value);

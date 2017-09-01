@@ -23,6 +23,9 @@ typedef uint64_t jfs_nr_width_ty;
 
 #define JFS_NR_BITVECTOR_TY_BITWIDTH (sizeof(jfs_nr_bitvector_ty) * 8)
 
+bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
+                     const jfs_nr_width_ty width);
+
 jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
                                   const jfs_nr_width_ty lhsBitWidth,
                                   const jfs_nr_bitvector_ty rhs,

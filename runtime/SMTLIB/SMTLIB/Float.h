@@ -14,6 +14,7 @@
 #include "BufferRef.h"
 #include "NativeFloat.h"
 #include <stdint.h>
+#include <type_traits>
 
 // Arbitary precision floating point with
 // EB exponent bits and SB significand bits (includes implicit bit)
@@ -44,6 +45,16 @@ public:
   // Conversion
   template <uint64_t NEW_EB, uint64_t NEW_SB>
   Float<NEW_EB, NEW_SB> convertToFloat(JFS_NR_RM rm) const;
+
+  // TODO: Need to support non native BitVector
+  template <uint64_t BVWIDTH,
+            typename = typename std::enable_if<
+                (BVWIDTH <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type>
+  static Float32 convertFromUnsignedBV(JFS_NR_RM rm,
+                                       const BitVector<BVWIDTH> bvValue) {
+    return jfs_nr_convert_from_unsigned_bv_to_float32(rm, bvValue.data,
+                                                      BVWIDTH);
+  }
 
   // Special constants
   static Float32 getPositiveInfinity() {
@@ -142,6 +153,16 @@ public:
   // Conversion
   template <uint64_t NEW_EB, uint64_t NEW_SB>
   Float<NEW_EB, NEW_SB> convertToFloat(JFS_NR_RM rm) const;
+
+  // TODO: Need to support non native BitVector
+  template <uint64_t BVWIDTH,
+            typename = typename std::enable_if<
+                (BVWIDTH <= JFS_NR_BITVECTOR_TY_BITWIDTH)>::type>
+  static Float64 convertFromUnsignedBV(JFS_NR_RM rm,
+                                       const BitVector<BVWIDTH> bvValue) {
+    return jfs_nr_convert_from_unsigned_bv_to_float64(rm, bvValue.data,
+                                                      BVWIDTH);
+  }
 
   // Special constants
   static Float64 getPositiveInfinity() {

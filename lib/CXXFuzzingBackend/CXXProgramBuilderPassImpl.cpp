@@ -1100,5 +1100,24 @@ void CXXProgramBuilderPassImpl::visitConvertToFloatFromFloat(
      << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+void CXXProgramBuilderPassImpl::visitConvertToFloatFromUnsignedBitVector(
+    jfs::core::Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  assert(e.getKid(0).isApp());
+  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
+  auto arg = e.getKid(1);
+  auto argSort = arg.getSort();
+  assert(argSort.isBitVectorTy());
+  std::string underlyingString;
+  auto resultSort = e.getSort();
+  assert(resultSort.isFloatingPointTy());
+  auto cxxType = getOrInsertTy(resultSort);
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << cxxType->getName() << "::convertFromUnsignedBV<"
+     << argSort.getBitVectorWidth() << ">(" << roundingMode << ", "
+     << getSymbolFor(arg) << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

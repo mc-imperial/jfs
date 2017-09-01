@@ -157,6 +157,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     visitConvertToFloatFromFloat(asApp);
     return;
   }
+  case Z3_OP_FPA_TO_FP_UNSIGNED:
+    ACTION(visitConvertToFloatFromUnsignedBitVector(asApp))
   case Z3_OP_FPA_IS_NAN:
     ACTION(visitFloatIsNaN(asApp))
   case Z3_OP_FPA_IS_NORMAL:

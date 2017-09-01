@@ -44,10 +44,6 @@ jfs_nr_get_most_signficiant_bit_mask(const jfs_nr_width_ty bitWidth) {
   return (UINT64_C(1) << (bitWidth - 1));
 }
 
-bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
-                     const jfs_nr_width_ty width) {
-  return jfs_nr_get_bitvector_mod(value, width) == value;
-}
 }
 
 #ifdef __cplusplus
@@ -55,6 +51,11 @@ extern "C" {
 #endif
 
 // Public functions
+
+bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
+                     const jfs_nr_width_ty width) {
+  return jfs_nr_get_bitvector_mod(value, width) == value;
+}
 
 jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
                                   const jfs_nr_width_ty lhsBitWidth,
