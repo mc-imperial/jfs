@@ -377,14 +377,16 @@ NO_OPT jfs_nr_float64 jfs_nr_float64_fma(JFS_NR_RM rm, const jfs_nr_float64 a,
   return result;
 }
 
-jfs_nr_float32 jfs_nr_float32_sqrt(JFS_NR_RM rm, const jfs_nr_float32 value) {
+NO_OPT jfs_nr_float32 jfs_nr_float32_sqrt(JFS_NR_RM rm,
+                                          const jfs_nr_float32 value) {
   JFS_NR_SET_RM(rm)
   jfs_nr_float32 result = sqrtf(value);
   JFS_NR_RESET_RM(rm)
   return result;
 }
 
-jfs_nr_float64 jfs_nr_float64_sqrt(JFS_NR_RM rm, const jfs_nr_float64 value) {
+NO_OPT jfs_nr_float64 jfs_nr_float64_sqrt(JFS_NR_RM rm,
+                                          const jfs_nr_float64 value) {
   JFS_NR_SET_RM(rm)
   jfs_nr_float64 result = sqrt(value);
   JFS_NR_RESET_RM(rm)
