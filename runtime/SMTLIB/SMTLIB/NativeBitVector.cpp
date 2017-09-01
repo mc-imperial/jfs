@@ -28,15 +28,6 @@ jfs_nr_bitvector_ty jfs_nr_get_bitvector_mask(const jfs_nr_width_ty bitWidth) {
              : ((UINT64_C(1) << bitWidth) - 1);
 }
 
-jfs_nr_bitvector_ty jfs_nr_get_bitvector_mod(const jfs_nr_bitvector_ty value,
-                                             const jfs_nr_width_ty bitWidth) {
-  static_assert(jfs_nr_bitvector_ty_bit_width <= 64, "Wrong width");
-  if (bitWidth >= jfs_nr_bitvector_ty_bit_width) {
-    return value;
-  } else {
-    return value % (UINT64_C(1) << bitWidth);
-  }
-}
 
 jfs_nr_bitvector_ty
 jfs_nr_get_most_signficiant_bit_mask(const jfs_nr_width_ty bitWidth) {
@@ -51,6 +42,16 @@ extern "C" {
 #endif
 
 // Public functions
+
+jfs_nr_bitvector_ty jfs_nr_get_bitvector_mod(const jfs_nr_bitvector_ty value,
+                                             const jfs_nr_width_ty bitWidth) {
+  static_assert(jfs_nr_bitvector_ty_bit_width <= 64, "Wrong width");
+  if (bitWidth >= jfs_nr_bitvector_ty_bit_width) {
+    return value;
+  } else {
+    return value % (UINT64_C(1) << bitWidth);
+  }
+}
 
 bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
                      const jfs_nr_width_ty width) {

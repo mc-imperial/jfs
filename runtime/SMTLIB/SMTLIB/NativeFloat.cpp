@@ -499,6 +499,28 @@ NO_OPT jfs_nr_float64 jfs_nr_convert_from_signed_bv_to_float64(
   return result;
 }
 
+NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float32_convert_to_unsigned_bv(
+    JFS_NR_RM rm, jfs_nr_float32 value, const jfs_nr_width_ty bitWidth) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_bitvector_ty result = (jfs_nr_bitvector_ty)value;
+  JFS_NR_RESET_RM(rm)
+  // Mask off result
+  result = jfs_nr_get_bitvector_mod(result, bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
+NO_OPT ALLOW_OVERFLOW jfs_nr_bitvector_ty jfs_nr_float64_convert_to_unsigned_bv(
+    JFS_NR_RM rm, jfs_nr_float64 value, const jfs_nr_width_ty bitWidth) {
+  JFS_NR_SET_RM(rm)
+  jfs_nr_bitvector_ty result = (jfs_nr_bitvector_ty)value;
+  JFS_NR_RESET_RM(rm)
+  // Mask off result
+  result = jfs_nr_get_bitvector_mod(result, bitWidth);
+  jassert(jfs_nr_is_valid(result, bitWidth));
+  return result;
+}
+
 #undef JFS_NR_SET_RM
 #undef JFS_NR_RESET_RM
 #undef ALLOW_OVERFLOW

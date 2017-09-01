@@ -1138,5 +1138,20 @@ void CXXProgramBuilderPassImpl::visitConvertToFloatFromSignedBitVector(
      << getSymbolFor(arg) << ")";
   insertSSAStmt(e.asAST(), ss.str());
 }
+
+void CXXProgramBuilderPassImpl::visitConvertToUnsignedBitVectorFromFloat(
+    Z3AppHandle e) {
+  assert(e.getNumKids() == 2);
+  assert(e.getKid(0).isApp());
+  auto roundingMode = roundingModeToString(e.getKid(0).asApp());
+  auto arg = e.getKid(1);
+  std::string underlyingString;
+  auto resultSort = e.getSort();
+  assert(resultSort.isBitVectorTy());
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << getSymbolFor(arg) << ".convertToUnsignedBV<"
+     << resultSort.getBitVectorWidth() << ">(" << roundingMode << ")";
+  insertSSAStmt(e.asAST(), ss.str());
+}
 }
 }

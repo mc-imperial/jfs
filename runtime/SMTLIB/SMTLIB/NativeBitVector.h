@@ -26,6 +26,10 @@ typedef uint64_t jfs_nr_width_ty;
 bool jfs_nr_is_valid(const jfs_nr_bitvector_ty value,
                      const jfs_nr_width_ty width);
 
+// FIXME: This should not be public but NativeFloat needs this.
+jfs_nr_bitvector_ty jfs_nr_get_bitvector_mod(const jfs_nr_bitvector_ty value,
+                                             const jfs_nr_width_ty bitWidth);
+
 jfs_nr_bitvector_ty jfs_nr_concat(const jfs_nr_bitvector_ty lhs,
                                   const jfs_nr_width_ty lhsBitWidth,
                                   const jfs_nr_bitvector_ty rhs,

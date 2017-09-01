@@ -222,6 +222,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitFloatRem(asApp))
   case Z3_OP_FPA_ROUND_TO_INTEGRAL:
     ACTION(visitFloatRoundToIntegral(asApp))
+  case Z3_OP_FPA_TO_UBV:
+    ACTION(visitConvertToUnsignedBitVectorFromFloat(asApp))
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
   case Z3_OP_FPA_RM_TOWARD_POSITIVE:
