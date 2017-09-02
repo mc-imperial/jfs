@@ -27,6 +27,9 @@ public:
 protected:
   // TODO: Add more methods for different Z3 application kinds
 
+  // Uninterpreted function
+  virtual void visitUninterpretedFunc(Z3AppHandle e) = 0;
+
   // Constants
   virtual void visitBoolConstant(Z3AppHandle e) = 0;
   virtual void visitBitVector(Z3AppHandle e) = 0;

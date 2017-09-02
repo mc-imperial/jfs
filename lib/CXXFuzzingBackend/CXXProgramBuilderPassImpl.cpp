@@ -558,6 +558,35 @@ CXXProgramBuilderPassImpl::getSymbolFor(jfs::core::Z3ASTHandle e) const {
 }
 
 // Visitor methods
+void CXXProgramBuilderPassImpl::visitUninterpretedFunc(Z3AppHandle e) {
+  // We can't really model uninterpreted functions in CXX very well.
+  // Unfortunately Z3 doesn't provide a great API for examining these
+  // so we examine the string value and try to guess what interpretation
+  // to give if we know of one. Otherwise we give up.
+  auto eAsStr = e.toStr();
+  llvm::StringRef eStrRef(eAsStr); // For better API
+
+  if (eStrRef.startswith("(fp.max_unspecified")) {
+    // Just treat like `fp.max`
+    if (exprToSymbolName.find(e.asAST()) == exprToSymbolName.end()) {
+      // This is a hack to avoid duplicating code
+      visitFloatMax(e);
+    }
+    return;
+  }
+  if (eStrRef.startswith("(fp.min_unspecified")) {
+    // Just treat like `fp.min`
+    if (exprToSymbolName.find(e.asAST()) == exprToSymbolName.end()) {
+      // This is a hack to avoid duplicating code
+      visitFloatMin(e);
+    }
+    return;
+  }
+  ctx.getErrorStream() << "(error Unhandled uninterpreted function \""
+                       << eStrRef << "\")\n";
+  abort();
+}
+
 void CXXProgramBuilderPassImpl::visitEqual(jfs::core::Z3AppHandle e) {
   assert(e.getNumKids() == 2);
   auto arg0 = e.getKid(0);

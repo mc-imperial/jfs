@@ -77,6 +77,8 @@ private:
   bool shouldTraverseNode(jfs::core::Z3ASTHandle e) const;
   llvm::StringRef roundingModeToString(jfs::core::Z3AppHandle rm) const;
 
+  void visitUninterpretedFunc(jfs::core::Z3AppHandle e) override;
+
   // Overloaded operations
   void visitEqual(jfs::core::Z3AppHandle e) override;
   void visitDistinct(jfs::core::Z3AppHandle e) override;

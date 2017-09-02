@@ -228,6 +228,8 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
     ACTION(visitConvertToUnsignedBitVectorFromFloat(asApp))
   case Z3_OP_FPA_TO_SBV:
     ACTION(visitConvertToSignedBitVectorFromFloat(asApp))
+  case Z3_OP_UNINTERPRETED:
+    ACTION(visitUninterpretedFunc(asApp))
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN:
   case Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY:
   case Z3_OP_FPA_RM_TOWARD_POSITIVE:
