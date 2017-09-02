@@ -127,6 +127,7 @@ public:
           // Float64
           return true;
         }
+        return false;
       }
       case Z3_ROUNDING_MODE_SORT:
         return true;
