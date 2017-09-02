@@ -237,13 +237,6 @@ llvm::StringRef CXXProgramBuilderPassImpl::insertSSASymbolForExpr(
   return symbolNameRef;
 }
 
-void CXXProgramBuilderPassImpl::visitIfNotAlreadyVisited(
-    jfs::core::Z3ASTHandle e) {
-  if (exprToSymbolName.find(e) == exprToSymbolName.end()) {
-    visit(e);
-  }
-}
-
 void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
     CXXCodeBlockRef cb) {
   llvm::StringRef bufferRefName = insertSymbol("jfs_buffer_ref");
@@ -1077,38 +1070,7 @@ FP_SPECIAL_CONST(visitFloatNaN, getNaN)
 
 void CXXProgramBuilderPassImpl::visitFloatingPointConstant(Z3AppHandle e) {
   assert(e.getNumKids() == 0);
-  // FIXME: Call getFloatingPointConstantStr() instead
-  Z3ASTHandle signExpr(::Z3_fpa_get_numeral_sign_bv(e.getContext(), e.asAST()),
-                       e.getContext());
-  assert(signExpr.isConstant());
-  assert(signExpr.getSort().isBitVectorTy());
-  Z3ASTHandle exponentExpr(::Z3_fpa_get_numeral_exponent_bv(e.getContext(),
-                                                            e.asAST(),
-                                                            /*biased=*/true),
-                           e.getContext());
-  assert(exponentExpr.isConstant());
-  assert(exponentExpr.getSort().isBitVectorTy());
-  Z3ASTHandle significandExpr(
-      ::Z3_fpa_get_numeral_significand_bv(e.getContext(), e.asAST()),
-      e.getContext());
-  assert(significandExpr.isConstant());
-  assert(significandExpr.getSort().isBitVectorTy());
-
-  // FIXME: This is a bit of hack. We have to be careful
-  // and not call `visit()` directly because that will bypass
-  // the checking if the node has already been visited.
-  // Construct the constants.
-  visitIfNotAlreadyVisited(signExpr);
-  visitIfNotAlreadyVisited(exponentExpr);
-  visitIfNotAlreadyVisited(significandExpr);
-
-  std::string underlyingString;
-  llvm::raw_string_ostream ss(underlyingString);
-  auto cxxType = getOrInsertTy(e.getSort());
-  ss << cxxType->getName() << "(" << getSymbolFor(signExpr) << ", "
-     << getSymbolFor(exponentExpr) << ", " << getSymbolFor(significandExpr)
-     << ")";
-  insertSSAStmt(e.asAST(), ss.str());
+  insertSSAStmt(e.asAST(), getFloatingPointConstantStr(e));
 }
 
 llvm::StringRef CXXProgramBuilderPassImpl::roundingModeToString(

@@ -46,7 +46,6 @@ private:
   llvm::StringRef insertSymbol(const std::string& symbolName);
   llvm::StringRef insertSSASymbolForExpr(jfs::core::Z3ASTHandle e,
                                          const std::string& symbolName);
-  void visitIfNotAlreadyVisited(jfs::core::Z3ASTHandle e);
 
   // Function for building various parts of the CXXProgram
   CXXFunctionDeclRef buildEntryPoint();
