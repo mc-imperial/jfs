@@ -10,8 +10,10 @@
 //===----------------------------------------------------------------------===//
 #include "CXXProgramBuilderPassImpl.h"
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
+#include "jfs/CXXFuzzingBackend/JFSCXXProgramStat.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
+#include "jfs/Support/StatisticsManager.h"
 #include <ctype.h>
 #include <list>
 
@@ -121,7 +123,7 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
 }
 
 void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
-  unsigned bufferWidthInBits =
+  bufferWidthInBits =
       info->freeVariableAssignment->bufferAssignment->computeWidth();
   if (bufferWidthInBits == 0) {
     // Don't add guard to avoid Clang warning about
@@ -395,6 +397,20 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
     insertBranchForConstraint(constraint);
   }
   insertFuzzingTarget(fuzzFn->defn);
+
+  // Add stats
+  if (ctx.getStats() != nullptr) {
+    std::unique_ptr<JFSCXXProgramStat> progStats(
+        new JFSCXXProgramStat("CXXProgramBuilderPassImpl"));
+    progStats->numConstraints = q.constraints.size();
+    progStats->numEntryFuncStatements = fuzzFn->defn->statements.size();
+    progStats->numFreeVars =
+        info->freeVariableAssignment->bufferAssignment->size();
+    // FIXME: Should compute once and cache
+    progStats->bufferWidth = bufferWidthInBits;
+    progStats->numEqualitySets = info->equalityExtraction->equalities.size();
+    ctx.getStats()->append(std::move(progStats));
+  }
 }
 
 const char* CXXProgramBuilderPassImpl::getboolConstantStr(Z3AppHandle e) const {

@@ -21,6 +21,7 @@ namespace cxxfb {
 
 class CXXProgramBuilderPassImpl : public jfs::core::Z3ASTVisitor {
 private:
+  unsigned bufferWidthInBits = 0;
   jfs::core::JFSContext& ctx;
   std::shared_ptr<CXXProgram> program;
   std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
