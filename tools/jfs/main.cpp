@@ -182,17 +182,26 @@ int main(int argc, char** argv) {
   ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);
   ScopedJFSContextErrorHandler errorHandler(ctx, &toolHandler);
 
-  std::unique_ptr<llvm::raw_fd_ostream> sf;
+  std::unique_ptr<llvm::raw_fd_ostream> sfStorage;
+  llvm::raw_ostream* sf = nullptr;
   if (StatsFilename != "") {
     // Open stats file early so we fail early if it can't be opened
     std::error_code ec;
-    sf.reset(
-        new llvm::raw_fd_ostream(StatsFilename, ec, llvm::sys::fs::F_Excl));
-    if (ec) {
-      ctx.getErrorStream()
-          << jfs::support::getMessageForFailedOpenFileForWriting(StatsFilename,
-                                                                 ec);
-      return 1;
+    if (StatsFilename == "-") {
+      // We have to handle stdout specially. We use `outs()` which means
+      // we can't also create a separate llvm::raw_fd_ostream() otherwise
+      // we'll close the file twice.
+      sf = &(llvm::outs());
+    } else {
+      sfStorage.reset(
+          new llvm::raw_fd_ostream(StatsFilename, ec, llvm::sys::fs::F_Excl));
+      if (ec) {
+        ctx.getErrorStream()
+            << jfs::support::getMessageForFailedOpenFileForWriting(
+                   StatsFilename, ec);
+        return 1;
+      }
+      sf = sfStorage.get();
     }
   }
 
@@ -274,13 +283,13 @@ int main(int argc, char** argv) {
 
   // Write statistics out
   if (StatsFilename != "") {
-    assert(sf.get() != nullptr);
+    assert(sf != nullptr);
     if (Verbosity > 0) {
       ctx.getDebugStream() << "(writing stats to \"" << StatsFilename
                            << "\")\n";
     }
     ctx.getStats()->printYAML(*sf);
-    sf->close();
+    sf->flush();
   }
   return 0;
 }

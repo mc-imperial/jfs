@@ -1,6 +1,6 @@
 ; RUN: rm -f %t.yml
-; RUN: %jfs -cxx -stats-file=%t.yml %s | %FileCheck %s
-; RUN: %yaml-syntax-check %t.yml
+; Check that writing to stdout works without error
+; RUN: %jfs -cxx -stats-file=- %s
 (set-logic QF_BV)
 (set-info :source |
 Bit-vector benchmarks from Dawson Engler's tool contributed by Vijay Ganesh
@@ -31,5 +31,4 @@ CVC3.
 (assert (not (bvsle (bvadd (_ bv0 32) (bvadd ((_ sign_extend 24) buffer_1) (bvneg (_ bv48 32)))) (_ bv7 32))))
 (assert (not (bvslt (_ bv0 32) (bvadd (bvadd (bvadd (_ bv0 32) (bvadd ((_ sign_extend 24) buffer_1) (bvneg (_ bv48 32)))) (bvneg (_ bv7 32))) (bvneg (_ bv1 32))))))
 (check-sat)
-; CHECK: {{^sat$}}
 (exit)
