@@ -216,7 +216,7 @@ public:
       outputFilePath = wdm->getPathToFileInDirectory("fuzzer");
       std::string clangStdOutFile;
       std::string clangStdErrFile;
-      if (ctx.getVerbosity() == 0) {
+      if (options->redirectClangOutput) {
         // When being quiet redirect to files
         clangStdOutFile = wdm->getPathToFileInDirectory("clang.stdout.txt");
         clangStdErrFile = wdm->getPathToFileInDirectory("clang.stderr.txt");
@@ -282,7 +282,7 @@ public:
     lfo->handleSIGXFSZ =
         true; // This doesn't trigger LibFuzzer's error handler so this is fine.
 
-    if (ctx.getVerbosity() == 0) {
+    if (options->redirectLibFuzzerOutput) {
       // When being quiet redirect to files
       libFuzzerStdOutFile =
           wdm->getPathToFileInDirectory("libfuzzer.stdout.txt");

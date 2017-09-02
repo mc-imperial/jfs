@@ -22,6 +22,7 @@ CXXFuzzingSolverOptions::CXXFuzzingSolverOptions(
     std::unique_ptr<ClangOptions> clangOpt,
     std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt)
     : jfs::core::SolverOptions(CXX_FUZZING_SOLVER_KIND),
-      clangOpt(std::move(clangOpt)), libFuzzerOpt(std::move(libFuzzerOpt)) {}
+      clangOpt(std::move(clangOpt)), libFuzzerOpt(std::move(libFuzzerOpt)),
+      redirectClangOutput(false), redirectLibFuzzerOutput(false) {}
 }
 }

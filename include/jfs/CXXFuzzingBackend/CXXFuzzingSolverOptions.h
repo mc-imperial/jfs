@@ -38,6 +38,10 @@ public:
   jfs::fuzzingCommon::LibFuzzerOptions* getLibFuzzerOptions() {
     return libFuzzerOpt.get();
   }
+
+  // public for convenience.
+  bool redirectClangOutput;
+  bool redirectLibFuzzerOutput;
 };
 }
 }

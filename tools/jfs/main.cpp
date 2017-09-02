@@ -12,6 +12,7 @@
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/CXXFuzzingBackend/CmdLine/ClangOptionsBuilder.h"
+#include "jfs/CXXFuzzingBackend/CmdLine/CommandLineCategory.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/JFSTimerMacros.h"
@@ -72,6 +73,32 @@ llvm::cl::opt<bool> DisableStandardPasses(
     llvm::cl::desc("Do not run standard passes (default false)"),
     llvm::cl::Hidden);
 
+enum RedirectOutputTy {
+  WHEN_NOT_VERBOSE, // Legacy
+  REDIRECT,
+  NO_REDIRECT,
+};
+
+// FIXME: These don't really belong here
+llvm::cl::opt<RedirectOutputTy> ClangOutputRedirect(
+    "redirect-clang-output",
+    llvm::cl::values(
+        clEnumValN(WHEN_NOT_VERBOSE, "nv",
+                   "Redirect when not in verbose output mode (default)"),
+        clEnumValN(REDIRECT, "1", "Redirect Clang output"),
+        clEnumValN(NO_REDIRECT, "0", "Do not redirect Clang output")),
+    llvm::cl::init(WHEN_NOT_VERBOSE),
+    llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+llvm::cl::opt<RedirectOutputTy> LibFuzzerOutputRedirect(
+    "redirect-libfuzzer-output",
+    llvm::cl::values(
+        clEnumValN(WHEN_NOT_VERBOSE, "nv",
+                   "Redirect when not in verbose output mode (default)"),
+        clEnumValN(REDIRECT, "1", "Redirect LibFuzzer output"),
+        clEnumValN(NO_REDIRECT, "0", "Do not redirect LibFuzzer output")),
+    llvm::cl::init(WHEN_NOT_VERBOSE),
+    llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
 enum BackendTy {
   DUMMY_FUZZING_SOLVER,
   Z3_SOLVER,
@@ -123,6 +150,23 @@ makeWorkingDirectory(JFSContext& ctx) {
       !KeepOutputDirectory);
 }
 
+bool shouldRedirectOutput(RedirectOutputTy rot, JFSContext& ctx) {
+  switch (rot) {
+  case WHEN_NOT_VERBOSE: {
+    if (ctx.getVerbosity() > 0) {
+      return false;
+    }
+    return true;
+  }
+  case REDIRECT:
+    return true;
+  case NO_REDIRECT:
+    return false;
+  default:
+    llvm_unreachable("Unhandled RedirectOutputTy");
+  }
+}
+
 std::unique_ptr<Solver>
 makeSolver(JFSContext& ctx,
            std::unique_ptr<jfs::fuzzingCommon::WorkingDirectoryManager> wdm,
@@ -152,6 +196,12 @@ makeSolver(JFSContext& ctx,
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),
                                                 std::move(libFuzzerOptions)));
+    // Decide if the clang/LibFuzzer stdout/stderr should be redirected
+    solverOptions->redirectClangOutput =
+        shouldRedirectOutput(ClangOutputRedirect, ctx);
+    solverOptions->redirectLibFuzzerOutput =
+        shouldRedirectOutput(LibFuzzerOutputRedirect, ctx);
+
     solver.reset(new jfs::cxxfb::CXXFuzzingSolver(std::move(solverOptions),
                                                   std::move(wdm), ctx));
     break;
