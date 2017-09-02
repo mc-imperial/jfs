@@ -66,6 +66,12 @@ llvm::cl::opt<std::string>
                                  "stdout. (default don't write file)"),
                   llvm::cl::init(""));
 
+// FIXME: Remove this when we provide a cleaner way to specify passes.
+llvm::cl::opt<bool> DisableStandardPasses(
+    "disable-standard-passes", llvm::cl::init(false),
+    llvm::cl::desc("Do not run standard passes (default false)"),
+    llvm::cl::Hidden);
+
 enum BackendTy {
   DUMMY_FUZZING_SOLVER,
   Z3_SOLVER,
@@ -250,12 +256,15 @@ int main(int argc, char** argv) {
   if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
-
+  // FIXME: We need a better way to control this on the command line, like
+  // we can do with `jfs-opt`.
   // Run standard transformations
-  AddStandardPasses(pm);
-  pm.run(*query);
-  if (Verbosity > 10)
-    ctx.getDebugStream() << *query;
+  if (!DisableStandardPasses) {
+    AddStandardPasses(pm);
+    pm.run(*query);
+    if (Verbosity > 10)
+      ctx.getDebugStream() << *query;
+  }
 
   if (Verbosity > 0)
     ctx.getDebugStream() << "(using solver \"" << solver->getName() << "\")\n";
