@@ -61,6 +61,7 @@ private:
   // Visitor and ConstantAssignment helper methods
   const char* getboolConstantStr(jfs::core::Z3AppHandle e) const;
   std::string getBitVectorConstantStr(jfs::core::Z3AppHandle e) const;
+  std::string getFloatingPointConstantStr(jfs::core::Z3AppHandle e) const;
   std::string getFreshSymbol();
   void insertSSAStmt(jfs::core::Z3ASTHandle e, llvm::StringRef expr,
                      llvm::StringRef preferredSymbolName);

@@ -348,6 +348,9 @@ void CXXProgramBuilderPassImpl::insertConstantAssignments(CXXCodeBlockRef cb) {
     case Z3_BV_SORT:
       exprAsStr = getBitVectorConstantStr(constantExprAsApp);
       break;
+    case Z3_FLOATING_POINT_SORT:
+      exprAsStr = getFloatingPointConstantStr(constantExprAsApp);
+      break;
     default:
       llvm_unreachable("Unhandled sort");
     }
@@ -431,6 +434,59 @@ CXXProgramBuilderPassImpl::getBitVectorConstantStr(Z3AppHandle e) const {
   ss << "))";
   ss.flush();
   return underlyingString;
+}
+
+std::string CXXProgramBuilderPassImpl::getFloatingPointConstantStr(
+    jfs::core::Z3AppHandle e) const {
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  auto sort = e.getSort();
+  assert(sort.isFloatingPointTy());
+  ss << "Float<" << sort.getFloatingPointExponentBitWidth() << ","
+     << sort.getFloatingPointSignificandBitWidth() << ">(";
+  Z3ASTHandle signExpr;
+  Z3ASTHandle exponentExpr;
+  Z3ASTHandle significandExpr;
+  switch (e.getKind()) {
+  case Z3_OP_FPA_FP: {
+    // Non constant folded form with three kids
+    assert(e.getNumKids() == 3);
+    signExpr = e.getKid(0);
+    exponentExpr = e.getKid(1);
+    significandExpr = e.getKid(2);
+    break;
+  }
+  case Z3_OP_FPA_NUM: {
+    // Constant folded form with no kids
+    assert(e.getNumKids() == 0);
+    signExpr =
+        Z3ASTHandle(::Z3_fpa_get_numeral_sign_bv(e.getContext(), e.asAST()),
+                    e.getContext());
+    exponentExpr =
+        Z3ASTHandle(::Z3_fpa_get_numeral_exponent_bv(e.getContext(), e.asAST(),
+                                                     /*biased=*/true),
+                    e.getContext());
+    significandExpr = Z3ASTHandle(
+        ::Z3_fpa_get_numeral_significand_bv(e.getContext(), e.asAST()),
+        e.getContext());
+    break;
+  }
+  default:
+    llvm_unreachable("Unhandled floating point constant kind");
+  }
+  assert(signExpr.isConstant());
+  assert(signExpr.getSort().isBitVectorTy());
+  assert(signExpr.isApp());
+  assert(exponentExpr.isConstant());
+  assert(exponentExpr.getSort().isBitVectorTy());
+  assert(exponentExpr.isApp());
+  assert(significandExpr.isConstant());
+  assert(significandExpr.getSort().isBitVectorTy());
+  assert(significandExpr.isApp());
+  ss << getBitVectorConstantStr(signExpr.asApp()) << ", "
+     << getBitVectorConstantStr(exponentExpr.asApp()) << ", "
+     << getBitVectorConstantStr(significandExpr.asApp()) << ")";
+  return ss.str();
 }
 
 std::string CXXProgramBuilderPassImpl::getFreshSymbol() {
@@ -1021,6 +1077,7 @@ FP_SPECIAL_CONST(visitFloatNaN, getNaN)
 
 void CXXProgramBuilderPassImpl::visitFloatingPointConstant(Z3AppHandle e) {
   assert(e.getNumKids() == 0);
+  // FIXME: Call getFloatingPointConstantStr() instead
   Z3ASTHandle signExpr(::Z3_fpa_get_numeral_sign_bv(e.getContext(), e.asAST()),
                        e.getContext());
   assert(signExpr.isConstant());

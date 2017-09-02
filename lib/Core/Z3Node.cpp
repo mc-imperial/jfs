@@ -232,6 +232,21 @@ Z3ASTHandle Z3AppHandle::getKid(unsigned index) const {
 }
 
 bool Z3AppHandle::isConstant() const {
+  if (getKind() == Z3_OP_FPA_FP) {
+    // This is weird. If floating point constants have not
+    // been run through the simplifier then they are Z3_OP_FPA_FP
+    // rather than Z3_OP_FPA_NUM.
+    //
+    // To handle this case (it is not guaranteed that the simplifier was run) if
+    // the operation is of this kind and all
+    // three operands are constant then we treat this as a constant
+    assert(getNumKids() == 3);
+    if (getKid(0).isConstant() && getKid(1).isConstant() &&
+        getKid(2).isConstant()) {
+      return true;
+    }
+    return false;
+  }
   if (getNumKids() != 0)
     return false;
 
