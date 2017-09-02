@@ -31,6 +31,7 @@ private:
   JFSContext& ctx;
   static const int targetFoundExitCode = 77;
   static const int unitTimeoutExitCode = 88;
+  static const int singleRunTargetNotFoundExitCode = 0;
   std::atomic<bool> cancelled;
   CancellableProcess proc;
 
@@ -103,6 +104,11 @@ public:
     // TODO: Assert paths exist
     std::vector<const char*> cmdLineArgs;
 
+    // If previous steps failed to perform complete constant folding
+    // then we might end up with an empty buffer. In that case we only
+    // we only need to run the program once to determine sat/unsat.
+    bool emptyBuffer = options->maxLength == 0;
+
     std::string underlyingString;
     llvm::raw_string_ostream ss(underlyingString);
 
@@ -115,6 +121,8 @@ public:
     // First arg must be fuzzing binary
     assert(llvm::sys::fs::exists(options->targetBinary));
     cmdLineArgs.push_back(options->targetBinary.data());
+
+    SET_ARG(numberOfRunsArgs, "-runs=" << (emptyBuffer ? "1" : "-1"));
 
     // Seed
     SET_ARG(seedArg, "-seed=" << options->seed);
@@ -202,8 +210,8 @@ public:
       redirects.push_back(stdErrFile); // STDERR
     }
 
-    // Setup the seeds
-    {
+    if (!emptyBuffer) {
+      // Setup the seeds
       JFS_SM_TIMER(add_fuzzer_seeds, ctx);
       setupSeeds(options);
     }
@@ -214,6 +222,11 @@ public:
 
     if (exitCode == -2) {
       response->outcome = LibFuzzerResponse::ResponseTy::CANCELLED;
+      return response;
+    }
+    if (emptyBuffer && exitCode == singleRunTargetNotFoundExitCode) {
+      response->outcome =
+          LibFuzzerResponse::ResponseTy::SINGLE_RUN_TARGET_NOT_FOUND;
       return response;
     }
     if (exitCode != targetFoundExitCode) {

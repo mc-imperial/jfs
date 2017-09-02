@@ -291,17 +291,29 @@ public:
     // Fuzz
     auto fuzzingResponse =
         lim.fuzz(lfo, libFuzzerStdOutFile, libFuzzerStdErrFile);
-    if (fuzzingResponse->outcome == LibFuzzerResponse::ResponseTy::UNKNOWN ||
-        fuzzingResponse->outcome == LibFuzzerResponse::ResponseTy::CANCELLED) {
+
+    switch (fuzzingResponse->outcome) {
+    case LibFuzzerResponse::ResponseTy::UNKNOWN:
+    case LibFuzzerResponse::ResponseTy::CANCELLED: {
       return std::unique_ptr<SolverResponse>(
           new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
     }
-    assert(fuzzingResponse->outcome ==
-           LibFuzzerResponse::ResponseTy::TARGET_FOUND);
-    // Solution found
-    // TODO: Handle setting up model if its needed.
-    return std::unique_ptr<SolverResponse>(
-        new CXXFuzzingSolverResponse(SolverResponse::SAT));
+    case LibFuzzerResponse::ResponseTy::SINGLE_RUN_TARGET_NOT_FOUND: {
+      // Special case where the fuzzer only does a single run due to
+      // empty buffer.
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNSAT));
+    }
+    case LibFuzzerResponse::ResponseTy::TARGET_FOUND: {
+      // Solution found
+      // TODO: Handle setting up model if its needed.
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::SAT));
+    }
+    default:
+      llvm_unreachable("Unhandled LibFuzzerResponse");
+    }
+    return nullptr;
   }
 };
 

@@ -203,8 +203,10 @@ void Z3ASTVisitor::visit(Z3ASTHandle e) {
   case Z3_OP_FPA_NEG:
     ACTION(visitFloatNeg(asApp))
   case Z3_OP_FPA_MIN:
+  case Z3_OP_FPA_MIN_I:
     ACTION(visitFloatMin(asApp))
   case Z3_OP_FPA_MAX:
+  case Z3_OP_FPA_MAX_I:
     ACTION(visitFloatMax(asApp))
   case Z3_OP_FPA_ADD:
     ACTION(visitFloatAdd(asApp))
