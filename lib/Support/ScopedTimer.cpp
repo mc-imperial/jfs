@@ -63,7 +63,8 @@ public:
         realWakeUp = true;
       }
       cv.notify_one();
-      waiter->join();
+      if (waiter->joinable())
+        waiter->join();
     }
   }
 
