@@ -25,12 +25,12 @@ std::error_code recursive_remove_impl(llvm::StringRef path,
     for (llvm::sys::fs::directory_iterator endIt; i != endIt; i.increment(ec)) {
       if (ec)
         return ec;
-      llvm::sys::fs::file_status st;
-      if (auto ec = i->status(st)) {
+      llvm::ErrorOr<llvm::sys::fs::basic_file_status> st = i->status();
+      if (auto ec = st.getError()) {
         return ec;
       }
       // Remove contents of this directory first
-      if (auto ec = recursive_remove_impl(i->path(), st.type())) {
+      if (auto ec = recursive_remove_impl(i->path(), st->type())) {
         return ec;
       }
     }
