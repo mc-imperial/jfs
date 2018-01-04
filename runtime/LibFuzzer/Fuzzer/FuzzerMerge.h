@@ -43,18 +43,20 @@
 #include "FuzzerDefs.h"
 
 #include <istream>
+#include <ostream>
 #include <set>
+#include <vector>
 
 namespace fuzzer {
 
 struct MergeFileInfo {
   std::string Name;
   size_t Size = 0;
-  std::vector<uint32_t> Features;
+  Vector<uint32_t> Features;
 };
 
 struct Merger {
-  std::vector<MergeFileInfo> Files;
+  Vector<MergeFileInfo> Files;
   size_t NumFilesInFirstCorpus = 0;
   size_t FirstNotProcessedFile = 0;
   std::string LastFailure;
@@ -62,7 +64,15 @@ struct Merger {
   bool Parse(std::istream &IS, bool ParseCoverage);
   bool Parse(const std::string &Str, bool ParseCoverage);
   void ParseOrExit(std::istream &IS, bool ParseCoverage);
-  size_t Merge(std::vector<std::string> *NewFiles);
+  void PrintSummary(std::ostream &OS);
+  Set<uint32_t> ParseSummary(std::istream &IS);
+  size_t Merge(const Set<uint32_t> &InitialFeatures,
+               Vector<std::string> *NewFiles);
+  size_t Merge(Vector<std::string> *NewFiles) {
+    return Merge(Set<uint32_t>{}, NewFiles);
+  }
+  size_t ApproximateMemoryConsumption() const;
+  Set<uint32_t> AllFeatures() const;
 };
 
 }  // namespace fuzzer

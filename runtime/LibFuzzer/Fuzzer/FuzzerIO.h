@@ -27,7 +27,7 @@ void CopyFileToErr(const std::string &Path);
 
 void WriteToFile(const Unit &U, const std::string &Path);
 
-void ReadDirToVectorOfUnits(const char *Path, std::vector<Unit> *V,
+void ReadDirToVectorOfUnits(const char *Path, Vector<Unit> *V,
                             long *Epoch, size_t MaxSize, bool ExitOnError);
 
 // Returns "Dir/FileName" or equivalent for the current OS.
@@ -40,17 +40,31 @@ std::string DirName(const std::string &FileName);
 // Returns path to a TmpDir.
 std::string TmpDir();
 
+bool IsInterestingCoverageFile(const std::string &FileName);
+
 void DupAndCloseStderr();
 
 void CloseStdout();
 
 void Printf(const char *Fmt, ...);
 
+// Print using raw syscalls, useful when printing at early init stages.
+void RawPrint(const char *Str);
+
 // Platform specific functions:
 bool IsFile(const std::string &Path);
+size_t FileSize(const std::string &Path);
 
 void ListFilesInDirRecursive(const std::string &Dir, long *Epoch,
-                             std::vector<std::string> *V, bool TopDir);
+                             Vector<std::string> *V, bool TopDir);
+
+struct SizedFile {
+  std::string File;
+  size_t Size;
+  bool operator<(const SizedFile &B) const { return Size < B.Size; }
+};
+
+void GetSizedFilesFromDir(const std::string &Dir, Vector<SizedFile> *V);
 
 char GetSeparator();
 
@@ -61,6 +75,10 @@ int CloseFile(int Fd);
 int DuplicateFile(int Fd);
 
 void RemoveFile(const std::string &Path);
+
+void DiscardOutput(int Fd);
+
+intptr_t GetHandleFromFd(int fd);
 
 }  // namespace fuzzer
 

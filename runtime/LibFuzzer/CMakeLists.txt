@@ -69,6 +69,5 @@ endif()
 # LibFuzzer
 ###############################################################################
 set(LLVM_USE_SANITIZE_COVERAGE ON)
-set(LLVM_USE_SANITIZER "Address") # HACK
 set(LLVM_INCLUDE_TESTS OFF)
 add_subdirectory(Fuzzer)

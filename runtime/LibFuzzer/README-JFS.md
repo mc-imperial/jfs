@@ -1,11 +1,11 @@
 # LibFuzzer
 
-This is a copy of LibFuzzer from the LLVM 4.0 release branch.
+This is a copy of LibFuzzer from the LLVM 6.0 SVN (prior to 6.0 release)
 
 This is at
 
-SVN: r301550
-git-svn: 12ceebf6e71aee0ac0db1df6550c230ce7e5161b
+SVN: r321544
+git-svn: 803a9a0208b46cff21135c1a81b53b2b6cc54ea6
 
 # Why are you embedding your own copy!? You MONSTER!
 

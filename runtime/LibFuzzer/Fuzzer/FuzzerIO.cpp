@@ -38,7 +38,9 @@ Unit FileToVector(const std::string &Path, size_t MaxSize, bool ExitOnError) {
   }
 
   T.seekg(0, T.end);
-  size_t FileLen = T.tellg();
+  auto EndPos = T.tellg();
+  if (EndPos < 0) return {};
+  size_t FileLen = EndPos;
   if (MaxSize)
     FileLen = std::min(FileLen, MaxSize);
 
@@ -66,10 +68,10 @@ void WriteToFile(const Unit &U, const std::string &Path) {
   fclose(Out);
 }
 
-void ReadDirToVectorOfUnits(const char *Path, std::vector<Unit> *V,
+void ReadDirToVectorOfUnits(const char *Path, Vector<Unit> *V,
                             long *Epoch, size_t MaxSize, bool ExitOnError) {
   long E = Epoch ? *Epoch : 0;
-  std::vector<std::string> Files;
+  Vector<std::string> Files;
   ListFilesInDirRecursive(Path, Epoch, &Files, /*TopDir*/true);
   size_t NumLoaded = 0;
   for (size_t i = 0; i < Files.size(); i++) {
@@ -84,6 +86,15 @@ void ReadDirToVectorOfUnits(const char *Path, std::vector<Unit> *V,
   }
 }
 
+
+void GetSizedFilesFromDir(const std::string &Dir, Vector<SizedFile> *V) {
+  Vector<std::string> Files;
+  ListFilesInDirRecursive(Dir, 0, &Files, /*TopDir*/true);
+  for (auto &File : Files)
+    if (size_t Size = FileSize(File))
+      V->push_back({File, Size});
+}
+
 std::string DirPlusFile(const std::string &DirPath,
                         const std::string &FileName) {
   return DirPath + GetSeparator() + FileName;
@@ -96,14 +107,15 @@ void DupAndCloseStderr() {
     if (NewOutputFile) {
       OutputFile = NewOutputFile;
       if (EF->__sanitizer_set_report_fd)
-        EF->__sanitizer_set_report_fd(reinterpret_cast<void *>(OutputFd));
-      CloseFile(2);
+        EF->__sanitizer_set_report_fd(
+            reinterpret_cast<void *>(GetHandleFromFd(OutputFd)));
+      DiscardOutput(2);
     }
   }
 }
 
 void CloseStdout() {
-  CloseFile(1);
+  DiscardOutput(1);
 }
 
 void Printf(const char *Fmt, ...) {
