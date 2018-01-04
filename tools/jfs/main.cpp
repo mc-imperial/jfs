@@ -114,9 +114,9 @@ llvm::cl::opt<BackendTy> SolverBackend(
     llvm::cl::init(CXX_FUZZING_SOLVER));
 }
 
-void printVersion() {
-  llvm::outs() << support::getVersionString() << "\n";
-  llvm::outs() << "\n";
+void printVersion(llvm::raw_ostream& os) {
+  os << support::getVersionString() << "\n";
+  os << "\n";
   llvm::cl::PrintVersionMessage();
   return;
 }

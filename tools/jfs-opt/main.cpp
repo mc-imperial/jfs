@@ -112,9 +112,9 @@ unsigned AddPasses(QueryPassManager &pm) {
   return count;
 }
 
-void printVersion() {
-  llvm::outs() << support::getVersionString() << "\n";
-  llvm::outs() << "\n";
+void printVersion(llvm::raw_ostream& os) {
+  os << support::getVersionString() << "\n";
+  os << "\n";
   llvm::cl::PrintVersionMessage();
   return;
 }

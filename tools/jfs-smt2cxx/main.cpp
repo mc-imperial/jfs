@@ -41,9 +41,9 @@ llvm::cl::opt<std::string>
     OutputFile("o", llvm::cl::desc("Output file (default stdout)"),
                llvm::cl::init("-"));
 
-void printVersion() {
-  llvm::outs() << jfs::support::getVersionString() << "\n";
-  llvm::outs() << "\n";
+void printVersion(llvm::raw_ostream& os) {
+  os << jfs::support::getVersionString() << "\n";
+  os << "\n";
   llvm::cl::PrintVersionMessage();
   return;
 }
