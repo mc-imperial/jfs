@@ -631,22 +631,9 @@ void CXXProgramBuilderPassImpl::visitUninterpretedFunc(Z3AppHandle e) {
   auto eAsStr = e.toStr();
   llvm::StringRef eStrRef(eAsStr); // For better API
 
-  if (eStrRef.startswith("(fp.max_unspecified")) {
-    // Just treat like `fp.max`
-    if (exprToSymbolName.find(e.asAST()) == exprToSymbolName.end()) {
-      // This is a hack to avoid duplicating code
-      visitFloatMax(e);
-    }
-    return;
-  }
-  if (eStrRef.startswith("(fp.min_unspecified")) {
-    // Just treat like `fp.min`
-    if (exprToSymbolName.find(e.asAST()) == exprToSymbolName.end()) {
-      // This is a hack to avoid duplicating code
-      visitFloatMin(e);
-    }
-    return;
-  }
+  // TODO: We could experiment with functions here that aren't part
+  // of the SMT-LIBv2 standard (e.g. sin, cos, tan, etc...).
+
   ctx.getErrorStream() << "(error Unhandled uninterpreted function \""
                        << eStrRef << "\")\n";
   abort();
