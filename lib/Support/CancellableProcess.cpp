@@ -90,12 +90,17 @@ public:
     }
     assert(args[args.size() - 1] == nullptr && "args must be null termianted");
 
-    std::vector<const llvm::StringRef*> redirectPtrs;
+    // FIXME: This awkwardness is due to r313155 in LLVM. We should just fix
+    // our function signature to use LLVM's use of
+    // ArrayRef<Optional<StringRef>> to simplify things.
+    llvm::Optional<llvm::StringRef> redirectOptionals[3] = { llvm::None, llvm::None, llvm::None };
     if (redirects.size() > 0) {
       assert(redirects.size() == 3);
-      // Populate ptrs to the stored StringRefs.
+      unsigned optionalIndex = 0;
       for (const auto& sf : redirects) {
-        redirectPtrs.push_back(&sf);
+        assert(optionalIndex < 3);
+        redirectOptionals[optionalIndex] = llvm::Optional<llvm::StringRef>(sf);
+        ++optionalIndex;
       }
     }
 
@@ -110,8 +115,7 @@ public:
           /*Program=*/program,
           /*args=*/args.data(),
           /*env=*/nullptr,
-          /*redirects=*/((redirectPtrs.size() == 0) ? nullptr
-                                                    : redirectPtrs.data()),
+          /*redirects=*/((redirects.size() == 0) ? (llvm::ArrayRef<llvm::Optional<llvm::StringRef>>()) : redirectOptionals),
           /*memoryLimit=*/0,
           /*ErrMsg=*/&errorMsg,
           /*ExecutionFailed=*/&executionFailed);
