@@ -153,7 +153,7 @@ To see how JFS works let's walk through a small example.
 (check-sat)
 ```
 
-2. Perform some simplifications on the constraints (e.g. constrant folding).
+2. Perform some simplifications on the constraints (e.g. constant folding).
 
 **NOTE: You can use the jfs-opt tool to experiment with these simplifications.**
 
