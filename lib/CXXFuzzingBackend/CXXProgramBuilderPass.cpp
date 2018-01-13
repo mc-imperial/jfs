@@ -21,8 +21,11 @@ namespace jfs {
 namespace cxxfb {
 
 CXXProgramBuilderPass::CXXProgramBuilderPass(
-    std::shared_ptr<FuzzingAnalysisInfo> info, JFSContext& ctx)
-    : impl(new CXXProgramBuilderPassImpl(info, ctx)) {}
+    std::shared_ptr<FuzzingAnalysisInfo> info,
+    const CXXProgramBuilderOptions* options, JFSContext& ctx)
+    : impl(new CXXProgramBuilderPassImpl(info, options, ctx)) {
+  assert(options != nullptr);
+}
 
 std::shared_ptr<CXXProgram> CXXProgramBuilderPass::getProgram() {
   return impl->program;

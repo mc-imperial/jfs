@@ -20,5 +20,6 @@ target_link_libraries(
   PRIVATE
   ${llvm_components}
   JFSSupport
+  JFSCXXFuzzingBackendCmdLine
   JFSCXXFuzzingBackend
 )

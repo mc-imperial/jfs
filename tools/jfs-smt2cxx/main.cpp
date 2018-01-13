@@ -11,6 +11,7 @@
 
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
+#include "jfs/CXXFuzzingBackend/CmdLine/CXXProgramBuilderOptionsBuilder.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
@@ -80,7 +81,10 @@ int main(int argc, char** argv) {
   QueryPassManager pm;
   auto info = std::make_shared<FuzzingAnalysisInfo>();
   info->addTo(pm);
-  auto programBuilder = std::make_shared<CXXProgramBuilderPass>(info, ctx);
+  auto cxxProgramBuilderOptions =
+      jfs::cxxfb::cl::buildCXXProgramBuilderOptionsFromCmdLine();
+  auto programBuilder = std::make_shared<CXXProgramBuilderPass>(
+      info, cxxProgramBuilderOptions.get(), ctx);
   pm.add(programBuilder);
   pm.run(*query);
 

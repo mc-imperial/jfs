@@ -11,6 +11,7 @@
 #ifndef JFS_CXX_FUZZING_BACKEND_CXX_PROGRAM_BUILDER_PASS_IMPL_H
 #define JFS_CXX_FUZZING_BACKEND_CXX_PROGRAM_BUILDER_PASS_IMPL_H
 #include "jfs/CXXFuzzingBackend/CXXProgram.h"
+#include "jfs/CXXFuzzingBackend/CXXProgramBuilderOptions.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Z3ASTVisitor.h"
@@ -23,6 +24,8 @@ class CXXProgramBuilderPassImpl : public jfs::core::Z3ASTVisitor {
 private:
   unsigned bufferWidthInBits = 0;
   jfs::core::JFSContext& ctx;
+  // Not unique_ptr because CXXFuzzingSolverOptions usually owns this.
+  const CXXProgramBuilderOptions* options;
   std::shared_ptr<CXXProgram> program;
   std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
   CXXCodeBlockRef earlyExitBlock;
@@ -37,7 +40,7 @@ private:
 
   CXXProgramBuilderPassImpl(
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
-      jfs::core::JFSContext& ctx);
+      const CXXProgramBuilderOptions* options, jfs::core::JFSContext& ctx);
 
   void build(const jfs::core::Query& q);
 

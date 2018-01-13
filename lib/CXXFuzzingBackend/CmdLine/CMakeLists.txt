@@ -1,6 +1,7 @@
 jfs_add_component(JFSCXXFuzzingBackendCmdLine
   ClangOptionsBuilder.cpp
   CommandLineCategory.cpp
+  CXXProgramBuilderOptionsBuilder.cpp
 )
 
 target_link_libraries(JFSCXXFuzzingBackendCmdLine

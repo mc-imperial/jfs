@@ -19,6 +19,7 @@ namespace cxxfb {
 
 class CXXProgram;
 class CXXProgramBuilderPassImpl;
+class CXXProgramBuilderOptions;
 
 class CXXProgramBuilderPass : public jfs::transform::QueryPass {
 private:
@@ -27,7 +28,7 @@ private:
 public:
   CXXProgramBuilderPass(
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
-      jfs::core::JFSContext& ctx);
+      const CXXProgramBuilderOptions* options, jfs::core::JFSContext& ctx);
   ~CXXProgramBuilderPass();
   bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;

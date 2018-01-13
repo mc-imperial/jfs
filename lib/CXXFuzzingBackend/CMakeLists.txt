@@ -16,6 +16,7 @@ jfs_add_component(JFSCXXFuzzingBackend
   CXXProgram.cpp
   CXXProgramBuilderPass.cpp
   CXXProgramBuilderPassImpl.cpp
+  CXXProgramBuilderOptions.cpp
   JFSCXXProgramStat.cpp
 )
 target_link_libraries(JFSCXXFuzzingBackend PUBLIC JFSFuzzingCommon)

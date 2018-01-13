@@ -24,9 +24,16 @@ namespace jfs {
 namespace cxxfb {
 
 CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
-    std::shared_ptr<FuzzingAnalysisInfo> info, JFSContext& ctx)
-    : ctx(ctx), info(info) {
+    std::shared_ptr<FuzzingAnalysisInfo> info,
+    const CXXProgramBuilderOptions* options, JFSContext& ctx)
+    : ctx(ctx), options(options), info(info) {
   program = std::make_shared<CXXProgram>();
+
+  // FIXME: Guard against using this option until its implemented.
+  if (options->getRecordMaxNumSatisfiedConstraints()) {
+    ctx.raiseFatalError(
+        "Recording max num satisfied constraints not implemented");
+  }
 
   // Setup early exit code block
   earlyExitBlock = std::make_shared<CXXCodeBlock>(program.get());

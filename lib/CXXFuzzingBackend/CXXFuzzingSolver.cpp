@@ -186,7 +186,8 @@ public:
 
     // Generate program
     QueryPassManager pm;
-    auto pbp = std::make_shared<CXXProgramBuilderPass>(info, ctx);
+    auto pbp = std::make_shared<CXXProgramBuilderPass>(
+        info, options->getCXXProgramBuilderOptions(), ctx);
 
     {
       // Make the pass cancellable

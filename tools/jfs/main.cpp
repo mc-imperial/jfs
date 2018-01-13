@@ -11,6 +11,7 @@
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
+#include "jfs/CXXFuzzingBackend/CmdLine/CXXProgramBuilderOptionsBuilder.h"
 #include "jfs/CXXFuzzingBackend/CmdLine/ClangOptionsBuilder.h"
 #include "jfs/CXXFuzzingBackend/CmdLine/CommandLineCategory.h"
 #include "jfs/Core/IfVerbose.h"
@@ -193,9 +194,13 @@ makeSolver(JFSContext& ctx,
     auto libFuzzerOptions =
         jfs::fuzzingCommon::cl::buildLibFuzzerOptionsFromCmdLine();
 
+    auto cxxProgramBuilderOptions =
+        jfs::cxxfb::cl::buildCXXProgramBuilderOptionsFromCmdLine();
+
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
-        new jfs::cxxfb::CXXFuzzingSolverOptions(std::move(clangOptions),
-                                                std::move(libFuzzerOptions)));
+        new jfs::cxxfb::CXXFuzzingSolverOptions(
+            std::move(clangOptions), std::move(libFuzzerOptions),
+            std::move(cxxProgramBuilderOptions)));
     // Decide if the clang/LibFuzzer stdout/stderr should be redirected
     solverOptions->redirectClangOutput =
         shouldRedirectOutput(ClangOutputRedirect, ctx);
