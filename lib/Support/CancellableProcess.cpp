@@ -93,7 +93,8 @@ public:
     // FIXME: This awkwardness is due to r313155 in LLVM. We should just fix
     // our function signature to use LLVM's use of
     // ArrayRef<Optional<StringRef>> to simplify things.
-    llvm::Optional<llvm::StringRef> redirectOptionals[3] = { llvm::None, llvm::None, llvm::None };
+    llvm::Optional<llvm::StringRef> redirectOptionals[3] = {
+        llvm::None, llvm::None, llvm::None};
     if (redirects.size() > 0) {
       assert(redirects.size() == 3);
       unsigned optionalIndex = 0;
