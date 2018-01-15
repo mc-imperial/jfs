@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "SMTLIB/Float.h"
 #include "gtest/gtest.h"
-#include <math.h>
+#include <cmath>
 
 TEST(SpecialConstants, PositiveZeroFloat32) {
   Float32 zero = Float32::getPositiveZero();
