@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "SMTLIB/Float.h"
 #include "gtest/gtest.h"
-#include <math.h>
+#include <cmath>
 
 TEST(MakeFromIEEEBitVector, PositiveZeroFloat32) {
   Float32 f(BitVector<32>(0x0));
