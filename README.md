@@ -19,7 +19,7 @@ JFS is built on top of the following projects
 
 ## Building JFS
 
-JFS has only been tested on Linux but it should be trivial to port to macOS.
+JFS has been tested on Linux and macOS.
 Windows support would likely require a lot more work and is dependent on getting
 LibFuzzer to work on Windows.
 
