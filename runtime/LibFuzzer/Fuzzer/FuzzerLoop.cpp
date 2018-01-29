@@ -237,6 +237,9 @@ void Fuzzer::CrashCallback() {
   Printf("SUMMARY: libFuzzer: deadly signal\n");
   DumpCurrentUnit("crash-");
   PrintFinalStats();
+  if (EF->LLVMFuzzerAtExit) {
+    EF->LLVMFuzzerAtExit();
+  }
   _Exit(Options.ErrorExitCode); // Stop right now.
 }
 
@@ -249,6 +252,9 @@ void Fuzzer::ExitCallback() {
   Printf("SUMMARY: libFuzzer: fuzz target exited\n");
   DumpCurrentUnit("crash-");
   PrintFinalStats();
+  if (EF->LLVMFuzzerAtExit) {
+    EF->LLVMFuzzerAtExit();
+  }
   _Exit(Options.ErrorExitCode);
 }
 
@@ -262,6 +268,9 @@ void Fuzzer::MaybeExitGracefully() {
 void Fuzzer::InterruptCallback() {
   Printf("==%lu== libFuzzer: run interrupted; exiting\n", GetPid());
   PrintFinalStats();
+  if (EF->LLVMFuzzerAtExit) {
+    EF->LLVMFuzzerAtExit();
+  }
   _Exit(0); // Stop right now, don't perform any at-exit actions.
 }
 

@@ -24,6 +24,7 @@ EXT_FUNC(LLVMFuzzerCustomCrossOver, size_t,
           const uint8_t * Data2, size_t Size2,
           uint8_t * Out, size_t MaxOutSize, unsigned int Seed),
          false);
+EXT_FUNC(LLVMFuzzerAtExit, void, (), false);
 
 // Sanitizer functions
 EXT_FUNC(__lsan_enable, void, (), false);
