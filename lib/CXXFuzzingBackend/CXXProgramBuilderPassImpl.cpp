@@ -26,14 +26,8 @@ namespace cxxfb {
 CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
     std::shared_ptr<FuzzingAnalysisInfo> info,
     const CXXProgramBuilderOptions* options, JFSContext& ctx)
-    : ctx(ctx), options(options), info(info) {
+    : ctx(ctx), options(options), info(info), counterTy(nullptr) {
   program = std::make_shared<CXXProgram>();
-
-  // FIXME: Guard against using this option until its implemented.
-  if (options->getRecordMaxNumSatisfiedConstraints()) {
-    ctx.raiseFatalError(
-        "Recording max num satisfied constraints not implemented");
-  }
 
   // Setup early exit code block
   earlyExitBlock = std::make_shared<CXXCodeBlock>(program.get());
@@ -41,6 +35,82 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
       std::make_shared<CXXReturnIntStatement>(earlyExitBlock.get(), 0);
   earlyExitBlock->statements.push_front(returnStmt);
   entryPointMainBlock = nullptr;
+
+  if (isTrackingNumConstraintsSatisfied()) {
+    numConstraintsSatisfiedSymbolName = insertSymbol("jfs_num_const_sat");
+  }
+  if (isTrackingMaxNumConstraintsSatisfied()) {
+    maxNumConstraintsSatisfiedSymbolName =
+        insertSymbol("jfs_max_num_const_sat");
+    assert(isTrackingNumConstraintsSatisfied());
+  }
+}
+
+CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsFalseBlock() {
+  // TODO: Support non-early exit modes.
+  return earlyExitBlock;
+}
+
+CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
+  if (!isTrackingNumConstraintsSatisfied()) {
+    // Empty block (no-op)
+    return nullptr;
+  }
+  if (trueBlock != nullptr) {
+    return trueBlock;
+  }
+  // HACK: We cheat because we can re-use the same codeblock for
+  // all constraint `CXXIfStatement`, so we just make the parent
+  // nullptr.
+  trueBlock = std::make_shared<CXXCodeBlock>(nullptr);
+  // Add statement to increment the local constraint counter.
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "++" << numConstraintsSatisfiedSymbolName;
+  trueBlock->statements.push_back(
+      std::make_shared<CXXGenericStatement>(trueBlock.get(), ss.str()));
+  if (isTrackingMaxNumConstraintsSatisfied()) {
+    // Emit code to increment `maxNumConstraintsSatisfiedSymbolName`
+    // if the number of constraints satisfied so far is greater than
+    // what had been observed previously.
+    std::string underlyingString;
+    llvm::raw_string_ostream ss(underlyingString);
+    ss << maxNumConstraintsSatisfiedSymbolName << " < "
+       << numConstraintsSatisfiedSymbolName;
+    auto maxNumGuard = std::make_shared<CXXIfStatement>(trueBlock.get(),
+                                                        /*condition=*/ss.str());
+    maxNumGuard->falseBlock = nullptr; // Do nothing is condition false.
+    // Construct block with code to update
+    // `maxNumConstraintsSatisfiedSymbolName`
+    auto incrementMaxNumConstraintsSatisfiedBlock =
+        std::make_shared<CXXCodeBlock>(maxNumGuard.get());
+    underlyingString.clear();
+    // HACK: Do assign. We should make a CXXDecl to do this.
+    ss << maxNumConstraintsSatisfiedSymbolName << " = "
+       << numConstraintsSatisfiedSymbolName;
+    incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
+        std::make_shared<CXXGenericStatement>(
+            incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
+    maxNumGuard->trueBlock = incrementMaxNumConstraintsSatisfiedBlock;
+    trueBlock->statements.push_back(maxNumGuard);
+  }
+  return trueBlock;
+}
+
+bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {
+  return options->getRecordMaxNumSatisfiedConstraints();
+}
+
+bool CXXProgramBuilderPassImpl::isTrackingMaxNumConstraintsSatisfied() const {
+  return options->getRecordMaxNumSatisfiedConstraints();
+}
+
+CXXTypeRef CXXProgramBuilderPassImpl::getCounterTy() {
+  if (counterTy != nullptr)
+    return counterTy;
+  counterTy =
+      std::make_shared<CXXType>(program.get(), "uint64_t", /*isConst=*/false);
+  return counterTy;
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
@@ -87,8 +157,7 @@ CXXTypeRef CXXProgramBuilderPassImpl::getOrInsertTy(Z3SortHandle sort) {
   }
 }
 
-CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
-  program = std::make_shared<CXXProgram>();
+void CXXProgramBuilderPassImpl::insertHeaderIncludes() {
   // Runtime header includes
   // FIXME: We should probe the query and only emit these header includes
   // if we actually need them.
@@ -99,6 +168,13 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
       program.get(), "SMTLIB/BitVector.h", /*systemHeader=*/false));
   program->appendDecl(std::make_shared<CXXIncludeDecl>(
       program.get(), "SMTLIB/Float.h", /*systemHeader=*/false));
+
+  if (isTrackingMaxNumConstraintsSatisfied()) {
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program.get(), "StatLog/Logger.h", /*systemHeader=*/false));
+    program->addRequiredLibrary("libStatLog");
+  }
+
   // Int types header for LibFuzzer entry point definition.
   program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
                                                        "stdint.h",
@@ -106,7 +182,9 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
   program->appendDecl(std::make_shared<CXXIncludeDecl>(program.get(),
                                                        "stdlib.h",
                                                        /*systemHeader=*/true));
+}
 
+CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
   // Build entry point for LibFuzzer
   auto retTy = std::make_shared<CXXType>(program.get(), "int");
   auto firstArgTy = std::make_shared<CXXType>(program.get(), "const uint8_t*");
@@ -127,6 +205,51 @@ CXXFunctionDeclRef CXXProgramBuilderPassImpl::buildEntryPoint() {
   funcDefn->defn = funcBody; // FIXME: shouldn't be done like this
   program->appendDecl(funcDefn);
   return funcDefn;
+}
+
+void CXXProgramBuilderPassImpl::insertMaxNumConstraintsSatisfiedCounterInit() {
+  if (!isTrackingMaxNumConstraintsSatisfied())
+    return;
+  // Add global variable to track the maximum number of constraints that
+  // have been satisfied.
+  auto initDecl = std::make_shared<CXXDeclAndDefnVarStatement>(
+      program.get(), getCounterTy(), maxNumConstraintsSatisfiedSymbolName, "0");
+  program->appendDecl(initDecl);
+}
+
+void CXXProgramBuilderPassImpl::insertAtExitHandler() {
+  if (!isTrackingNumConstraintsSatisfied())
+    return;
+  auto retTy = std::make_shared<CXXType>(program.get(), "void");
+  std::vector<CXXFunctionArgumentRef> funcArguments;
+  // FIXME: LibFuzzer doesn't support this yet.
+  auto funcDefn = std::make_shared<CXXFunctionDecl>(
+      program.get(), "LLVMFuzzerAtExit", retTy, funcArguments,
+      /*hasCVisibility=*/true);
+  auto funcBody = std::make_shared<CXXCodeBlock>(funcDefn.get());
+  funcDefn->defn = funcBody; // FIXME: shouldn't be done like this
+  program->appendDecl(funcDefn);
+  auto loggerTy = std::make_shared<CXXType>(program.get(), "jfs_nr_logger_ty");
+  const char* loggerSymbolName = "logger";
+  // Add statement to create a logger
+  funcBody->statements.push_back(std::make_shared<CXXDeclAndDefnVarStatement>(
+      funcBody.get(), loggerTy, loggerSymbolName, "jfs_nr_mk_logger()"));
+
+  // Add statement to log the observed maxNumConstraintsSatisfied
+  // value.
+  // HACK
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "jfs_nr_log_uint64(" << loggerSymbolName << ","
+     << "\"" << maxNumConstraintsSatisfiedSymbolName << "\","
+     << maxNumConstraintsSatisfiedSymbolName << ")";
+  funcBody->statements.push_back(
+      std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
+  underlyingString.clear();
+
+  ss << "jfs_nr_del_logger(" << loggerSymbolName << ")";
+  funcBody->statements.push_back(
+      std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
 }
 
 void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
@@ -360,6 +483,15 @@ void CXXProgramBuilderPassImpl::insertConstantAssignments(CXXCodeBlockRef cb) {
   }
 }
 
+void CXXProgramBuilderPassImpl::insertNumConstraintsSatisifedCounterInit(
+    CXXCodeBlockRef cb) {
+  if (!isTrackingNumConstraintsSatisfied())
+    return;
+  auto initDecl = std::make_shared<CXXDeclAndDefnVarStatement>(
+      cb.get(), getCounterTy(), numConstraintsSatisfiedSymbolName, "0");
+  cb->statements.push_back(initDecl);
+}
+
 void CXXProgramBuilderPassImpl::insertBranchForConstraint(
     Z3ASTHandle constraint) {
   assert(constraint.getSort().isBoolTy());
@@ -377,8 +509,8 @@ void CXXProgramBuilderPassImpl::insertBranchForConstraint(
   llvm::StringRef symbolForConstraint = getSymbolFor(constraint);
   auto ifStatement = std::make_shared<CXXIfStatement>(getCurrentBlock().get(),
                                                       symbolForConstraint);
-  ifStatement->trueBlock = nullptr;
-  ifStatement->falseBlock = earlyExitBlock;
+  ifStatement->trueBlock = getConstraintIsTrueBlock();
+  ifStatement->falseBlock = getConstraintIsFalseBlock();
   getCurrentBlock()->statements.push_back(ifStatement);
 }
 
@@ -392,12 +524,17 @@ void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
 }
 
 void CXXProgramBuilderPassImpl::build(const Query& q) {
+  program = std::make_shared<CXXProgram>();
+  insertHeaderIncludes();
+  insertMaxNumConstraintsSatisfiedCounterInit();
+  insertAtExitHandler();
   auto fuzzFn = buildEntryPoint();
   entryPointMainBlock = fuzzFn->defn;
 
   insertBufferSizeGuard(fuzzFn->defn);
   insertFreeVariableConstruction(fuzzFn->defn);
   insertConstantAssignments(fuzzFn->defn);
+  insertNumConstraintsSatisifedCounterInit(fuzzFn->defn);
 
   // Generate constraint branches
   for (const auto& constraint : q.constraints) {

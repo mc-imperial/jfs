@@ -30,6 +30,7 @@ private:
   std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info;
   CXXCodeBlockRef earlyExitBlock;
   CXXCodeBlockRef entryPointMainBlock;
+  CXXCodeBlockRef trueBlock;
   jfs::core::Z3SortMap<CXXTypeRef> sortToCXXTypeCache;
 
   jfs::core::Z3ASTMap<llvm::StringRef>
@@ -37,12 +38,21 @@ private:
   std::unordered_set<std::string> usedSymbols;
   llvm::StringRef entryPointFirstArgName;
   llvm::StringRef entryPointSecondArgName;
+  llvm::StringRef numConstraintsSatisfiedSymbolName;
+  llvm::StringRef maxNumConstraintsSatisfiedSymbolName;
 
   CXXProgramBuilderPassImpl(
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
       const CXXProgramBuilderOptions* options, jfs::core::JFSContext& ctx);
 
   void build(const jfs::core::Query& q);
+
+  CXXCodeBlockRef getConstraintIsFalseBlock();
+  CXXCodeBlockRef getConstraintIsTrueBlock();
+  bool isTrackingNumConstraintsSatisfied() const;
+  bool isTrackingMaxNumConstraintsSatisfied() const;
+  CXXTypeRef getCounterTy();
+  CXXTypeRef counterTy;
 
   // Helpers for inserting SSA variables and types
   CXXTypeRef getOrInsertTy(jfs::core::Z3SortHandle sort);
@@ -53,7 +63,11 @@ private:
 
   // Function for building various parts of the CXXProgram
   CXXFunctionDeclRef buildEntryPoint();
+  void insertHeaderIncludes();
+  void insertMaxNumConstraintsSatisfiedCounterInit();
+  void insertAtExitHandler();
   void insertBufferSizeGuard(CXXCodeBlockRef cb);
+  void insertNumConstraintsSatisifedCounterInit(CXXCodeBlockRef cb);
   void insertFreeVariableConstruction(CXXCodeBlockRef cb);
   void insertConstantAssignments(CXXCodeBlockRef cb);
   void insertBranchForConstraint(jfs::core::Z3ASTHandle constraint);

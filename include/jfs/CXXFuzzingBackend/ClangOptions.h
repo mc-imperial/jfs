@@ -25,6 +25,7 @@ struct ClangOptions {
   std::string pathToRuntimeDir;
   std::string pathToRuntimeIncludeDir;
   std::string pathToLibFuzzerLib;
+  std::string pathToStatLogLib;
   enum class OptimizationLevel { O0, O1, O2, O3 };
   OptimizationLevel optimizationLevel;
   bool debugSymbols;
@@ -37,13 +38,19 @@ struct ClangOptions {
     // TODO: Add more
   };
   std::vector<SanitizerCoverageTy> sanitizerCoverageOptions;
+  // FIXME: We should populate this enum from the CMake
+  // runtime declarations.
   enum class LibFuzzerBuildType {
+    REL_WITH_DEB_INFO,
+  };
+  enum class StatLogBuildType {
     REL_WITH_DEB_INFO,
   };
   // If `pathToExecutable` is not empty then paths will be
   // inferred assuming that `pathToExecutable` is the absolute
   // path to the `jfs` binary.
-  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt);
+  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt,
+               StatLogBuildType slbt);
   ClangOptions();
   void appendSanitizerCoverageOption(SanitizerCoverageTy opt);
   void dump() const;

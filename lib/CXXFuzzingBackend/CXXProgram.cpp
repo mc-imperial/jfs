@@ -147,7 +147,7 @@ void CXXReturnIntStatement::print(llvm::raw_ostream& os) const {
 
 // CXXDeclAndDefnVarStatement
 CXXDeclAndDefnVarStatement::CXXDeclAndDefnVarStatement(
-    CXXCodeBlock* parent, CXXTypeRef ty, llvm::StringRef name,
+    CXXDecl* parent, CXXTypeRef ty, llvm::StringRef name,
     llvm::StringRef valueExpr)
     : CXXStatement(parent), ty(ty), name(name.str()),
       valueExpr(valueExpr.str()) {}
@@ -177,5 +177,19 @@ void CXXProgram::print(llvm::raw_ostream& os) const {
 }
 
 void CXXProgram::appendDecl(CXXDeclRef decl) { decls.push_back(decl); }
+
+void CXXProgram::addRequiredLibrary(llvm::StringRef name) {
+  requiredLibs.emplace_back(name.data(), name.size());
+}
+
+bool CXXProgram::libraryIsRequired(llvm::StringRef name) const {
+  // FIXME: We should use a set to avoid being O(N).
+  for (const auto& libName : requiredLibs) {
+    if (libName == name) {
+      return true;
+    }
+  }
+  return false;
+}
 }
 }

@@ -86,6 +86,55 @@ foreach (buildType ${LibFuzzerBuildTypes})
 endforeach()
 
 ###############################################################################
+# Build StatLog
+###############################################################################
+# We build StatLog as an external project using Clang. We
+# build it in different configurations.
+include(ExternalProject)
+include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
+
+# TODO: Add more
+set(StatLogBuildTypes RelWithDebInfo)
+
+foreach (buildType ${StatLogBuildTypes})
+  set(buildDir "${CMAKE_CURRENT_BINARY_DIR}/StatLog_${buildType}")
+  jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
+  ExternalProject_Add(BuildStatLogRuntime_${buildType}
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/StatLog"
+    # FIXME: We should allow other generators
+    CMAKE_GENERATOR "Unix Makefiles"
+    CMAKE_ARGS
+      "-DCMAKE_CXX_COMPILER=${LLVM_CLANG_CXX_TOOL}"
+      "-DCMAKE_BUILD_TYPE=${buildType}"
+    BINARY_DIR "${buildDir}"
+    BUILD_ALWAYS 1
+    ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
+    # Don't run install command
+    INSTALL_COMMAND ""
+    # FIXME: Guard these based on CMake version
+    USES_TERMINAL_BUILD 1
+    USES_TERMINAL_CONFIGURE 1
+  )
+endforeach()
+
+# Copy over runtime headers
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/runtime/include")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/runtime/include/StatLog")
+set(JFS_STAT_LOG_RUNTIME_HEADERS
+  "Logger.h"
+)
+foreach (runtime_header ${JFS_STAT_LOG_RUNTIME_HEADERS})
+  # Use configure_file() so that changes to the files in the source tree
+  # trigger CMake to re-configure itself which will then cause the copies
+  # of the headers in the build tree to be updated.
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/StatLog/${runtime_header}"
+    "${CMAKE_BINARY_DIR}/runtime/include/StatLog/${runtime_header}"
+    COPYONLY
+  )
+endforeach()
+
+###############################################################################
 # SMTLIB runtime
 ###############################################################################
 add_subdirectory(SMTLIB)

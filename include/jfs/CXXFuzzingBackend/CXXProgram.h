@@ -173,7 +173,7 @@ private:
   std::string valueExpr;
 
 public:
-  CXXDeclAndDefnVarStatement(CXXCodeBlock* parent, CXXTypeRef ty,
+  CXXDeclAndDefnVarStatement(CXXDecl* parent, CXXTypeRef ty,
                              llvm::StringRef name, llvm::StringRef valueExpr);
   llvm::StringRef getName() const { return valueExpr; }
   void print(llvm::raw_ostream&) const override;
@@ -194,11 +194,17 @@ class CXXProgram : public CXXDecl {
 private:
   typedef std::vector<CXXDeclRef> declStorageTy;
   declStorageTy decls;
+  // FIXME: This should really be a set but we want the order that libraries
+  // are requested to be preserved.
+  typedef std::vector<std::string> libNameStoreageTy;
+  libNameStoreageTy requiredLibs;
 
 public:
   CXXProgram() : CXXDecl(nullptr) {}
   void print(llvm::raw_ostream&) const override;
   void appendDecl(CXXDeclRef);
+  void addRequiredLibrary(llvm::StringRef name);
+  bool libraryIsRequired(llvm::StringRef name) const;
   // Iterators
   declStorageTy::const_iterator cbegin() const { return decls.cbegin(); }
   declStorageTy::const_iterator cend() const { return decls.cend(); }
