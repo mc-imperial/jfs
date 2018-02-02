@@ -9,9 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Logger.h"
+#include "jassert.h"
 #include <string>
-// FIXME: Yuck, relative include
-#include "../SMTLIB/SMTLIB/jassert.h"
 
 namespace {
 
@@ -19,12 +18,8 @@ namespace {
 class LoggerImpl {
 private:
 public:
-  LoggerImpl(const char* path) {
-    jassert("Not implemented" && false);
-  }
-  ~LoggerImpl() {
-    jassert("Not implemented" && false);
-  }
+  LoggerImpl(const char* path) { jassert("Not implemented" && false); }
+  ~LoggerImpl() { jassert("Not implemented" && false); }
   void log_uint64(const char* name, uint64_t value) {
     jassert("Not implemented" && false);
   }

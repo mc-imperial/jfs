@@ -171,8 +171,7 @@ void CXXProgramBuilderPassImpl::insertHeaderIncludes() {
 
   if (isTrackingMaxNumConstraintsSatisfied()) {
     program->appendDecl(std::make_shared<CXXIncludeDecl>(
-        program.get(), "StatLog/Logger.h", /*systemHeader=*/false));
-    program->addRequiredLibrary("libStatLog");
+        program.get(), "SMTLIB/Logger.h", /*systemHeader=*/false));
   }
 
   // Int types header for LibFuzzer entry point definition.

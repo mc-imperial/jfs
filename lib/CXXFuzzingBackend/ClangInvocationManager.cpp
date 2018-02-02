@@ -211,11 +211,6 @@ public:
     // Link against LibFuzzer
     cmdLineArgs.push_back(options->pathToLibFuzzerLib.c_str());
 
-    // Link against libStatLog
-    if (program->libraryIsRequired("libStatLog")) {
-      cmdLineArgs.push_back(options->pathToStatLogLib.c_str());
-    }
-
     // Set output path
     cmdLineArgs.push_back("-o");
     cmdLineArgs.push_back(outputFile.data());

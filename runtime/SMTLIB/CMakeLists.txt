@@ -20,6 +20,7 @@ set(RUNTIME_HEADERS
   "NativeBitVector.h"
   "NativeFloat.h"
   "jassert.h"
+  "Logger.h"
 )
 foreach (runtime_header ${RUNTIME_HEADERS})
   # Use configure_file() so that changes to the files in the source tree

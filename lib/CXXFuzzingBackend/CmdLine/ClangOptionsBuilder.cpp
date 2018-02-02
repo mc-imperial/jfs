@@ -26,15 +26,6 @@ llvm::cl::opt<ClangOptions::LibFuzzerBuildType> LibFuzzerBuildTypeToLinkAgainst(
     llvm::cl::init(ClangOptions::LibFuzzerBuildType::REL_WITH_DEB_INFO),
     llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 
-llvm::cl::opt<ClangOptions::StatLogBuildType> StatLogBuildTypeToLinkAgainst(
-    "statlog-build-type",
-    llvm::cl::desc("The build type of libStatLog to link against"),
-    llvm::cl::values(
-        clEnumValN(ClangOptions::StatLogBuildType::REL_WITH_DEB_INFO,
-                   "RELWITHDEBINFO", "Release with debug symbols (default)")),
-    llvm::cl::init(ClangOptions::StatLogBuildType::REL_WITH_DEB_INFO),
-    llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
-
 llvm::cl::opt<ClangOptions::OptimizationLevel> OptimizationLevel(
     llvm::cl::desc("Optimization level"),
     llvm::cl::values(clEnumValN(ClangOptions::OptimizationLevel::O0, "O0",
@@ -84,8 +75,7 @@ std::unique_ptr<ClangOptions>
 buildClangOptionsFromCmdLine(llvm::StringRef pathToExecutable) {
   // Tell ClangOptions to try and infer all paths
   std::unique_ptr<ClangOptions> clangOptions(
-      new ClangOptions(pathToExecutable, LibFuzzerBuildTypeToLinkAgainst,
-                       StatLogBuildTypeToLinkAgainst));
+      new ClangOptions(pathToExecutable, LibFuzzerBuildTypeToLinkAgainst));
 
   // Sanitizer coverage options
   if (SanitizerCoverageOptions.size() == 0) {

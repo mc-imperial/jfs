@@ -19,9 +19,9 @@ namespace cxxfb {
 
 ClangOptions::ClangOptions()
     : pathToBinary(""), pathToRuntimeDir(""), pathToRuntimeIncludeDir(""),
-      pathToLibFuzzerLib(""), pathToStatLogLib(""),
-      optimizationLevel(OptimizationLevel::O0), debugSymbols(false),
-      useASan(false), useUBSan(false), useJFSRuntimeAsserts(false) {}
+      pathToLibFuzzerLib(""), optimizationLevel(OptimizationLevel::O0),
+      debugSymbols(false), useASan(false), useUBSan(false),
+      useJFSRuntimeAsserts(false) {}
 
 bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
   bool ok = true;
@@ -37,12 +37,6 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
             ctx.getWarningStream()
                 << "(warning path to LibFuzzer library \"" << pathToLibFuzzerLib
                 << "\" does not exist)\n");
-    ok = false;
-  }
-  if (!llvm::sys::fs::exists(pathToStatLogLib)) {
-    IF_VERB(ctx, ctx.getWarningStream()
-                     << "(warning path to StatLog library \""
-                     << pathToStatLogLib << "\" does not exist)\n");
     ok = false;
   }
   bool isDirectory = llvm::sys::fs::is_directory(pathToRuntimeIncludeDir);
@@ -65,7 +59,7 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
 }
 
 ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
-                           LibFuzzerBuildType lfbt, StatLogBuildType slbt)
+                           LibFuzzerBuildType lfbt)
     : ClangOptions() {
   // Try to infer paths
   assert(pathToExecutable.data() != nullptr);
@@ -106,22 +100,6 @@ ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
   // FIXME: This won't work on Windows
   llvm::sys::path::append(mutablePath, "Fuzzer", "libLLVMFuzzer.a");
   pathToLibFuzzerLib = std::string(mutablePath.data(), mutablePath.size());
-  // Remove <dir>/Fuzzer/libLLVMFuzzer.a
-  llvm::sys::path::remove_filename(mutablePath);
-  llvm::sys::path::remove_filename(mutablePath);
-  llvm::sys::path::remove_filename(mutablePath);
-
-  // Set path to libStatLog
-  switch (slbt) {
-  case StatLogBuildType::REL_WITH_DEB_INFO:
-    llvm::sys::path::append(mutablePath, "StatLog_RelWithDebInfo");
-    break;
-  default:
-    llvm_unreachable("Unhandled StatLog build type");
-  }
-  // FIXME: This won't work on Windows
-  llvm::sys::path::append(mutablePath, "libStatLog.a");
-  pathToStatLogLib = std::string(mutablePath.data(), mutablePath.size());
 }
 
 void ClangOptions::appendSanitizerCoverageOption(SanitizerCoverageTy opt) {
