@@ -31,6 +31,7 @@ public:
   ScopedTimer(uint64_t maxTime, CallBackTy callBack);
   ~ScopedTimer();
   uint64_t getRemainingTime() const;
+  uint64_t getMaxTime() const;
 };
 }
 }

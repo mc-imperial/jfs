@@ -92,6 +92,8 @@ public:
     }
     return remainingNativeTy;
   }
+
+  uint64_t getMaxTime() const { return maxTime; }
 };
 
 ScopedTimer::ScopedTimer(uint64_t maxTime, CallBackTy callBack)
@@ -104,5 +106,7 @@ ScopedTimer::~ScopedTimer() {
 uint64_t ScopedTimer::getRemainingTime() const {
   return impl->getRemainingTime();
 }
+
+uint64_t ScopedTimer::getMaxTime() const { return impl->getMaxTime(); }
 }
 }
