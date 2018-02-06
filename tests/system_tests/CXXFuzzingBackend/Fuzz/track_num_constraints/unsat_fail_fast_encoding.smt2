@@ -3,19 +3,16 @@
 ; FIXME: This test is kind of racey. We want the time to be long enough that fuzzing occurs but
 ; not so long that testing becomes too slow. We should add an option to just do a fix number of
 ; of fuzzing runs to avoid this.
-; RUN: %jfs -cxx --disable-standard-passes -max-time=3 -stats-file=%t-stats.yml -record-max-num-satisfied-constraints %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -cxx --disable-equality-extraction --disable-standard-passes -max-time=3 -stats-file=%t-stats.yml -record-max-num-satisfied-constraints %s | %FileCheck -check-prefix=CHECK-SAT %s
 ; RUN: %yaml-syntax-check %t-stats.yml
 ; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats.yml %s
 ; CHECK-SAT: {{^unknown}}
 
-; FIXME: The reason for these number of constraints is due to equality
-; extraction. There's currently no flag to disable this. We should add one
-; and fix this.
 ; CHECK-STATS
 ; CHECK-STATS: name: CXXProgramBuilderPassImpl
-; CHECK-STATS-NEXT: num_constraints: 2
+; CHECK-STATS-NEXT: num_constraints: 3
 ; CHECK-STATS: name: runtime_fuzzing_stats
-; CHECK-STATS-NEXT: jfs_max_num_const_sat: 1
+; CHECK-STATS-NEXT: jfs_max_num_const_sat: 2
 
 
 (set-logic QF_BV)
