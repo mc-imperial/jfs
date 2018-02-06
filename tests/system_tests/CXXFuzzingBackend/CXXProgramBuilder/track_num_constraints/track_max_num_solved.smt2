@@ -10,7 +10,7 @@
 ; CHECK: uint64_t jfs_max_num_const_sat = 0;
 ; CHECK: extern "C" void LLVMFuzzerAtExit()
 ; CHECK-NEXT: {
-; CHECK-NEXT: jfs_nr_logger_ty logger = jfs_nr_mk_logger();
+; CHECK-NEXT: jfs_nr_logger_ty logger = jfs_nr_mk_logger_from_env();
 ; CHECK-NEXT: jfs_nr_log_uint64(logger,"jfs_max_num_const_sat",jfs_max_num_const_sat);
 ; CHECK-NEXT: jfs_nr_del_logger(logger);
 ; CHECK-NEXT: }

@@ -23,6 +23,12 @@
 #define JFS_RUNTIME_FAIL() exit(99);
 #endif
 
+#define JFS_RUNTIME_FAIL_WITH_REASON(R)                                        \
+  do {                                                                         \
+    fprintf(stderr, "Error: %s\n", R);                                         \
+    JFS_RUNTIME_FAIL();                                                        \
+  } while (0);
+
 #ifdef ENABLE_JFS_RUNTIME_ASSERTS
 #define jassert(X)                                                             \
   do {                                                                         \

@@ -17,8 +17,10 @@ extern "C" {
 
 typedef void* jfs_nr_logger_ty;
 
-jfs_nr_logger_ty jfs_nr_mk_logger();
+jfs_nr_logger_ty jfs_nr_mk_logger(const char* path);
+jfs_nr_logger_ty jfs_nr_mk_logger_from_env();
 
+// NOTE: `name` is not stored so this memory must remained unmodified.
 void jfs_nr_log_uint64(jfs_nr_logger_ty logger, const char* name,
                        uint64_t value);
 

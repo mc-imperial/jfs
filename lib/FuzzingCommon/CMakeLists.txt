@@ -74,6 +74,7 @@ jfs_add_component(JFSFuzzingCommon
   FreeVariableToBufferAssignmentPass.cpp
   FuzzingSolver.cpp
   FuzzingAnalysisInfo.cpp
+  JFSRuntimeFuzzingStat.cpp
   LibFuzzerInvocationManager.cpp
   LibFuzzerOptions.cpp
   "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntimes.cpp"

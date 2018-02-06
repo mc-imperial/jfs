@@ -84,7 +84,7 @@ public:
   }
 
   int execute(llvm::StringRef program, std::vector<const char*>& args,
-              std::vector<llvm::StringRef>& redirects) {
+              std::vector<llvm::StringRef>& redirects, const char** envp) {
     if (cancelled) {
       return -1;
     }
@@ -115,8 +115,11 @@ public:
       processInfo = llvm::sys::ExecuteNoWait(
           /*Program=*/program,
           /*args=*/args.data(),
-          /*env=*/nullptr,
-          /*redirects=*/((redirects.size() == 0) ? (llvm::ArrayRef<llvm::Optional<llvm::StringRef>>()) : redirectOptionals),
+          /*env=*/envp,
+          /*redirects=*/
+          ((redirects.size() == 0)
+               ? (llvm::ArrayRef<llvm::Optional<llvm::StringRef>>())
+               : redirectOptionals),
           /*memoryLimit=*/0,
           /*ErrMsg=*/&errorMsg,
           /*ExecutionFailed=*/&executionFailed);
@@ -162,8 +165,9 @@ CancellableProcess::~CancellableProcess() {}
 void CancellableProcess::cancel() { impl->cancel(); }
 int CancellableProcess::execute(llvm::StringRef program,
                                 std::vector<const char*>& args,
-                                std::vector<llvm::StringRef>& redirects) {
-  return impl->execute(program, args, redirects);
+                                std::vector<llvm::StringRef>& redirects,
+                                const char** envp) {
+  return impl->execute(program, args, redirects, envp);
 }
 }
 }

@@ -15,6 +15,7 @@
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSTimerMacros.h"
+#include "jfs/FuzzingCommon/JFSRuntimeFuzzingStat.h"
 #include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
@@ -290,9 +291,30 @@ public:
       libFuzzerStdErrFile =
           wdm->getPathToFileInDirectory("libfuzzer.stderr.txt");
     }
+
+    if (options->getCXXProgramBuilderOptions()
+            ->getRecordMaxNumSatisfiedConstraints()) {
+      // Tell LibFuzzerInvocationManager that it needs to log runtime statistics
+      lfo->jfsRuntimeLogFile =
+          wdm->getPathToFileInDirectory("jfs_runtime_stats.yml");
+    }
+
     // Fuzz
     auto fuzzingResponse =
         lim.fuzz(lfo, libFuzzerStdOutFile, libFuzzerStdErrFile);
+
+    // Get runtime stastics
+    std::unique_ptr<JFSRuntimeFuzzingStat> rfs;
+    if (lfo->jfsRuntimeLogFile.size() > 0) {
+      rfs = JFSRuntimeFuzzingStat::LoadFromYAML(lfo->jfsRuntimeLogFile,
+                                                "runtime_fuzzing_stats", ctx);
+      if (rfs != nullptr && ctx.getStats() != nullptr) {
+        ctx.getStats()->append(std::move(rfs));
+      } else {
+        ctx.getWarningStream()
+            << "(warning Failed to retrive runtime fuzzing stats)\n";
+      }
+    }
 
     switch (fuzzingResponse->outcome) {
     case LibFuzzerResponse::ResponseTy::UNKNOWN:

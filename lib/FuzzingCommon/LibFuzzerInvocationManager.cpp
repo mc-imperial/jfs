@@ -216,9 +216,23 @@ public:
       setupSeeds(options);
     }
 
+    // Set up environment variable to tell the program where to
+    // log runtime statistics if required.
+    const char** envp = nullptr;
+    std::string jfsRuntimeEnv;
+    if (options->jfsRuntimeLogFile.size() > 0) {
+      jfsRuntimeEnv = "JFS_RUNTIME_LOG_PATH=";
+      jfsRuntimeEnv += options->jfsRuntimeLogFile;
+    }
+    const char* envpLogging[] = {jfsRuntimeEnv.c_str(), nullptr};
+    if (options->jfsRuntimeLogFile.size() > 0) {
+      envp = envpLogging;
+    }
+
     // Invoke Fuzzer
     int exitCode = proc.execute(/*program=*/options->targetBinary,
-                                /*args=*/cmdLineArgs, /*redirects=*/redirects);
+                                /*args=*/cmdLineArgs, /*redirects=*/redirects,
+                                /*envp=*/envp);
 
     if (exitCode == -2) {
       response->outcome = LibFuzzerResponse::ResponseTy::CANCELLED;

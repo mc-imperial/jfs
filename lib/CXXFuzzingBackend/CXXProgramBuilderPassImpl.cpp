@@ -13,6 +13,7 @@
 #include "jfs/CXXFuzzingBackend/JFSCXXProgramStat.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
+#include "jfs/FuzzingCommon/JFSRuntimeFuzzingStat.h"
 #include "jfs/Support/StatisticsManager.h"
 #include <ctype.h>
 #include <list>
@@ -41,7 +42,8 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
   }
   if (isTrackingMaxNumConstraintsSatisfied()) {
     maxNumConstraintsSatisfiedSymbolName =
-        insertSymbol("jfs_max_num_const_sat");
+        insertSymbol(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
+                         maxNumConstraintsSatisfiedKeyName);
     assert(isTrackingNumConstraintsSatisfied());
   }
 }
@@ -232,7 +234,8 @@ void CXXProgramBuilderPassImpl::insertAtExitHandler() {
   const char* loggerSymbolName = "logger";
   // Add statement to create a logger
   funcBody->statements.push_back(std::make_shared<CXXDeclAndDefnVarStatement>(
-      funcBody.get(), loggerTy, loggerSymbolName, "jfs_nr_mk_logger()"));
+      funcBody.get(), loggerTy, loggerSymbolName,
+      "jfs_nr_mk_logger_from_env()"));
 
   // Add statement to log the observed maxNumConstraintsSatisfied
   // value.

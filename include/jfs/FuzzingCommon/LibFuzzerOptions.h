@@ -41,6 +41,7 @@ struct LibFuzzerOptions {
   std::string targetBinary;
   std::string artifactDir;
   std::string corpusDir;
+  std::string jfsRuntimeLogFile;
 
   // TODO: We should support LibFuzzer jobs/workers. This
   // will require a vector of seeds rather than a single seed

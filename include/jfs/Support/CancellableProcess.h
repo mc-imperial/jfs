@@ -36,8 +36,9 @@ public:
   // Return values >= 0 is program exit code.
   // Negative value indicates failure.
   int execute(llvm::StringRef program, std::vector<const char*>& args,
-              std::vector<llvm::StringRef>& redirects);
+              std::vector<llvm::StringRef>& redirects,
+              const char** envp = nullptr);
 };
-}
-}
+} // namespace support
+} // namespace jfs
 #endif

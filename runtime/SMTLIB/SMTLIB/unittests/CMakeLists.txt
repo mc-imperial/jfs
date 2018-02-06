@@ -38,6 +38,7 @@ include("${JFS_SOURCE_ROOT}/cmake/add_jfs_unit_test.cmake")
 add_subdirectory(BitVector)
 add_subdirectory(Core)
 add_subdirectory(Float)
+add_subdirectory(Logger)
 
 ###############################################################################
 # Setup targets for running unittests with lit
