@@ -35,6 +35,12 @@ llvm::cl::opt<bool>
               llvm::cl::init(true),
               llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 
+llvm::cl::opt<bool> PrintFinalStats(
+    "libfuzzer-print-final-stats",
+    llvm::cl::desc("Print LibFuzzer stats on exit (default: true)"),
+    llvm::cl::init(true),
+    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
 llvm::cl::opt<bool>
     AddAllZerosSeed("libfuzzer-zeros-seed",
                     llvm::cl::desc("Add an appropriately sized seed of all "
@@ -67,6 +73,9 @@ buildLibFuzzerOptionsFromCmdLine() {
 
   // Crossover
   libFuzzerOptions->crossOver = CrossOver;
+
+  // LibFuzzer statistics printing
+  libFuzzerOptions->printFinalStats = PrintFinalStats;
 
   // All zeros seed
   libFuzzerOptions->addAllZeroMaxLengthSeed = AddAllZerosSeed;

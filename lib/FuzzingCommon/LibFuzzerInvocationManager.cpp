@@ -139,6 +139,10 @@ public:
     // Use trace comparison
     SET_ARG(useCmpArg, "-use_cmp=" << (options->useCmp ? "1" : "0"));
 
+    // Log stats
+    SET_ARG(printFinalStats,
+            "-print_final_stats=" << (options->printFinalStats ? "1" : "0"));
+
     // handle SIGABRT
     SET_ARG(handleSIGABRTArg,
             "-handle_abrt=" << (options->handleSIGABRT ? "1" : "0"));

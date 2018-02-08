@@ -15,9 +15,9 @@ namespace fuzzingCommon {
 
 LibFuzzerOptions::LibFuzzerOptions()
     : seed(1), mutationDepth(5), crossOver(true), maxLength(0), useCmp(false),
-      handleSIGABRT(true), handleSIGBUS(true), handleSIGFPE(true),
-      handleSIGILL(true), handleSIGINT(true), handleSIGSEGV(true),
-      handleSIGXFSZ(true), addAllZeroMaxLengthSeed(true),
+      printFinalStats(true), handleSIGABRT(true), handleSIGBUS(true),
+      handleSIGFPE(true), handleSIGILL(true), handleSIGINT(true),
+      handleSIGSEGV(true), handleSIGXFSZ(true), addAllZeroMaxLengthSeed(true),
       addAllOneMaxLengthSeed(true) {}
-}
-}
+} // namespace fuzzingCommon
+} // namespace jfs

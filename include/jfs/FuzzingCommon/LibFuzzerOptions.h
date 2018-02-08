@@ -20,12 +20,14 @@ namespace fuzzingCommon {
 // will get overwritten and others are public and can be changed. We need
 // to separate these two concerns.
 struct LibFuzzerOptions {
-  // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a random seed.
+  // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a
+  // random seed.
   uint64_t seed;          // Corresponds to `-seed=<N>` option
   uint64_t mutationDepth; // Corresponds to `-mutate_depth=<N>`
   bool crossOver;         // Corresponds to `-cross_over` option
   uint64_t maxLength;     // Corresponds to `-max_len=<N>` option (bytes).
   bool useCmp;            // Corresponds to `-use_cmp` option
+  bool printFinalStats;   // Corresponds to `-print_final_stats=1`
   bool handleSIGABRT;
   bool handleSIGBUS;
   bool handleSIGFPE;
@@ -47,6 +49,6 @@ struct LibFuzzerOptions {
   // will require a vector of seeds rather than a single seed
   LibFuzzerOptions();
 };
-}
-}
+} // namespace fuzzingCommon
+} // namespace jfs
 #endif
