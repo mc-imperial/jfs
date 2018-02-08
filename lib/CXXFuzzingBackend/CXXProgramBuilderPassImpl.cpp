@@ -46,6 +46,15 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
                          maxNumConstraintsSatisfiedKeyName);
     assert(isTrackingNumConstraintsSatisfied());
   }
+  if (isTrackingNumberOfInputsTried()) {
+    numInputsTriedSymbolName = insertSymbol(
+        jfs::fuzzingCommon::JFSRuntimeFuzzingStat::numberOfInputsTriedKeyName);
+  }
+  if (isTrackingNumberOfWrongSizedInputsTried()) {
+    numWrongSizedInputsTriedSymbolName =
+        insertSymbol(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
+                         numberOfWrongSizedInputsTriedKeyName);
+  }
 }
 
 CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsFalseBlock() {
@@ -105,6 +114,21 @@ bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {
 
 bool CXXProgramBuilderPassImpl::isTrackingMaxNumConstraintsSatisfied() const {
   return options->getRecordMaxNumSatisfiedConstraints();
+}
+
+bool CXXProgramBuilderPassImpl::isTrackingNumberOfInputsTried() const {
+  return options->getRecordNumberOfInputs();
+}
+
+bool CXXProgramBuilderPassImpl::isTrackingNumberOfWrongSizedInputsTried()
+    const {
+  return options->getRecordNumberOfWrongSizedInputs();
+}
+
+bool CXXProgramBuilderPassImpl::isRecordingStats() const {
+  return isTrackingMaxNumConstraintsSatisfied() ||
+         isTrackingNumberOfInputsTried() ||
+         isTrackingNumberOfWrongSizedInputsTried();
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getCounterTy() {
@@ -171,7 +195,7 @@ void CXXProgramBuilderPassImpl::insertHeaderIncludes() {
   program->appendDecl(std::make_shared<CXXIncludeDecl>(
       program.get(), "SMTLIB/Float.h", /*systemHeader=*/false));
 
-  if (isTrackingMaxNumConstraintsSatisfied()) {
+  if (isRecordingStats()) {
     program->appendDecl(std::make_shared<CXXIncludeDecl>(
         program.get(), "SMTLIB/Logger.h", /*systemHeader=*/false));
   }
@@ -218,8 +242,26 @@ void CXXProgramBuilderPassImpl::insertMaxNumConstraintsSatisfiedCounterInit() {
   program->appendDecl(initDecl);
 }
 
+void CXXProgramBuilderPassImpl::insertNumInputsCounterInit() {
+  if (!isTrackingNumberOfInputsTried())
+    return;
+  // Add global variable to track the number of inputs tried
+  auto initDecl = std::make_shared<CXXDeclAndDefnVarStatement>(
+      program.get(), getCounterTy(), numInputsTriedSymbolName, "0");
+  program->appendDecl(initDecl);
+}
+
+void CXXProgramBuilderPassImpl::insertNumWrongSizedInputsCounterInit() {
+  if (!isTrackingNumberOfWrongSizedInputsTried())
+    return;
+  // Add global variable to track the number of inputs tried
+  auto initDecl = std::make_shared<CXXDeclAndDefnVarStatement>(
+      program.get(), getCounterTy(), numWrongSizedInputsTriedSymbolName, "0");
+  program->appendDecl(initDecl);
+}
+
 void CXXProgramBuilderPassImpl::insertAtExitHandler() {
-  if (!isTrackingNumConstraintsSatisfied())
+  if (!isRecordingStats())
     return;
   auto retTy = std::make_shared<CXXType>(program.get(), "void");
   std::vector<CXXFunctionArgumentRef> funcArguments;
@@ -242,12 +284,34 @@ void CXXProgramBuilderPassImpl::insertAtExitHandler() {
   // HACK
   std::string underlyingString;
   llvm::raw_string_ostream ss(underlyingString);
-  ss << "jfs_nr_log_uint64(" << loggerSymbolName << ","
-     << "\"" << maxNumConstraintsSatisfiedSymbolName << "\","
-     << maxNumConstraintsSatisfiedSymbolName << ")";
-  funcBody->statements.push_back(
-      std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
-  underlyingString.clear();
+  if (isTrackingMaxNumConstraintsSatisfied()) {
+    ss << "jfs_nr_log_uint64(" << loggerSymbolName << ","
+       << "\"" << maxNumConstraintsSatisfiedSymbolName << "\","
+       << maxNumConstraintsSatisfiedSymbolName << ")";
+    funcBody->statements.push_back(
+        std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
+    underlyingString.clear();
+  }
+
+  // Add statement to log the observed number of inputs tried
+  if (isTrackingNumberOfInputsTried()) {
+    ss << "jfs_nr_log_uint64(" << loggerSymbolName << ","
+       << "\"" << numInputsTriedSymbolName << "\"," << numInputsTriedSymbolName
+       << ")";
+    funcBody->statements.push_back(
+        std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
+    underlyingString.clear();
+  }
+
+  // Add statement to log the observed number of wrong size inputs tried
+  if (isTrackingNumberOfWrongSizedInputsTried()) {
+    ss << "jfs_nr_log_uint64(" << loggerSymbolName << ","
+       << "\"" << numWrongSizedInputsTriedSymbolName << "\","
+       << numWrongSizedInputsTriedSymbolName << ")";
+    funcBody->statements.push_back(
+        std::make_shared<CXXGenericStatement>(funcBody.get(), ss.str()));
+    underlyingString.clear();
+  }
 
   ss << "jfs_nr_del_logger(" << loggerSymbolName << ")";
   funcBody->statements.push_back(
@@ -266,11 +330,28 @@ void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
   llvm::raw_string_ostream condition(underlyingString);
   // Round up to the number of bytes needed
   unsigned bufferWidthInBytes = (bufferWidthInBits + 7) / 8;
-  condition << "size < " << bufferWidthInBytes;
+  condition << "size != " << bufferWidthInBytes;
   condition.flush();
   auto ifStatement =
       std::make_shared<CXXIfStatement>(cb.get(), underlyingString);
-  ifStatement->trueBlock = earlyExitBlock;
+  underlyingString.clear();
+
+  auto wrongSizeExitBlock = std::make_shared<CXXCodeBlock>(program.get());
+  if (isTrackingNumberOfWrongSizedInputsTried()) {
+    // Add code to increment counter that tracks the number of wrong
+    // sized inputs tried.
+    llvm::raw_string_ostream ss(underlyingString);
+    ss << "++" << numWrongSizedInputsTriedSymbolName;
+    wrongSizeExitBlock->statements.push_back(
+        std::make_shared<CXXGenericStatement>(wrongSizeExitBlock.get(),
+                                              ss.str()));
+    underlyingString.clear();
+  }
+  auto returnStmt =
+      std::make_shared<CXXReturnIntStatement>(earlyExitBlock.get(), 0);
+  wrongSizeExitBlock->statements.push_back(returnStmt);
+
+  ifStatement->trueBlock = wrongSizeExitBlock;
   cb->statements.push_back(ifStatement);
 }
 
@@ -525,15 +606,35 @@ void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
       std::make_shared<CXXGenericStatement>(cb.get(), "abort()"));
 }
 
+void CXXProgramBuilderPassImpl::insertNumInputsTriedIncrement(
+    CXXCodeBlockRef cb) {
+  if (!isTrackingNumberOfInputsTried())
+    return;
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "++" << numInputsTriedSymbolName;
+  cb->statements.push_back(
+      std::make_shared<CXXGenericStatement>(cb.get(), ss.str()));
+}
+
 void CXXProgramBuilderPassImpl::build(const Query& q) {
   program = std::make_shared<CXXProgram>();
+  // Record if stats are going to be tracked.
+  program->setRecordsRuntimeStats(isRecordingStats());
+
   insertHeaderIncludes();
   insertMaxNumConstraintsSatisfiedCounterInit();
+  insertNumInputsCounterInit();
+  insertNumWrongSizedInputsCounterInit();
   insertAtExitHandler();
   auto fuzzFn = buildEntryPoint();
   entryPointMainBlock = fuzzFn->defn;
 
   insertBufferSizeGuard(fuzzFn->defn);
+  // Note we insert this after the buffer guard check
+  // so that we only count correctly sized inputs.
+  insertNumInputsTriedIncrement(fuzzFn->defn);
+
   insertFreeVariableConstruction(fuzzFn->defn);
   insertConstantAssignments(fuzzFn->defn);
   insertNumConstraintsSatisifedCounterInit(fuzzFn->defn);

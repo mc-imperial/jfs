@@ -18,6 +18,8 @@ namespace cxxfb {
 class CXXProgramBuilderOptions {
 private:
   bool recordMaxNumSatisifiedConstraints = false;
+  bool recordNumberOfInputs = false;
+  bool recordNumberOfWrongSizedInputs = false;
 
 public:
   CXXProgramBuilderOptions();
@@ -26,6 +28,16 @@ public:
   }
   void setRecordMaxNumSatisfiedConstraints(bool v) {
     recordMaxNumSatisifiedConstraints = v;
+  }
+
+  bool getRecordNumberOfInputs() const { return recordNumberOfInputs; }
+  void setRecordNumberOfInputs(bool v) { recordNumberOfInputs = v; }
+
+  bool getRecordNumberOfWrongSizedInputs() const {
+    return recordNumberOfWrongSizedInputs;
+  }
+  void setRecordNumberOfWrongSizedInputs(bool v) {
+    recordNumberOfWrongSizedInputs = v;
   }
 };
 } // namespace cxxfb

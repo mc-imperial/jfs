@@ -198,13 +198,17 @@ private:
   // are requested to be preserved.
   typedef std::vector<std::string> libNameStoreageTy;
   libNameStoreageTy requiredLibs;
+  bool recordsRuntimeStats;
 
 public:
-  CXXProgram() : CXXDecl(nullptr) {}
+  CXXProgram() : CXXDecl(nullptr), recordsRuntimeStats(false) {}
   void print(llvm::raw_ostream&) const override;
   void appendDecl(CXXDeclRef);
-  void addRequiredLibrary(llvm::StringRef name);
-  bool libraryIsRequired(llvm::StringRef name) const;
+  void addRequiredLibrary(llvm::StringRef name); // FIXME: Remove unused feature
+  bool
+  libraryIsRequired(llvm::StringRef name) const; // FIXME: Remove unused feature
+  bool getRecordsRuntimeStats() const { return recordsRuntimeStats; }
+  void setRecordsRuntimeStats(bool v) { recordsRuntimeStats = v; }
   // Iterators
   declStorageTy::const_iterator cbegin() const { return decls.cbegin(); }
   declStorageTy::const_iterator cend() const { return decls.cend(); }

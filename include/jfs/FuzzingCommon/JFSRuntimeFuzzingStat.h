@@ -23,6 +23,12 @@ struct JFSRuntimeFuzzingStat : public jfs::support::JFSStat {
   uint64_t maxNumConstraintsSatisfied;
   static const char* maxNumConstraintsSatisfiedKeyName;
 
+  uint64_t numberOfInputsTried;
+  static const char* numberOfInputsTriedKeyName;
+
+  uint64_t numberOfWrongSizedInputsTried;
+  static const char* numberOfWrongSizedInputsTriedKeyName;
+
   JFSRuntimeFuzzingStat(llvm::StringRef name);
   virtual ~JFSRuntimeFuzzingStat();
   void printYAML(llvm::ScopedPrinter& os) const override;

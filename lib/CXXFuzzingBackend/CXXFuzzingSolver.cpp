@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolver.h"
 #include "jfs/CXXFuzzingBackend/CXXFuzzingSolverOptions.h"
+#include "jfs/CXXFuzzingBackend/CXXProgram.h"
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderPass.h"
 #include "jfs/CXXFuzzingBackend/ClangInvocationManager.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
@@ -292,8 +293,7 @@ public:
           wdm->getPathToFileInDirectory("libfuzzer.stderr.txt");
     }
 
-    if (options->getCXXProgramBuilderOptions()
-            ->getRecordMaxNumSatisfiedConstraints()) {
+    if (pbp->getProgram()->getRecordsRuntimeStats()) {
       // Tell LibFuzzerInvocationManager that it needs to log runtime statistics
       lfo->jfsRuntimeLogFile =
           wdm->getPathToFileInDirectory("jfs_runtime_stats.yml");

@@ -23,6 +23,17 @@ llvm::cl::opt<bool> RecordMaxNumSatisfiedConstraints(
     llvm::cl::desc(
         "Record the maximum number of satisfied constraints (default: false)"),
     llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> RecordNumberOfInputs(
+    "record-num-inputs",
+    llvm::cl::desc("Record the number of inputs tried (default: false)"),
+    llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> RecordNumberOfWrongSizedInputs(
+    "record-num-wrong-sized-inputs",
+    llvm::cl::desc(
+        "Record the number of wrong sized inputs tried (default: false)"),
+    llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -35,6 +46,8 @@ buildCXXProgramBuilderOptionsFromCmdLine() {
       new CXXProgramBuilderOptions());
 
   opts->setRecordMaxNumSatisfiedConstraints(RecordMaxNumSatisfiedConstraints);
+  opts->setRecordNumberOfInputs(RecordNumberOfInputs);
+  opts->setRecordNumberOfWrongSizedInputs(RecordNumberOfWrongSizedInputs);
 
   return opts;
 }

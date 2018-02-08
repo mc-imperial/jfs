@@ -40,6 +40,8 @@ private:
   llvm::StringRef entryPointSecondArgName;
   llvm::StringRef numConstraintsSatisfiedSymbolName;
   llvm::StringRef maxNumConstraintsSatisfiedSymbolName;
+  llvm::StringRef numInputsTriedSymbolName;
+  llvm::StringRef numWrongSizedInputsTriedSymbolName;
 
   CXXProgramBuilderPassImpl(
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
@@ -51,6 +53,9 @@ private:
   CXXCodeBlockRef getConstraintIsTrueBlock();
   bool isTrackingNumConstraintsSatisfied() const;
   bool isTrackingMaxNumConstraintsSatisfied() const;
+  bool isTrackingNumberOfInputsTried() const;
+  bool isTrackingNumberOfWrongSizedInputsTried() const;
+  bool isRecordingStats() const;
   CXXTypeRef getCounterTy();
   CXXTypeRef counterTy;
 
@@ -65,6 +70,8 @@ private:
   CXXFunctionDeclRef buildEntryPoint();
   void insertHeaderIncludes();
   void insertMaxNumConstraintsSatisfiedCounterInit();
+  void insertNumInputsCounterInit();
+  void insertNumWrongSizedInputsCounterInit();
   void insertAtExitHandler();
   void insertBufferSizeGuard(CXXCodeBlockRef cb);
   void insertNumConstraintsSatisifedCounterInit(CXXCodeBlockRef cb);
@@ -72,6 +79,7 @@ private:
   void insertConstantAssignments(CXXCodeBlockRef cb);
   void insertBranchForConstraint(jfs::core::Z3ASTHandle constraint);
   void insertFuzzingTarget(CXXCodeBlockRef cb);
+  void insertNumInputsTriedIncrement(CXXCodeBlockRef cb);
   // Only let CXXProgramBuilderPass use the implementation.
   friend class CXXProgramBuilderPass;
 

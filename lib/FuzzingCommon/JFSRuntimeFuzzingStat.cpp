@@ -19,9 +19,17 @@ namespace yaml {
 template <> struct MappingTraits<jfs::fuzzingCommon::JFSRuntimeFuzzingStat> {
   static void mapping(IO& io,
                       jfs::fuzzingCommon::JFSRuntimeFuzzingStat& stats) {
-    io.mapRequired(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
+    io.mapOptional(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
                        maxNumConstraintsSatisfiedKeyName,
                    stats.maxNumConstraintsSatisfied);
+
+    io.mapOptional(
+        jfs::fuzzingCommon::JFSRuntimeFuzzingStat::numberOfInputsTriedKeyName,
+        stats.numberOfInputsTried);
+
+    io.mapOptional(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
+                       numberOfWrongSizedInputsTriedKeyName,
+                   stats.numberOfWrongSizedInputsTried);
   }
 };
 } // namespace yaml
@@ -33,8 +41,17 @@ namespace fuzzingCommon {
 const char* JFSRuntimeFuzzingStat::maxNumConstraintsSatisfiedKeyName =
     "jfs_max_num_const_sat";
 
+const char* JFSRuntimeFuzzingStat::numberOfInputsTriedKeyName =
+    "jfs_num_inputs";
+
+const char* JFSRuntimeFuzzingStat::numberOfWrongSizedInputsTriedKeyName =
+    "jfs_num_wrong_size_inputs";
+
+// FIXME: We need sentinel values for these stats so we know if they
+// weren't set vs their value actually is 0.
 JFSRuntimeFuzzingStat::JFSRuntimeFuzzingStat(llvm::StringRef name)
-    : JFSStat(RUNTIME, name), maxNumConstraintsSatisfied(0) {}
+    : JFSStat(RUNTIME, name), maxNumConstraintsSatisfied(0),
+      numberOfInputsTried(0), numberOfWrongSizedInputsTried(0) {}
 
 JFSRuntimeFuzzingStat::~JFSRuntimeFuzzingStat() {}
 
@@ -50,6 +67,10 @@ void JFSRuntimeFuzzingStat::printYAML(llvm::ScopedPrinter& sp) const {
   sp.startLine() << "name: " << getName() << "\n";
   sp.startLine() << maxNumConstraintsSatisfiedKeyName << ": "
                  << maxNumConstraintsSatisfied << "\n";
+  sp.startLine() << numberOfInputsTriedKeyName << ": " << numberOfInputsTried
+                 << "\n";
+  sp.startLine() << numberOfWrongSizedInputsTriedKeyName << ": "
+                 << numberOfWrongSizedInputsTried << "\n";
   sp.unindent();
 }
 
