@@ -1,4 +1,5 @@
-; RUN: %jfs -cxx %s | %FileCheck %s
+; RUN: %jfs -branch-encoding=fail-fast -cxx %s | %FileCheck %s
+; RUN: %jfs -branch-encoding=try-all -cxx %s | %FileCheck %s
 (set-logic QF_BV)
 (set-info :source |
 Bit-vector benchmarks from Dawson Engler's tool contributed by Vijay Ganesh

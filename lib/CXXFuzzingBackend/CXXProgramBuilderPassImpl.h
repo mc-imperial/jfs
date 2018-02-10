@@ -78,7 +78,7 @@ private:
   void insertFreeVariableConstruction(CXXCodeBlockRef cb);
   void insertConstantAssignments(CXXCodeBlockRef cb);
   void insertBranchForConstraint(jfs::core::Z3ASTHandle constraint);
-  void insertFuzzingTarget(CXXCodeBlockRef cb);
+  void insertFuzzingTarget(CXXCodeBlockRef cb, uint64_t numberOfConstraints);
   void insertNumInputsTriedIncrement(CXXCodeBlockRef cb);
   // Only let CXXProgramBuilderPass use the implementation.
   friend class CXXProgramBuilderPass;

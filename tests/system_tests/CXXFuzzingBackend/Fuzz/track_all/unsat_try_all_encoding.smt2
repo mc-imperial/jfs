@@ -1,13 +1,13 @@
-; RUN: rm -f %t-stats_fail-fast.yml
+; RUN: rm -rf %t-stats_try-all.yml
 
 ; FIXME: This test is kind of racey. We want the time to be long enough that fuzzing occurs but
 ; not so long that testing becomes too slow. We should add an option to just do a fix number of
 ; of fuzzing runs to avoid this.
 
-; Fail fast encoding
-; RUN: %jfs -cxx -branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -max-time=3 -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
-; RUN: %yaml-syntax-check %t-stats_fail-fast.yml
-; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats_fail-fast.yml %s
+; Try all encoding
+; RUN: %jfs -cxx -branch-encoding=try-all --disable-equality-extraction --disable-standard-passes -max-time=3 -stats-file=%t-stats_try-all.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %yaml-syntax-check %t-stats_try-all.yml
+; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats_try-all.yml %s
 
 ; CHECK-SAT: {{^unknown}}
 

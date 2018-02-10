@@ -1,8 +1,10 @@
-; RUN: rm -f %t-stats.yml
-; FIXME: When we allow different encodings make sure that we specify the fail fast encoding here.
-; RUN: %jfs -cxx -stats-file=%t-stats.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
-; RUN: %yaml-syntax-check %t-stats.yml
-; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats.yml %s
+; RUN: rm -f %t-stats_fail-fast.yml
+
+; Fail fast encoding
+; RUN: %jfs -cxx -branch-encoding=fail-fast -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %yaml-syntax-check %t-stats_fail-fast.yml
+; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats_fail-fast.yml %s
+
 ; CHECK-SAT: {{^sat}}
 
 ; CHECK-STATS

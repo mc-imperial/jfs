@@ -34,6 +34,23 @@ llvm::cl::opt<bool> RecordNumberOfWrongSizedInputs(
     llvm::cl::desc(
         "Record the number of wrong sized inputs tried (default: false)"),
     llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<CXXProgramBuilderOptions::BranchEncodingTy> BranchEncoding(
+    "branch-encoding", llvm::cl::desc("Encoding used for constraint branches"),
+    llvm::cl::values(
+        clEnumValN(CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST,
+                   "fail-fast",
+                   "Stop trying input at first unsat branch (default)"),
+        clEnumValN(CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL,
+                   "try-all", "Serebrayany encoding. Evaluate all branches"),
+        clEnumValN(CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF,
+                   "try-all-imncsf",
+                   "Cadar encoding. Like `try-all` except increases in the "
+                   "maximum number of "
+                   "constraints solved are treated as increase in coverage "
+                   "(linux only)")),
+    llvm::cl::init(CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST),
+    llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -48,6 +65,7 @@ buildCXXProgramBuilderOptionsFromCmdLine() {
   opts->setRecordMaxNumSatisfiedConstraints(RecordMaxNumSatisfiedConstraints);
   opts->setRecordNumberOfInputs(RecordNumberOfInputs);
   opts->setRecordNumberOfWrongSizedInputs(RecordNumberOfWrongSizedInputs);
+  opts->setBranchEncoding(BranchEncoding);
 
   return opts;
 }

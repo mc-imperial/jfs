@@ -30,6 +30,10 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
     : ctx(ctx), options(options), info(info), counterTy(nullptr) {
   program = std::make_shared<CXXProgram>();
 
+  assert(options->getBranchEncoding() !=
+             CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF &&
+         "not implemented");
+
   // Setup early exit code block
   earlyExitBlock = std::make_shared<CXXCodeBlock>(program.get());
   auto returnStmt =
@@ -58,8 +62,12 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
 }
 
 CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsFalseBlock() {
-  // TODO: Support non-early exit modes.
-  return earlyExitBlock;
+  if (options->getBranchEncoding() ==
+      CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST) {
+    return earlyExitBlock;
+  }
+  // No-op block
+  return nullptr;
 }
 
 CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
@@ -109,7 +117,10 @@ CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {
-  return options->getRecordMaxNumSatisfiedConstraints();
+  CXXProgramBuilderOptions::BranchEncodingTy bet = options->getBranchEncoding();
+  return options->getRecordMaxNumSatisfiedConstraints() ||
+         bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL ||
+         bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF;
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingMaxNumConstraintsSatisfied() const {
@@ -597,12 +608,30 @@ void CXXProgramBuilderPassImpl::insertBranchForConstraint(
   getCurrentBlock()->statements.push_back(ifStatement);
 }
 
-void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
+void CXXProgramBuilderPassImpl::insertFuzzingTarget(
+    CXXCodeBlockRef cb, uint64_t numberOfConstraints) {
   // FIXME: Replace this with something that we can use to
   // communicate LibFuzzer's outcome
-  cb->statements.push_back(
+  CXXCodeBlockRef blockForAbort = cb;
+  CXXProgramBuilderOptions::BranchEncodingTy bet = options->getBranchEncoding();
+  if (bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL ||
+      bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF) {
+    // In these encodings we need to guard the abort to make sure all
+    // the constraints are satisfied
+    std::string underlyingString;
+    llvm::raw_string_ostream ss(underlyingString);
+    ss << numConstraintsSatisfiedSymbolName << " == " << numberOfConstraints;
+    auto ifStatement = std::make_shared<CXXIfStatement>(cb.get(), ss.str());
+    blockForAbort = std::make_shared<CXXCodeBlock>(cb.get());
+    ifStatement->trueBlock = blockForAbort;
+    // This is necessary so we don't fall off the end of the function without
+    // returning a value.
+    ifStatement->falseBlock = earlyExitBlock;
+    cb->statements.push_back(ifStatement);
+  }
+  blockForAbort->statements.push_back(
       std::make_shared<CXXCommentBlock>(cb.get(), "Fuzzing target"));
-  cb->statements.push_back(
+  blockForAbort->statements.push_back(
       std::make_shared<CXXGenericStatement>(cb.get(), "abort()"));
 }
 
@@ -643,7 +672,7 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
   for (const auto& constraint : q.constraints) {
     insertBranchForConstraint(constraint);
   }
-  insertFuzzingTarget(fuzzFn->defn);
+  insertFuzzingTarget(fuzzFn->defn, q.constraints.size());
 
   // Add stats
   if (ctx.getStats() != nullptr) {
