@@ -186,7 +186,7 @@ private:
   std::string statement;
 
 public:
-  CXXGenericStatement(CXXCodeBlock* parent, llvm::StringRef statement);
+  CXXGenericStatement(CXXDecl* parent, llvm::StringRef statement);
   void print(llvm::raw_ostream&) const override;
 };
 

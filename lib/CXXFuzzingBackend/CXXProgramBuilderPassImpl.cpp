@@ -30,10 +30,6 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
     : ctx(ctx), options(options), info(info), counterTy(nullptr) {
   program = std::make_shared<CXXProgram>();
 
-  assert(options->getBranchEncoding() !=
-             CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF &&
-         "not implemented");
-
   // Setup early exit code block
   earlyExitBlock = std::make_shared<CXXCodeBlock>(program.get());
   auto returnStmt =
@@ -59,6 +55,8 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
         insertSymbol(jfs::fuzzingCommon::JFSRuntimeFuzzingStat::
                          numberOfWrongSizedInputsTriedKeyName);
   }
+  libFuzzerCustomCounterArraySymbolName =
+      insertSymbol("jfs_libfuzzer_custom_counter");
 }
 
 CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsFalseBlock() {
@@ -124,7 +122,9 @@ bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingMaxNumConstraintsSatisfied() const {
-  return options->getRecordMaxNumSatisfiedConstraints();
+  return options->getRecordMaxNumSatisfiedConstraints() ||
+         options->getBranchEncoding() ==
+             CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF;
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingNumberOfInputsTried() const {
@@ -136,8 +136,19 @@ bool CXXProgramBuilderPassImpl::isTrackingNumberOfWrongSizedInputsTried()
   return options->getRecordNumberOfWrongSizedInputs();
 }
 
+bool CXXProgramBuilderPassImpl::isTrackingWithLibFuzzerCustomCounter() const {
+  // This is a little nasty. Unlikely other `isTracking*()` functions this
+  // function will only return the correct value after `build(Query)` is called
+  // because until then we don't know how many constraints there are.
+  return numberOfConstraints > 0 &&
+         options->getBranchEncoding() ==
+             CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF;
+}
+
 bool CXXProgramBuilderPassImpl::isRecordingStats() const {
-  return isTrackingMaxNumConstraintsSatisfied() ||
+  // Note we can't use `isTrackingMaxNumConstraintsSatisfied()` because
+  // that is used for other encodings even when stats are not being recorded.
+  return options->getRecordMaxNumSatisfiedConstraints() ||
          isTrackingNumberOfInputsTried() ||
          isTrackingNumberOfWrongSizedInputsTried();
 }
@@ -608,8 +619,7 @@ void CXXProgramBuilderPassImpl::insertBranchForConstraint(
   getCurrentBlock()->statements.push_back(ifStatement);
 }
 
-void CXXProgramBuilderPassImpl::insertFuzzingTarget(
-    CXXCodeBlockRef cb, uint64_t numberOfConstraints) {
+void CXXProgramBuilderPassImpl::insertFuzzingTarget(CXXCodeBlockRef cb) {
   // FIXME: Replace this with something that we can use to
   // communicate LibFuzzer's outcome
   CXXCodeBlockRef blockForAbort = cb;
@@ -646,7 +656,66 @@ void CXXProgramBuilderPassImpl::insertNumInputsTriedIncrement(
       std::make_shared<CXXGenericStatement>(cb.get(), ss.str()));
 }
 
+void CXXProgramBuilderPassImpl::insertLibFuzzerCustomCounterDecl() {
+  if (!isTrackingWithLibFuzzerCustomCounter()) {
+    return;
+  }
+  assert(numberOfConstraints > 0 && "array can't be zero sized");
+  // Emit LibFuzzer specific custom counters. These are only supported
+  // on Linux.
+  // HACK:
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << "#ifdef "
+        "__linux__\n__attribute__((section(\"__libfuzzer_extra_counters\")))\n#"
+        "endif\n"
+        "static uint8_t "
+     << libFuzzerCustomCounterArraySymbolName << "[" << numberOfConstraints
+     << "]";
+  program->appendDecl(
+      std::make_shared<CXXGenericStatement>(program.get(), ss.str()));
+}
+
+void CXXProgramBuilderPassImpl::insertLibFuzzerCustomCounterInc(
+    CXXCodeBlockRef cb) {
+  if (!isTrackingWithLibFuzzerCustomCounter()) {
+    return;
+  }
+
+  // We emit
+  //
+  // if (jfs_max_num_const_sat > 1) {
+  //   jfs_libfuzzer_custom_counter[jfs_max_num_const_sat -1] = 1
+  // }
+  //
+  // In `jfs_libfuzzer_custom_counter` each byte at index `i` is used as a flag
+  // to indicate that `i+1` constraints have been satisfied. The
+  // `jfs_libfuzzer_custom_counter` array is special in that it gets reset to
+  // all zeros on every call and that changing an element to a non-zero value
+  // is treated by LibFuzzer as a "feature" (more coverage).
+  //
+  // This is not very efficient (i.e.  wasting 7 bits) but we can't use a more
+  // compact representation because LibFuzzer's treatment of counter values is
+  // such that not every bit is treated as a feature.
+  //
+  // See https://reviews.llvm.org/D40565
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << maxNumConstraintsSatisfiedSymbolName << " > 0";
+  auto ifStatement = std::make_shared<CXXIfStatement>(cb.get(), ss.str());
+  cb->statements.push_back(ifStatement);
+  auto trueBlock = std::make_shared<CXXCodeBlock>(ifStatement.get());
+  ifStatement->trueBlock = trueBlock;
+
+  underlyingString.clear();
+  ss << libFuzzerCustomCounterArraySymbolName << "["
+     << maxNumConstraintsSatisfiedSymbolName << " -1] = 1";
+  trueBlock->statements.push_back(
+      std::make_shared<CXXGenericStatement>(trueBlock.get(), ss.str()));
+}
+
 void CXXProgramBuilderPassImpl::build(const Query& q) {
+  numberOfConstraints = q.constraints.size();
   program = std::make_shared<CXXProgram>();
   // Record if stats are going to be tracked.
   program->setRecordsRuntimeStats(isRecordingStats());
@@ -656,6 +725,7 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
   insertNumInputsCounterInit();
   insertNumWrongSizedInputsCounterInit();
   insertAtExitHandler();
+  insertLibFuzzerCustomCounterDecl();
   auto fuzzFn = buildEntryPoint();
   entryPointMainBlock = fuzzFn->defn;
 
@@ -672,7 +742,8 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
   for (const auto& constraint : q.constraints) {
     insertBranchForConstraint(constraint);
   }
-  insertFuzzingTarget(fuzzFn->defn, q.constraints.size());
+  insertLibFuzzerCustomCounterInc(fuzzFn->defn);
+  insertFuzzingTarget(fuzzFn->defn);
 
   // Add stats
   if (ctx.getStats() != nullptr) {

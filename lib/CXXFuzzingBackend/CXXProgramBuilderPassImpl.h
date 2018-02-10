@@ -23,6 +23,7 @@ namespace cxxfb {
 class CXXProgramBuilderPassImpl : public jfs::core::Z3ASTVisitor {
 private:
   unsigned bufferWidthInBits = 0;
+  uint64_t numberOfConstraints = 0;
   jfs::core::JFSContext& ctx;
   // Not unique_ptr because CXXFuzzingSolverOptions usually owns this.
   const CXXProgramBuilderOptions* options;
@@ -42,6 +43,7 @@ private:
   llvm::StringRef maxNumConstraintsSatisfiedSymbolName;
   llvm::StringRef numInputsTriedSymbolName;
   llvm::StringRef numWrongSizedInputsTriedSymbolName;
+  llvm::StringRef libFuzzerCustomCounterArraySymbolName;
 
   CXXProgramBuilderPassImpl(
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
@@ -55,6 +57,7 @@ private:
   bool isTrackingMaxNumConstraintsSatisfied() const;
   bool isTrackingNumberOfInputsTried() const;
   bool isTrackingNumberOfWrongSizedInputsTried() const;
+  bool isTrackingWithLibFuzzerCustomCounter() const;
   bool isRecordingStats() const;
   CXXTypeRef getCounterTy();
   CXXTypeRef counterTy;
@@ -78,8 +81,10 @@ private:
   void insertFreeVariableConstruction(CXXCodeBlockRef cb);
   void insertConstantAssignments(CXXCodeBlockRef cb);
   void insertBranchForConstraint(jfs::core::Z3ASTHandle constraint);
-  void insertFuzzingTarget(CXXCodeBlockRef cb, uint64_t numberOfConstraints);
+  void insertFuzzingTarget(CXXCodeBlockRef cb);
   void insertNumInputsTriedIncrement(CXXCodeBlockRef cb);
+  void insertLibFuzzerCustomCounterDecl();
+  void insertLibFuzzerCustomCounterInc(CXXCodeBlockRef cb);
   // Only let CXXProgramBuilderPass use the implementation.
   friend class CXXProgramBuilderPass;
 

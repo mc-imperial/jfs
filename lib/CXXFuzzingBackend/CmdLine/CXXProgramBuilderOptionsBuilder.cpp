@@ -42,13 +42,17 @@ llvm::cl::opt<CXXProgramBuilderOptions::BranchEncodingTy> BranchEncoding(
                    "fail-fast",
                    "Stop trying input at first unsat branch (default)"),
         clEnumValN(CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL,
-                   "try-all", "Serebrayany encoding. Evaluate all branches"),
+                   "try-all", "Serebrayany encoding. Evaluate all branches")
+#ifdef __linux__
+            ,
         clEnumValN(CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF,
                    "try-all-imncsf",
                    "Cadar encoding. Like `try-all` except increases in the "
                    "maximum number of "
                    "constraints solved are treated as increase in coverage "
-                   "(linux only)")),
+                   "(linux only)")
+#endif
+            ),
     llvm::cl::init(CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST),
     llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }

@@ -158,7 +158,7 @@ void CXXDeclAndDefnVarStatement::print(llvm::raw_ostream& os) const {
 }
 
 // CXXGenericStatement
-CXXGenericStatement::CXXGenericStatement(CXXCodeBlock* parent,
+CXXGenericStatement::CXXGenericStatement(CXXDecl* parent,
                                          llvm::StringRef statement)
     : CXXStatement(parent), statement(statement.str()) {}
 
