@@ -28,6 +28,7 @@ struct LibFuzzerOptions {
   uint64_t maxLength;     // Corresponds to `-max_len=<N>` option (bytes).
   bool useCmp;            // Corresponds to `-use_cmp` option
   bool printFinalStats;   // Corresponds to `-print_final_stats=1`
+  bool reduceInputs;      // Corresponds to `-reduce_inputs=1`
   bool handleSIGABRT;
   bool handleSIGBUS;
   bool handleSIGFPE;

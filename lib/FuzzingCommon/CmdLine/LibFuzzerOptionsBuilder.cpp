@@ -77,6 +77,10 @@ buildLibFuzzerOptionsFromCmdLine() {
   // LibFuzzer statistics printing
   libFuzzerOptions->printFinalStats = PrintFinalStats;
 
+  // In our context it doesn't make sense to reduce inputs
+  // because our inputs are always of fixed size.
+  libFuzzerOptions->reduceInputs = false;
+
   // All zeros seed
   libFuzzerOptions->addAllZeroMaxLengthSeed = AddAllZerosSeed;
 

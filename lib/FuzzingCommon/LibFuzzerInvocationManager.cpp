@@ -143,6 +143,10 @@ public:
     SET_ARG(printFinalStats,
             "-print_final_stats=" << (options->printFinalStats ? "1" : "0"));
 
+    // Reduce inputs
+    SET_ARG(reduceInputs,
+            "-reduce_inputs=" << (options->reduceInputs ? "1" : "0"));
+
     // handle SIGABRT
     SET_ARG(handleSIGABRTArg,
             "-handle_abrt=" << (options->handleSIGABRT ? "1" : "0"));
