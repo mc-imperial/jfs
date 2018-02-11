@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #ifndef JFS_RUNTIME_STAT_LOG_LOGGER_H
+#define JFS_RUNTIME_STAT_LOG_LOGGER_H
 #include <stdint.h>
 
 #ifdef __cplusplus
