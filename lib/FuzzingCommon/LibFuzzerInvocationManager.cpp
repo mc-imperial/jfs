@@ -147,6 +147,14 @@ public:
     SET_ARG(reduceInputs,
             "-reduce_inputs=" << (options->reduceInputs ? "1" : "0"));
 
+    // Control whether LibFuzzer's default mutators resize input.
+    // Generally resizing the inputs is not desirable.
+    //
+    // Disabling mutations that resize the input is highly experimental.
+    SET_ARG(defaultMutationsResizeInput,
+            "-default_mutators_resize_input="
+                << (options->defaultMutationsResizeInput ? "1" : "0"));
+
     // handle SIGABRT
     SET_ARG(handleSIGABRTArg,
             "-handle_abrt=" << (options->handleSIGABRT ? "1" : "0"));

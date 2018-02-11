@@ -21,7 +21,9 @@ size_t MutationDispatcher::CrossOver(const uint8_t *Data1, size_t Size1,
                                      const uint8_t *Data2, size_t Size2,
                                      uint8_t *Out, size_t MaxOutSize) {
   assert(Size1 || Size2);
-  MaxOutSize = Rand(MaxOutSize) + 1;
+  if (Options.DefaultMutatorsResizeInput) {
+    MaxOutSize = Rand(MaxOutSize) + 1;
+  }
   size_t OutPos = 0;
   size_t Pos1 = 0;
   size_t Pos2 = 0;

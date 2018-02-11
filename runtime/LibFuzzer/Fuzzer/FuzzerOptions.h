@@ -68,6 +68,7 @@ struct FuzzingOptions {
   bool HandleXfsz = false;
   bool HandleUsr1 = false;
   bool HandleUsr2 = false;
+  bool DefaultMutatorsResizeInput = true;
 };
 
 }  // namespace fuzzer

@@ -29,6 +29,7 @@ struct LibFuzzerOptions {
   bool useCmp;            // Corresponds to `-use_cmp` option
   bool printFinalStats;   // Corresponds to `-print_final_stats=1`
   bool reduceInputs;      // Corresponds to `-reduce_inputs=1`
+  bool defaultMutationsResizeInput; // Corresponds to `default_mutators_resize_input=1`
   bool handleSIGABRT;
   bool handleSIGBUS;
   bool handleSIGFPE;

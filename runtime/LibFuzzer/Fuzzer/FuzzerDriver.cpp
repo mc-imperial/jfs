@@ -618,6 +618,7 @@ int FuzzerDriver(int *argc, char ***argv, UserCallback Callback) {
   Options.DumpCoverage = Flags.dump_coverage;
   Options.UseClangCoverage = Flags.use_clang_coverage;
   Options.UseFeatureFrequency = Flags.use_feature_frequency;
+  Options.DefaultMutatorsResizeInput = Flags.default_mutators_resize_input;
   if (Flags.exit_on_src_pos)
     Options.ExitOnSrcPos = Flags.exit_on_src_pos;
   if (Flags.exit_on_item)

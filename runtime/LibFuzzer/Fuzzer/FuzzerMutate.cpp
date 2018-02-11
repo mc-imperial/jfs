@@ -27,13 +27,26 @@ static void PrintASCII(const Word &W, const char *PrintAfter) {
 MutationDispatcher::MutationDispatcher(Random &Rand,
                                        const FuzzingOptions &Options)
     : Rand(Rand), Options(Options) {
+  if (Options.DefaultMutatorsResizeInput) {
+    Printf("INFO: Mutators that resize input enabled\n");
+    DefaultMutators.insert(
+        DefaultMutators.end(),
+        {
+            {&MutationDispatcher::Mutate_EraseBytes, "EraseBytes"},
+            {&MutationDispatcher::Mutate_InsertByte, "InsertByte"},
+            {&MutationDispatcher::Mutate_InsertRepeatedBytes,
+             "InsertRepeatedBytes"},
+        });
+  } else {
+    Printf("INFO: HACK: Mutators that resize input DISABLED!\n");
+  }
+
+  // These mutators don't change the input size (I think...)
+  // Okay technically MutateCopyPart will but it won't in the
+  // case that MaxSize == Size.
   DefaultMutators.insert(
-      DefaultMutators.begin(),
+      DefaultMutators.end(),
       {
-          {&MutationDispatcher::Mutate_EraseBytes, "EraseBytes"},
-          {&MutationDispatcher::Mutate_InsertByte, "InsertByte"},
-          {&MutationDispatcher::Mutate_InsertRepeatedBytes,
-           "InsertRepeatedBytes"},
           {&MutationDispatcher::Mutate_ChangeByte, "ChangeByte"},
           {&MutationDispatcher::Mutate_ChangeBit, "ChangeBit"},
           {&MutationDispatcher::Mutate_ShuffleBytes, "ShuffleBytes"},
@@ -435,10 +448,13 @@ size_t MutationDispatcher::Mutate_CrossOver(uint8_t *Data, size_t Size,
       NewSize = CrossOver(Data, Size, O.data(), O.size(), U.data(), U.size());
       break;
     case 1:
-      NewSize = InsertPartOf(O.data(), O.size(), U.data(), U.size(), MaxSize);
-      if (!NewSize)
-        NewSize = CopyPartOf(O.data(), O.size(), U.data(), U.size());
-      break;
+      if (Options.DefaultMutatorsResizeInput) {
+        NewSize = InsertPartOf(O.data(), O.size(), U.data(), U.size(), MaxSize);
+        if (!NewSize)
+          NewSize = CopyPartOf(O.data(), O.size(), U.data(), U.size());
+        break;
+      }
+      // Fall through when !DefaultMutatorsResizeInput
     case 2:
       NewSize = CopyPartOf(O.data(), O.size(), U.data(), U.size());
       break;

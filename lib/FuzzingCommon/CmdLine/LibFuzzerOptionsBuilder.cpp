@@ -54,6 +54,12 @@ llvm::cl::opt<bool>
                                   "ones to the corpus (default: true)"),
                    llvm::cl::init(true),
                    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
+llvm::cl::opt<bool> DefaultMutationsResizeInput(
+    "libfuzzer-default-mutations-resize-input",
+    llvm::cl::desc("LibFuzzer mutations resize input (default: false)"),
+    llvm::cl::init(false),
+    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 }
 
 namespace jfs {
@@ -80,6 +86,8 @@ buildLibFuzzerOptionsFromCmdLine() {
   // In our context it doesn't make sense to reduce inputs
   // because our inputs are always of fixed size.
   libFuzzerOptions->reduceInputs = false;
+
+  libFuzzerOptions->defaultMutationsResizeInput = DefaultMutationsResizeInput;
 
   // All zeros seed
   libFuzzerOptions->addAllZeroMaxLengthSeed = AddAllZerosSeed;
