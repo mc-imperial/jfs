@@ -21,6 +21,7 @@ private:
   bool recordNumberOfInputs = false;
   bool recordNumberOfWrongSizedInputs = false;
   bool traceIncreaseMaxNumSatisfiedConstraints = false;
+  bool traceWrongSizedInputs = false;
 
 public:
   CXXProgramBuilderOptions();
@@ -47,6 +48,9 @@ public:
   void setTraceIncreaseMaxNumSatisfiedConstraints(bool v) {
     traceIncreaseMaxNumSatisfiedConstraints = v;
   }
+
+  bool getTraceWrongSizedInputs() const { return traceWrongSizedInputs; }
+  void setTraceWrongSizedInputs(bool v) { traceWrongSizedInputs = v; }
 
   enum class BranchEncodingTy {
     // Fail fast encoding

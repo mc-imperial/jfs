@@ -168,7 +168,8 @@ bool CXXProgramBuilderPassImpl::isRecordingStats() const {
 }
 
 bool CXXProgramBuilderPassImpl::isTracing() const {
-  return options->getTraceIncreaseMaxNumSatisfiedConstraints();
+  return options->getTraceIncreaseMaxNumSatisfiedConstraints() ||
+         options->getTraceWrongSizedInputs();
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getCounterTy() {
@@ -391,6 +392,16 @@ void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
         std::make_shared<CXXGenericStatement>(wrongSizeExitBlock.get(),
                                               ss.str()));
     underlyingString.clear();
+  }
+
+  if (options->getTraceWrongSizedInputs()) {
+    // FIXME: Due to LibFuzzer's implementation it tries a zero size input
+    // once during INIT. We'll emit a spurious warning then. It would be
+    // better if we didn't do this.
+    wrongSizeExitBlock->statements.push_back(
+        std::make_shared<CXXGenericStatement>(
+            wrongSizeExitBlock.get(),
+            "jfs_warning(\"Wrong sized input tried.\\n\")"));
   }
   auto returnStmt =
       std::make_shared<CXXReturnIntStatement>(earlyExitBlock.get(), 0);

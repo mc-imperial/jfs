@@ -19,6 +19,7 @@
 ; CHECK-NEXT: {
 ; CHECK-NEXT: if (size != 1)
 ; CHECK-NEXT: {
+; CHECK-NEXT: jfs_warning("Wrong sized input tried.\n");
 ; CHECK-NEXT: return 0;
 ; CHECK-NEXT: }
 ; CHECK-NEXT: ++jfs_num_inputs;

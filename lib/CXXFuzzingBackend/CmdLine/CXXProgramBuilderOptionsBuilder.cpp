@@ -61,6 +61,12 @@ llvm::cl::opt<bool> TraceIncreaseMaxNumSatisfiedConstraints(
     llvm::cl::desc("Report when the maximum number of satisfied constraints "
                    "increases (default: false)"),
     llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> TraceWrongSizedInputs(
+    "trace-wrong-sized-inputs",
+    llvm::cl::desc("Report when the fuzzer tries an input of the wrong size "
+                   "increases (default: true)"),
+    llvm::cl::init(true), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -78,6 +84,7 @@ buildCXXProgramBuilderOptionsFromCmdLine() {
   opts->setBranchEncoding(BranchEncoding);
   opts->setTraceIncreaseMaxNumSatisfiedConstraints(
       TraceIncreaseMaxNumSatisfiedConstraints);
+  opts->setTraceWrongSizedInputs(TraceWrongSizedInputs);
 
   return opts;
 }
