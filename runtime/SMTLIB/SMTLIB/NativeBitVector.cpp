@@ -13,6 +13,7 @@
 // so that in the future we can easily use LLVM's JIT.
 
 #include "SMTLIB/NativeBitVector.h"
+#include "SMTLIB/jassert.h"
 
 // Helper constants/functions
 namespace {

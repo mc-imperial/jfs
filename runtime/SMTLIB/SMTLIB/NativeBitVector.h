@@ -10,8 +10,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_RUNTIME_SMTLIB_NATIVE_BITVECTOR_H
 #define JFS_RUNTIME_SMTLIB_NATIVE_BITVECTOR_H
-#include "SMTLIB/BufferRef.h"
-#include "SMTLIB/jassert.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
