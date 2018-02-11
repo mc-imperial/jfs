@@ -55,6 +55,12 @@ llvm::cl::opt<CXXProgramBuilderOptions::BranchEncodingTy> BranchEncoding(
             ),
     llvm::cl::init(CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST),
     llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> TraceIncreaseMaxNumSatisfiedConstraints(
+    "trace-max-num-satisfied-constraints",
+    llvm::cl::desc("Report when the maximum number of satisfied constraints "
+                   "increases (default: false)"),
+    llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -70,6 +76,8 @@ buildCXXProgramBuilderOptionsFromCmdLine() {
   opts->setRecordNumberOfInputs(RecordNumberOfInputs);
   opts->setRecordNumberOfWrongSizedInputs(RecordNumberOfWrongSizedInputs);
   opts->setBranchEncoding(BranchEncoding);
+  opts->setTraceIncreaseMaxNumSatisfiedConstraints(
+      TraceIncreaseMaxNumSatisfiedConstraints);
 
   return opts;
 }

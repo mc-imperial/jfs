@@ -59,6 +59,7 @@ private:
   bool isTrackingNumberOfWrongSizedInputsTried() const;
   bool isTrackingWithLibFuzzerCustomCounter() const;
   bool isRecordingStats() const;
+  bool isTracing() const;
   CXXTypeRef getCounterTy();
   CXXTypeRef counterTy;
 

@@ -108,6 +108,7 @@ add_library(JFSSMTLIBRuntime
   Core.cpp
   Float.cpp
   Logger.cpp
+  Messages.cpp
   NativeBitVector.cpp
   NativeFloat.cpp
 )

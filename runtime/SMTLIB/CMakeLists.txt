@@ -17,6 +17,7 @@ set(RUNTIME_HEADERS
   "BufferRef.h"
   "Core.h"
   "Float.h"
+  "Messages.h"
   "NativeBitVector.h"
   "NativeFloat.h"
   "jassert.h"

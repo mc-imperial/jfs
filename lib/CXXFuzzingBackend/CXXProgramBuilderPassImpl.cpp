@@ -102,12 +102,26 @@ CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
     auto incrementMaxNumConstraintsSatisfiedBlock =
         std::make_shared<CXXCodeBlock>(maxNumGuard.get());
     underlyingString.clear();
+
+    if (options->getTraceIncreaseMaxNumSatisfiedConstraints()) {
+      ss << "jfs_info(\"Max num constraints satisfied increased from %" PRId64
+            " to %" PRId64 " (out of %" PRId64 ")\\n\","
+         << maxNumConstraintsSatisfiedSymbolName << ","
+         << numConstraintsSatisfiedSymbolName << ","
+         << "UINT64_C(" << numberOfConstraints << "))";
+      incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
+          std::make_shared<CXXGenericStatement>(
+              incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
+      underlyingString.clear();
+    }
+
     // HACK: Do assign. We should make a CXXDecl to do this.
     ss << maxNumConstraintsSatisfiedSymbolName << " = "
        << numConstraintsSatisfiedSymbolName;
     incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
         std::make_shared<CXXGenericStatement>(
             incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
+
     maxNumGuard->trueBlock = incrementMaxNumConstraintsSatisfiedBlock;
     trueBlock->statements.push_back(maxNumGuard);
   }
@@ -115,14 +129,14 @@ CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {
-  CXXProgramBuilderOptions::BranchEncodingTy bet = options->getBranchEncoding();
-  return options->getRecordMaxNumSatisfiedConstraints() ||
-         bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL ||
-         bet == CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF;
+  return isTrackingMaxNumConstraintsSatisfied() ||
+         options->getBranchEncoding() ==
+             CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL;
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingMaxNumConstraintsSatisfied() const {
   return options->getRecordMaxNumSatisfiedConstraints() ||
+         options->getTraceIncreaseMaxNumSatisfiedConstraints() ||
          options->getBranchEncoding() ==
              CXXProgramBuilderOptions::BranchEncodingTy::TRY_ALL_IMNCSF;
 }
@@ -151,6 +165,10 @@ bool CXXProgramBuilderPassImpl::isRecordingStats() const {
   return options->getRecordMaxNumSatisfiedConstraints() ||
          isTrackingNumberOfInputsTried() ||
          isTrackingNumberOfWrongSizedInputsTried();
+}
+
+bool CXXProgramBuilderPassImpl::isTracing() const {
+  return options->getTraceIncreaseMaxNumSatisfiedConstraints();
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getCounterTy() {
@@ -220,6 +238,11 @@ void CXXProgramBuilderPassImpl::insertHeaderIncludes() {
   if (isRecordingStats()) {
     program->appendDecl(std::make_shared<CXXIncludeDecl>(
         program.get(), "SMTLIB/Logger.h", /*systemHeader=*/false));
+  }
+
+  if (isTracing()) {
+    program->appendDecl(std::make_shared<CXXIncludeDecl>(
+        program.get(), "SMTLIB/Messages.h", /*systemHeader=*/false));
   }
 
   // Int types header for LibFuzzer entry point definition.
