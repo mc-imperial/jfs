@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSCore
   JFSContext.cpp
+  Model.cpp
   Query.cpp
   SMTLIB2Parser.cpp
   Solver.cpp

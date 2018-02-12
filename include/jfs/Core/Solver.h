@@ -20,10 +20,7 @@
 namespace jfs {
 namespace core {
 
-
-class Model {
-  virtual Z3ASTHandle getAssignment(Z3FuncDeclHandle) = 0;
-};
+class Model;
 
 class SolverResponse {
 public:

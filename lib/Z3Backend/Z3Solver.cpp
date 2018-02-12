@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Z3Backend/Z3Solver.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/Core/Model.h"
 
 using namespace jfs::core;
 
@@ -24,26 +25,8 @@ namespace jfs {
   llvm::StringRef Z3Solver::getName() const { return "Z3Solver"; }
 
   class Z3Model : public jfs::core::Model {
-    private:
-      Z3ModelHandle model;
     public:
-      Z3Model(Z3ModelHandle m) : model(m) {}
-      Z3ASTHandle getAssignment(Z3FuncDeclHandle funcDecl) override {
-        if (model.isNull()) {
-          // No model available.
-          // FIXME: Report this error to the JFSContext
-          assert(false && "no model available");
-          return Z3ASTHandle();
-        }
-        assert(funcDecl.getContext() == model.getContext() && "mismatched contexts");
-        Z3_ast rawPointer = nullptr;
-        Z3_bool success =
-            ::Z3_model_eval(model.getContext(), model,
-                            ::Z3_func_decl_to_ast(model.getContext(), funcDecl),
-                            /*model_completion=*/true, &rawPointer);
-        assert(success && "Failed to get assignment from Z3 model");
-        return Z3ASTHandle(rawPointer, model.getContext());
-      }
+      Z3Model(Z3ModelHandle m) : jfs::core::Model(m) {}
   };
 
   class Z3SolverResponse : public SolverResponse {
