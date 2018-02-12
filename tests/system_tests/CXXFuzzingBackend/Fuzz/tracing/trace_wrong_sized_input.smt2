@@ -3,7 +3,7 @@
 ; FIXME: We should run for a fixed number of iterations rather than using a timeout
 ; which is racey.
 
-; RUN: %jfs -max-time=3  -output-dir=%t-output-dir -keep-output-dir -libfuzzer-default-mutations-resize-input=1 -trace-wrong-sized-inputs -cxx %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -max-time=5  -output-dir=%t-output-dir -keep-output-dir -libfuzzer-default-mutations-resize-input=1 -trace-wrong-sized-inputs -cxx %s | %FileCheck -check-prefix=CHECK-SAT %s
 
 ; RUN: %FileCheck -check-prefix=CHECK-LIBFUZZER -input-file=%t-output-dir/libfuzzer.stderr.txt %s
 
