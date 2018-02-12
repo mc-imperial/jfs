@@ -17,6 +17,7 @@
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/JFSTimerMacros.h"
+#include "jfs/Core/Model.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
@@ -113,7 +114,13 @@ llvm::cl::opt<BackendTy> SolverBackend(
                      clEnumValN(CXX_FUZZING_SOLVER, "cxx",
                                 "CXX fuzzing backend (default)")),
     llvm::cl::init(CXX_FUZZING_SOLVER));
-}
+
+llvm::cl::opt<bool>
+    GetModel("get-model", llvm::cl::init(false),
+             llvm::cl::desc("If sat report the found model (default false)"));
+} // namespace
+
+bool shouldRequestModel() { return GetModel; }
 
 void printVersion(llvm::raw_ostream& os) {
   os << support::getVersionString() << "\n";
@@ -333,8 +340,21 @@ int main(int argc, char** argv) {
   if (Verbosity > 0)
     ctx.getDebugStream() << "(using solver \"" << solver->getName() << "\")\n";
 
-  auto response = solver->solve(*query, /*produceModel=*/false);
+  auto response = solver->solve(*query, /*produceModel=*/shouldRequestModel());
   llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";
+
+  if (response->sat == SolverResponse::SAT && shouldRequestModel()) {
+    // Print the found model
+    auto model = response->getModel();
+    if (model) {
+      // FIXME: We need to pipe this through the passes to get
+      // the real model.
+      llvm::outs() << model->getSMTLIBString() << "\n";
+    } else {
+      // Don't bail out here because we may want to still record stats.
+      ctx.getErrorStream() << "(error Failed to get model)\n";
+    }
+  }
 
   // Write statistics out
   if (StatsFilename != "") {

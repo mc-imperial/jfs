@@ -30,5 +30,12 @@ Z3ASTHandle Model::getAssignment(Z3FuncDeclHandle funcDecl) {
   return Z3ASTHandle(rawPointer, model.getContext());
 }
 
+std::string Model::getSMTLIBString() {
+  // FIXME: This isn't actually SMTLIB syntax.  Z3 doesn't seem to have a C
+  // API for this.  We either need to get them to implement one or we need to
+  // implement it by hand.
+  return model.toStr();
+}
+
 } // namespace core
 } // namespace jfs

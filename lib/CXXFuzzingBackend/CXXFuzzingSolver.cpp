@@ -166,7 +166,7 @@ public:
        std::shared_ptr<FuzzingAnalysisInfo> info) {
     assert(ctx == q.getContext());
     if (produceModel) {
-      ctx.getErrorStream() << "(error model generation not supported)\n";
+      ctx.raiseFatalError("model generation is not supported");
       return nullptr;
     }
 #define CHECK_CANCELLED()                                                      \

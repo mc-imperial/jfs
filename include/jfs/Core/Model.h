@@ -11,6 +11,7 @@
 #ifndef JFS_CORE_MODEL_H
 #define JFS_CORE_MODEL_H
 #include "jfs/Core/Z3Node.h"
+#include <string>
 
 namespace jfs {
 namespace core {
@@ -25,6 +26,7 @@ public:
   // Do we really need this method?
   virtual Z3ASTHandle getAssignment(Z3FuncDeclHandle);
   virtual Z3ModelHandle getRepr() { return model; }
+  virtual std::string getSMTLIBString();
 };
 
 } // namespace core
