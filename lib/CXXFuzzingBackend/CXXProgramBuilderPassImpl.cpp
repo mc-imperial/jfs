@@ -365,17 +365,15 @@ void CXXProgramBuilderPassImpl::insertAtExitHandler() {
 }
 
 void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
-  bufferWidthInBits =
-      info->freeVariableAssignment->bufferAssignment->computeWidth();
-  if (bufferWidthInBits == 0) {
+  uint64_t bufferWidthInBytes =
+      info->freeVariableAssignment->bufferAssignment->getRequiredBytes();
+  if (bufferWidthInBytes == 0) {
     // Don't add guard to avoid Clang warning about
     // checking `size < 0`
     return;
   }
   std::string underlyingString;
   llvm::raw_string_ostream condition(underlyingString);
-  // Round up to the number of bytes needed
-  unsigned bufferWidthInBytes = (bufferWidthInBits + 7) / 8;
   condition << "size != " << bufferWidthInBytes;
   condition.flush();
   auto ifStatement =
@@ -787,8 +785,8 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
     progStats->numEntryFuncStatements = fuzzFn->defn->statements.size();
     progStats->numFreeVars =
         info->freeVariableAssignment->bufferAssignment->size();
-    // FIXME: Should compute once and cache
-    progStats->bufferWidth = bufferWidthInBits;
+    progStats->bufferWidth =
+        info->freeVariableAssignment->bufferAssignment->getBitWidth();
     progStats->numEqualitySets = info->equalityExtraction->equalities.size();
     ctx.getStats()->append(std::move(progStats));
   }

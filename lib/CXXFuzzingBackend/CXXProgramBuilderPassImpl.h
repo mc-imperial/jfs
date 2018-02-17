@@ -22,7 +22,6 @@ namespace cxxfb {
 
 class CXXProgramBuilderPassImpl : public jfs::core::Z3ASTVisitor {
 private:
-  unsigned bufferWidthInBits = 0;
   uint64_t numberOfConstraints = 0;
   jfs::core::JFSContext& ctx;
   // Not unique_ptr because CXXFuzzingSolverOptions usually owns this.

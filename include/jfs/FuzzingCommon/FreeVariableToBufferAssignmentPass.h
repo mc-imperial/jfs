@@ -39,12 +39,15 @@ class BufferAssignment {
 private:
   typedef std::vector<BufferElement> ChunksTy;
   ChunksTy chunks;
+  uint64_t cachedBitWidth;
+  uint64_t computeBitWidth() const;
 
 public:
-  BufferAssignment() {}
+  BufferAssignment() : cachedBitWidth(0) {}
   ~BufferAssignment() {}
   void appendElement(BufferElement&);
-  unsigned computeWidth() const;
+  uint64_t getBitWidth() const { return cachedBitWidth; }
+  uint64_t getRequiredBytes() const { return (getBitWidth() + 7) / 8; }
   ChunksTy::const_iterator cbegin() const { return chunks.begin(); }
   ChunksTy::const_iterator cend() const { return chunks.end(); }
   ChunksTy::const_iterator begin() const { return cbegin(); }

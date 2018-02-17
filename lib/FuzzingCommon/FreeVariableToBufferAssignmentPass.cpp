@@ -90,12 +90,14 @@ void BufferElement::dump() const { print(llvm::errs()); }
 
 void BufferAssignment::appendElement(BufferElement& el) {
   chunks.push_back(el);
+  cachedBitWidth += el.getBitWidth();
+  assert(cachedBitWidth == computeBitWidth() && "bitwidth mismatch");
 }
 
 // FIXME: We are assuming everything can aligned to a bit boundary.
 // This might not be correct.
-unsigned BufferAssignment::computeWidth() const {
-  unsigned totalWidth = 0;
+uint64_t BufferAssignment::computeBitWidth() const {
+  uint64_t totalWidth = 0;
   for (const auto& ba : chunks) {
     totalWidth += ba.getBitWidth();
   }
@@ -103,7 +105,7 @@ unsigned BufferAssignment::computeWidth() const {
 }
 
 void BufferAssignment::print(llvm::raw_ostream& os) const {
-  os << "(BufferAssignment " << computeWidth() << " bits\n";
+  os << "(BufferAssignment " << computeBitWidth() << " bits\n";
   for (const auto& be : chunks) {
     os << "  ";
     be.print(os);

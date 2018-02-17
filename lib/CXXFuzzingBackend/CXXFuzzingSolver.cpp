@@ -249,11 +249,8 @@ public:
     // Set LibFuzzer options
     JFS_SM_TIMER(fuzz, ctx);
     LibFuzzerOptions* lfo = options->getLibFuzzerOptions();
-    // FIXME: We've already computed this earlier so we should cache it
-    // somewhere.
     lfo->maxLength =
-        (info->freeVariableAssignment->bufferAssignment->computeWidth() + 7) /
-        8;
+        info->freeVariableAssignment->bufferAssignment->getRequiredBytes();
     lfo->targetBinary = outputFilePath;
     std::string corpusDir = wdm->makeNewDirectoryInDirectory("corpus");
     lfo->corpusDir = corpusDir;
