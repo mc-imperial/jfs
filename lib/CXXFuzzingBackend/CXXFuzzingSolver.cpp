@@ -18,6 +18,7 @@
 #include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/FuzzingCommon/JFSRuntimeFuzzingStat.h"
 #include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
+#include "jfs/FuzzingCommon/SeedManager.h"
 #include "jfs/FuzzingCommon/SortConformanceCheckPass.h"
 #include "jfs/FuzzingCommon/WorkingDirectoryManager.h"
 #include "jfs/Transform/QueryPass.h"
@@ -41,6 +42,11 @@ namespace {
 llvm::cl::opt<bool> DebugStopAfterCompilation(
     "debug-stop-after-compile", llvm::cl::init(false),
     llvm::cl::desc("Stop CXXFuzzingSolver after clang compilation"),
+    llvm::cl::Hidden);
+
+llvm::cl::opt<bool> DebugStopAfterSeedGeneration(
+    "debug-stop-after-seed-gen", llvm::cl::init(false),
+    llvm::cl::desc("Stop CXXFuzzingSolver after seed generation"),
     llvm::cl::Hidden);
 }
 
@@ -67,6 +73,7 @@ class CXXFuzzingSolverImpl {
   ClangInvocationManager cim;
   LibFuzzerInvocationManager lim;
   WorkingDirectoryManager* wdm;
+  std::unique_ptr<jfs::fuzzingCommon::SeedManager> seedManager;
 
 public:
   friend class CXXFuzzingSolver;
@@ -98,6 +105,10 @@ public:
     cim.cancel();
     // Cancel active LibFuzzer invocation
     lim.cancel();
+    // Cancel active SeedManager invocation
+    if (seedManager) {
+      seedManager->cancel();
+    }
   }
 
   // FIXME: Should be const Query.
@@ -247,7 +258,6 @@ public:
     }
 
     // Set LibFuzzer options
-    JFS_SM_TIMER(fuzz, ctx);
     LibFuzzerOptions* lfo = options->getLibFuzzerOptions();
     lfo->maxLength =
         info->freeVariableAssignment->bufferAssignment->getRequiredBytes();
@@ -296,7 +306,23 @@ public:
           wdm->getPathToFileInDirectory("jfs_runtime_stats.yml");
     }
 
+    // Create seeds
+    seedManager.reset(
+        new jfs::fuzzingCommon::SeedManager(/*seedDir=*/lfo->corpusDir, ctx));
+    seedManager->configureFrom(std::move(options->seedManagerOpt));
+    seedManager->writeSeeds(info.get(), &q);
+
+    if (DebugStopAfterSeedGeneration) {
+      // For debugging it can be useful to check that JFS can successfully
+      // run and compile the fuzzing program and generate seeds without actually
+      // fuzzing.
+      IF_VERB(ctx, ctx.getDebugStream() << "(DebugStopAfterSeedGeneration)\n");
+      return std::unique_ptr<SolverResponse>(
+          new CXXFuzzingSolverResponse(SolverResponse::UNKNOWN));
+    }
+
     // Fuzz
+    JFS_SM_TIMER(fuzz, ctx);
     auto fuzzingResponse =
         lim.fuzz(lfo, libFuzzerStdOutFile, libFuzzerStdErrFile);
 

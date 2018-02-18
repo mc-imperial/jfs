@@ -78,6 +78,9 @@ jfs_add_component(JFSFuzzingCommon
   LibFuzzerInvocationManager.cpp
   LibFuzzerOptions.cpp
   "${CMAKE_CURRENT_BINARY_DIR}/SMTLIBRuntimes.cpp"
+  SeedGenerator.cpp
+  SeedManager.cpp
+  SeedManagerStat.cpp
   SortConformanceCheckPass.cpp
   WorkingDirectoryManager.cpp
 )

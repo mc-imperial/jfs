@@ -41,20 +41,6 @@ llvm::cl::opt<bool> PrintFinalStats(
     llvm::cl::init(true),
     llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 
-llvm::cl::opt<bool>
-    AddAllZerosSeed("libfuzzer-zeros-seed",
-                    llvm::cl::desc("Add an appropriately sized seed of all "
-                                   "zeros to the corpus (default: true)"),
-                    llvm::cl::init(true),
-                    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
-
-llvm::cl::opt<bool>
-    AddAllOnesSeed("libfuzzer-oness-seed",
-                   llvm::cl::desc("Add an appropriately sized seed of all "
-                                  "ones to the corpus (default: true)"),
-                   llvm::cl::init(true),
-                   llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
-
 llvm::cl::opt<bool> DefaultMutationsResizeInput(
     "libfuzzer-default-mutations-resize-input",
     llvm::cl::desc("LibFuzzer mutations resize input (default: false)"),
@@ -88,12 +74,6 @@ buildLibFuzzerOptionsFromCmdLine() {
   libFuzzerOptions->reduceInputs = false;
 
   libFuzzerOptions->defaultMutationsResizeInput = DefaultMutationsResizeInput;
-
-  // All zeros seed
-  libFuzzerOptions->addAllZeroMaxLengthSeed = AddAllZerosSeed;
-
-  // All ones seed
-  libFuzzerOptions->addAllOneMaxLengthSeed = AddAllOnesSeed;
 
   return libFuzzerOptions;
 }

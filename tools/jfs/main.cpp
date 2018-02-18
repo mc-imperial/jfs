@@ -22,6 +22,7 @@
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
 #include "jfs/FuzzingCommon/CmdLine/LibFuzzerOptionsBuilder.h"
+#include "jfs/FuzzingCommon/CmdLine/SeedManagerOptionsBuilder.h"
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
 #include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/ScopedTimer.h"
@@ -198,6 +199,9 @@ makeSolver(JFSContext& ctx,
         jfs::cxxfb::cl::buildClangOptionsFromCmdLine(pathToExecutable);
     IF_VERB(ctx, clangOptions->print(ctx.getDebugStream()));
 
+    auto seedManagerOpts =
+        jfs::fuzzingCommon::cl::buildSeedManagerOptionsFromCmdLine();
+
     auto libFuzzerOptions =
         jfs::fuzzingCommon::cl::buildLibFuzzerOptionsFromCmdLine();
 
@@ -207,7 +211,7 @@ makeSolver(JFSContext& ctx,
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(
             std::move(clangOptions), std::move(libFuzzerOptions),
-            std::move(cxxProgramBuilderOptions)));
+            std::move(cxxProgramBuilderOptions), std::move(seedManagerOpts)));
     // Decide if the clang/LibFuzzer stdout/stderr should be redirected
     solverOptions->redirectClangOutput =
         shouldRedirectOutput(ClangOutputRedirect, ctx);

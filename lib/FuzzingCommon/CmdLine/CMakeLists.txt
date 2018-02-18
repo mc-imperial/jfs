@@ -10,6 +10,7 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSFuzzingCommonCmdLine
   LibFuzzerOptionsBuilder.cpp
+  SeedManagerOptionsBuilder.cpp
 )
 target_link_libraries(JFSFuzzingCommonCmdLine
   PUBLIC

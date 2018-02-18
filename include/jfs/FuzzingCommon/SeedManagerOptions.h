@@ -8,16 +8,24 @@
 // See LICENSE.txt for details.
 //
 //===----------------------------------------------------------------------===//
-#include "jfs/FuzzingCommon/LibFuzzerOptions.h"
+#ifndef JFS_FUZZING_COMMON_SEED_MANAGER_OPTIONS_H
+#define JFS_FUZZING_COMMON_SEED_MANAGER_OPTIONS_H
+#include "jfs/FuzzingCommon/SeedGenerator.h"
+#include <list>
+#include <memory>
 
 namespace jfs {
 namespace fuzzingCommon {
 
-LibFuzzerOptions::LibFuzzerOptions()
-    : seed(1), mutationDepth(5), crossOver(true), maxLength(0), useCmp(false),
-      printFinalStats(true), reduceInputs(false),
-      defaultMutationsResizeInput(true), handleSIGABRT(true),
-      handleSIGBUS(true), handleSIGFPE(true), handleSIGILL(true),
-      handleSIGINT(true), handleSIGSEGV(true), handleSIGXFSZ(true) {}
+class SeedGenerator;
+
+class SeedManagerOptions {
+public:
+  uint64_t maxSeedSpaceInBytes;
+  uint64_t maxNumSeeds;
+  std::list<std::unique_ptr<SeedGenerator>> generators;
+};
+
 } // namespace fuzzingCommon
 } // namespace jfs
+#endif

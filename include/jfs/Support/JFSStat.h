@@ -24,7 +24,13 @@ namespace support {
 
 class JFSStat {
 public:
-  enum JFSStatKind { SINGLE_TIMER, AGGREGATE_TIMER, CXX_PROGRAM, RUNTIME };
+  enum JFSStatKind {
+    SINGLE_TIMER,
+    AGGREGATE_TIMER,
+    CXX_PROGRAM,
+    RUNTIME,
+    SEED_MANAGER
+  };
 
 private:
   const JFSStatKind kind;

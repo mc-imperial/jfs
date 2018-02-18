@@ -14,10 +14,14 @@
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/SolverOptions.h"
 #include "jfs/FuzzingCommon/LibFuzzerOptions.h"
+#include "jfs/FuzzingCommon/SeedManagerOptions.h"
 #include <memory>
 
 namespace jfs {
 namespace cxxfb {
+
+class CXXFuzzingSolver;
+class CXXFuzzingSolverImpl;
 
 class CXXFuzzingSolverOptions : public jfs::core::SolverOptions {
 private:
@@ -25,12 +29,14 @@ private:
   std::unique_ptr<ClangOptions> clangOpt;
   std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt;
   std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt;
+  std::unique_ptr<jfs::fuzzingCommon::SeedManagerOptions> seedManagerOpt;
 
 public:
   CXXFuzzingSolverOptions(
       std::unique_ptr<ClangOptions> clangOpt,
       std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt,
-      std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt);
+      std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt,
+      std::unique_ptr<jfs::fuzzingCommon::SeedManagerOptions> seedManagerOpt);
   static bool classof(const SolverOptions* so) {
     return so->getKind() == CXX_FUZZING_SOLVER_KIND;
   }
@@ -44,6 +50,8 @@ public:
   const CXXProgramBuilderOptions* getCXXProgramBuilderOptions() const {
     return cxxProgramBuilderOpt.get();
   }
+  friend class CXXFuzzingSolver;
+  friend class CXXFuzzingSolverImpl;
 
   // public for convenience.
   bool redirectClangOutput;
