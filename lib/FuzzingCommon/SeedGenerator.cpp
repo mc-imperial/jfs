@@ -32,7 +32,16 @@ bool AllBytesEqualGenerator::writeSeed(SeedManager& sm) {
     return false;
   }
   memset(fob->getBufferStart(), byteValue, fob->getBufferSize());
-  fob->commit();
+  if (auto error = fob->commit()) {
+    // FIXME: This probably isn't the right way to handle the errors
+    // but this is good enough to suppress warnings about not using
+    // the return value of `commit()`.
+    auto errCode = llvm::errorToErrorCode(std::move(error));
+    sm.getContext().getErrorStream()
+        << "(error Failed to commit seed because \"" << errCode.message()
+        << "\")\n";
+    return false;
+  }
   seedWritten = true;
   return true;
 }
