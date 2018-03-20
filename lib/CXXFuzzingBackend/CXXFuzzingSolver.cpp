@@ -140,6 +140,9 @@ public:
           // Float64
           return true;
         }
+        IF_VERB(ctx, ctx.getWarningStream()
+                         << "(FloatingPoint sort \"" << s.toStr()
+                         << "\" not supported)\n");
         return false;
       }
       case Z3_ROUNDING_MODE_SORT:
