@@ -831,7 +831,35 @@ std::string CXXProgramBuilderPassImpl::getFloatingPointConstantStr(
   auto sort = e.getSort();
   assert(sort.isFloatingPointTy());
   ss << "Float<" << sort.getFloatingPointExponentBitWidth() << ","
-     << sort.getFloatingPointSignificandBitWidth() << ">(";
+     << sort.getFloatingPointSignificandBitWidth() << ">";
+
+  // Handle special constants
+  bool wasSpecialConstant = true;
+  switch (e.getKind()) {
+  case Z3_OP_FPA_PLUS_ZERO:
+    ss << "::getPositiveZero()";
+    break;
+  case Z3_OP_FPA_MINUS_ZERO:
+    ss << "::getNegativeZero()";
+    break;
+  case Z3_OP_FPA_PLUS_INF:
+    ss << "::getPositiveInfinity()";
+    break;
+  case Z3_OP_FPA_MINUS_INF:
+    ss << "::getNegativeInfinity()";
+    break;
+  case Z3_OP_FPA_NAN:
+    ss << "::getNaN()";
+    break;
+  default:
+    wasSpecialConstant = false;
+  }
+  if (wasSpecialConstant) {
+    return ss.str();
+  }
+
+  // Handle numeric constants
+  ss << "(";
   Z3ASTHandle signExpr;
   Z3ASTHandle exponentExpr;
   Z3ASTHandle significandExpr;
