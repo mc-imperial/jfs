@@ -263,7 +263,7 @@ public:
     // Set LibFuzzer options
     LibFuzzerOptions* lfo = options->getLibFuzzerOptions();
     lfo->maxLength =
-        info->freeVariableAssignment->bufferAssignment->getRequiredBytes();
+        info->freeVariableAssignment->bufferAssignment->getRequiredStoreBytes();
     lfo->targetBinary = outputFilePath;
     std::string corpusDir = wdm->makeNewDirectoryInDirectory("corpus");
     lfo->corpusDir = corpusDir;

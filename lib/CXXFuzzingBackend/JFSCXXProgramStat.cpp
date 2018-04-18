@@ -26,7 +26,8 @@ void JFSCXXProgramStat::printYAML(llvm::ScopedPrinter& sp) const {
   sp.startLine() << "num_entry_func_statements: " << numEntryFuncStatements
                  << "\n";
   sp.startLine() << "num_free_vars: " << numFreeVars << "\n";
-  sp.startLine() << "buffer_width: " << bufferWidth << "\n";
+  sp.startLine() << "buffer_stored_width: " << bufferStoredWidth << "\n";
+  sp.startLine() << "buffer_type_width: " << bufferTypeWidth << "\n";
   sp.startLine() << "num_equality_sets: " << numEqualitySets << "\n";
   sp.unindent();
 }

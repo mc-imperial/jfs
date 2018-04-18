@@ -25,7 +25,8 @@ class BufferElement {
 public:
   const jfs::core::Z3ASTHandle declApp;
   BufferElement(const jfs::core::Z3ASTHandle declApp);
-  unsigned getBitWidth() const;
+  unsigned getTypeBitWidth() const;  // Does not include padding
+  unsigned getStoreBitWidth() const; // Includes any required padding
   // FIXME: put this behind an interface once we know the requirements
   std::vector<jfs::core::Z3ASTHandle> equalities;
   void print(llvm::raw_ostream&) const;
@@ -39,15 +40,20 @@ class BufferAssignment {
 private:
   typedef std::vector<BufferElement> ChunksTy;
   ChunksTy chunks;
-  uint64_t cachedBitWidth;
-  uint64_t computeBitWidth() const;
+  uint64_t cachedTypeBitWidth;
+  uint64_t cachedStoreBitWidth;
+  uint64_t computeTypeBitWidth() const;
+  uint64_t computeStoreBitWidth() const;
 
 public:
-  BufferAssignment() : cachedBitWidth(0) {}
+  BufferAssignment() : cachedTypeBitWidth(0), cachedStoreBitWidth(0) {}
   ~BufferAssignment() {}
   void appendElement(BufferElement&);
-  uint64_t getBitWidth() const { return cachedBitWidth; }
-  uint64_t getRequiredBytes() const { return (getBitWidth() + 7) / 8; }
+  uint64_t getTypeBitWidth() const { return cachedTypeBitWidth; }
+  uint64_t getStoreBitWidth() const { return cachedStoreBitWidth; }
+  uint64_t getRequiredStoreBytes() const {
+    return (getStoreBitWidth() + 7) / 8;
+  }
   ChunksTy::const_iterator cbegin() const { return chunks.begin(); }
   ChunksTy::const_iterator cend() const { return chunks.end(); }
   ChunksTy::const_iterator begin() const { return cbegin(); }

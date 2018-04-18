@@ -12,6 +12,7 @@
 #include "SMTLIB/Core.h"
 #include "jassert.h"
 
+// FIXME: Should we specialise for byte aligned access?
 bool makeBoolFrom(BufferRef<const uint8_t> buffer, const uint64_t lowBit,
                   const uint64_t highBit) {
   jassert(highBit >= lowBit && "invalid lowBit and highBit");

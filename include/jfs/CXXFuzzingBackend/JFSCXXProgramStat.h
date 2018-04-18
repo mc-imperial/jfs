@@ -28,7 +28,8 @@ public:
   // FIXME: Doesn't really belong here. The FuzzingAnalysisInfo should have its
   // own stat
   uint64_t numFreeVars = 0;
-  uint64_t bufferWidth = 0;
+  uint64_t bufferStoredWidth = 0;
+  uint64_t bufferTypeWidth = 0; // Sum of the type widths of each BufferElement
   uint64_t numEqualitySets = 0;
 };
 }

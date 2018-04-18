@@ -584,6 +584,8 @@ bool jfs_nr_bvsge(const jfs_nr_bitvector_ty lhs, const jfs_nr_bitvector_ty rhs,
   return jfs_nr_bvsle(rhs, lhs, bitWidth);
 }
 
+// FIXME: We should either handle byte aligned access specially, or provide
+// another function for this.
 // Convenience function for creating a BitVector
 // from any arbitrary bit offset in a buffer. Offset
 // is [lowbit, highbit].

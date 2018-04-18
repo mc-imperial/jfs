@@ -366,7 +366,7 @@ void CXXProgramBuilderPassImpl::insertAtExitHandler() {
 
 void CXXProgramBuilderPassImpl::insertBufferSizeGuard(CXXCodeBlockRef cb) {
   uint64_t bufferWidthInBytes =
-      info->freeVariableAssignment->bufferAssignment->getRequiredBytes();
+      info->freeVariableAssignment->bufferAssignment->getRequiredStoreBytes();
   if (bufferWidthInBytes == 0) {
     // Don't add guard to avoid Clang warning about
     // checking `size < 0`
@@ -540,7 +540,7 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
     auto assignmentTy = getOrInsertTy(be.getSort());
     llvm::StringRef sanitizedSymbolName =
         insertSSASymbolForExpr(be.declApp, be.getName());
-    unsigned endBufferBit = (currentBufferBit + be.getBitWidth()) - 1;
+    unsigned endBufferBit = (currentBufferBit + be.getTypeBitWidth()) - 1;
 
     // Build string `makeBitVectorFrom<a,b>(jfs_buffer_ref)`
     // where a is min bit and b is max bit from `jfs_buffer_ref`.
@@ -554,7 +554,7 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
     }
     case Z3_BV_SORT: {
       ss << "makeBitVectorFrom"
-         << "<" << be.getBitWidth() << ">(" << bufferRefName << ", "
+         << "<" << be.getTypeBitWidth() << ">(" << bufferRefName << ", "
          << currentBufferBit << ", " << endBufferBit << ")";
       break;
     }
@@ -573,7 +573,10 @@ void CXXProgramBuilderPassImpl::insertFreeVariableConstruction(
         cb.get(), assignmentTy, sanitizedSymbolName, underlyingString);
     cb->statements.push_back(assignmentStmt);
 
-    currentBufferBit += be.getBitWidth();
+    // Notice we use `getStoreBitWidth() and not `getTypeBitWidth()`.
+    // This means that if the type has alignment that we will skip
+    // some bits.
+    currentBufferBit += be.getStoreBitWidth();
     // Add equalities
     // FIXME: When we support casts this code will need to be fixed
     for (const auto& e : be.equalities) {
@@ -785,8 +788,10 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
     progStats->numEntryFuncStatements = fuzzFn->defn->statements.size();
     progStats->numFreeVars =
         info->freeVariableAssignment->bufferAssignment->size();
-    progStats->bufferWidth =
-        info->freeVariableAssignment->bufferAssignment->getBitWidth();
+    progStats->bufferStoredWidth =
+        info->freeVariableAssignment->bufferAssignment->getStoreBitWidth();
+    progStats->bufferTypeWidth =
+        info->freeVariableAssignment->bufferAssignment->getTypeBitWidth();
     progStats->numEqualitySets = info->equalityExtraction->equalities.size();
     ctx.getStats()->append(std::move(progStats));
   }

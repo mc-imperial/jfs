@@ -78,7 +78,7 @@ public:
                       const jfs::core::Query* q) {
     uint64_t numSeedsWritten = 0;
     auto bufferAssignment = info->freeVariableAssignment->bufferAssignment;
-    this->seedSize = bufferAssignment->getRequiredBytes();
+    this->seedSize = bufferAssignment->getRequiredStoreBytes();
     this->fai = info;
     this->query = q;
     uint64_t boundBasedOnSpace = getSpaceLimit() / seedSize;

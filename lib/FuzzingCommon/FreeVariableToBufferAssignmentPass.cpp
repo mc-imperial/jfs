@@ -48,11 +48,10 @@ BufferElement::BufferElement(const Z3ASTHandle declApp) : declApp(declApp) {
   assert(declApp.asApp().isFreeVariable() && "should be an application");
 }
 
-unsigned BufferElement::getBitWidth() const {
+unsigned BufferElement::getTypeBitWidth() const {
   Z3SortHandle sort = declApp.getSort();
   switch (sort.getKind()) {
   case Z3_BOOL_SORT:
-    // TODO: Investigate whether 1 or 8 is a better choice
     return 1;
   case Z3_BV_SORT:
     return sort.getBitVectorWidth();
@@ -61,6 +60,13 @@ unsigned BufferElement::getBitWidth() const {
   default:
     llvm_unreachable("Unhandled sort");
   }
+}
+
+unsigned BufferElement::getStoreBitWidth() const {
+  // FIXME: We should make this byte aligned.  However we can't do this yet
+  // because the mutators and the buffer reading functions aren't aware of this
+  // paddding.
+  return getTypeBitWidth();
 }
 
 Z3FuncDeclHandle BufferElement::getDecl() const {
@@ -76,7 +82,10 @@ Z3SortHandle BufferElement::getSort() const {
 }
 
 void BufferElement::print(llvm::raw_ostream& os) const {
-  os << "(" << getDecl().getName() << ":" << getBitWidth();
+  os << "(" << getDecl().getName() << ":" << getTypeBitWidth();
+  if (getStoreBitWidth() != getTypeBitWidth()) {
+    os << " (store width:" << getStoreBitWidth() << ")";
+  }
   if (equalities.size() > 0) {
     os << " equalities: ";
     for (const auto& e : equalities) {
@@ -90,22 +99,31 @@ void BufferElement::dump() const { print(llvm::errs()); }
 
 void BufferAssignment::appendElement(BufferElement& el) {
   chunks.push_back(el);
-  cachedBitWidth += el.getBitWidth();
-  assert(cachedBitWidth == computeBitWidth() && "bitwidth mismatch");
+  cachedTypeBitWidth += el.getTypeBitWidth();
+  cachedStoreBitWidth += el.getStoreBitWidth();
+  assert(cachedTypeBitWidth == computeTypeBitWidth() && "bitwidth mismatch");
+  assert(cachedStoreBitWidth == computeStoreBitWidth() && "bitwidth mismatch");
 }
 
-// FIXME: We are assuming everything can aligned to a bit boundary.
-// This might not be correct.
-uint64_t BufferAssignment::computeBitWidth() const {
+uint64_t BufferAssignment::computeTypeBitWidth() const {
   uint64_t totalWidth = 0;
   for (const auto& ba : chunks) {
-    totalWidth += ba.getBitWidth();
+    totalWidth += ba.getTypeBitWidth();
+  }
+  return totalWidth;
+}
+
+uint64_t BufferAssignment::computeStoreBitWidth() const {
+  uint64_t totalWidth = 0;
+  for (const auto& ba : chunks) {
+    totalWidth += ba.getStoreBitWidth();
   }
   return totalWidth;
 }
 
 void BufferAssignment::print(llvm::raw_ostream& os) const {
-  os << "(BufferAssignment " << computeBitWidth() << " bits\n";
+  os << "(BufferAssignment " << getTypeBitWidth() << " (store "
+     << getStoreBitWidth() << ") bits";
   for (const auto& be : chunks) {
     os << "  ";
     be.print(os);
