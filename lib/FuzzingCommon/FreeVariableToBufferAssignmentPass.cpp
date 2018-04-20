@@ -22,22 +22,6 @@ using namespace jfs::core;
 namespace {
 // TODO: Once we figure out a good strategy we can make picking
 // them part of the API rather than a command line option.
-enum FreeVariableSortStrategyTy {
-  ALPHABETICAL,
-  FIRST_OBSERVED,
-  NONE, // Warning: Will likely be non-deterministic
-};
-llvm::cl::opt<FreeVariableSortStrategyTy> FreeVariableSortStrategy(
-    "sort-free-variable-strategy",
-    llvm::cl::desc("Ordering of free variables in fuzzing buffer"),
-    llvm::cl::values(
-        clEnumValN(ALPHABETICAL, "alphabetical",
-                   "Sort free variables alphabetically (slow)"),
-        clEnumValN(FIRST_OBSERVED, "first_observed",
-                   "sort free variables by observation order (default)"),
-        clEnumValN(NONE, "none", "Do not order. This is non-deterministic")),
-    llvm::cl::init(FIRST_OBSERVED),
-    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 }
 
 namespace jfs {
@@ -180,6 +164,12 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   // a deterministic ordering.
   std::vector<Z3ASTHandle> orderedFreeVariableApps;
 
+  auto sortStrategy = FreeVariableToBufferAssignmentPassOptions::
+      FreeVariableSortStrategyTy::FIRST_OBSERVED;
+  if (options) {
+    sortStrategy = options->sortStrategy;
+  }
+
   std::list<Z3ASTHandle> workList;
   for (const auto& c : q.constraints) {
     workList.push_back(c);
@@ -201,7 +191,9 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     seenExpr.insert(node);
     if (node.isFreeVariable()) {
       auto itSucPair = freeVariableApps.insert(node);
-      if (itSucPair.second && FreeVariableSortStrategy == FIRST_OBSERVED) {
+      if (itSucPair.second &&
+          sortStrategy == FreeVariableToBufferAssignmentPassOptions::
+                              FreeVariableSortStrategyTy::FIRST_OBSERVED) {
         // This is the first time we've observed this free variable
         // and we are using the "first observed" ordering strategy
         // so add the free variable to the ordered list.
@@ -220,17 +212,12 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   }
 
   // Now pick a deterministic ordering
-  // TODO: We should think about what strategy is the best here.
-  // Now sort them
-
-  // Apply sort strategy.
-  // FIXME: This should be refactored so it can be changed by an API. Not
-  // on the command line.
   // FIXME: We should implement another strategy that is optimal (minimise
   // wasted bits) when buffer elements are byte aligned. We could also tightly
   // pack booleans together (slightly violating the buffer alignment).
-  switch (FreeVariableSortStrategy) {
-  case ALPHABETICAL: {
+  switch (sortStrategy) {
+  case FreeVariableToBufferAssignmentPassOptions::FreeVariableSortStrategyTy::
+      ALPHABETICAL: {
     // This strategy scales very poorly with a large number of free variables.
     assert(orderedFreeVariableApps.size() == 0);
     orderedFreeVariableApps.insert(orderedFreeVariableApps.end(),
@@ -243,7 +230,8 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
               });
     break;
   }
-  case NONE: {
+  case FreeVariableToBufferAssignmentPassOptions::FreeVariableSortStrategyTy::
+      NONE: {
     assert(orderedFreeVariableApps.size() == 0);
     orderedFreeVariableApps.insert(orderedFreeVariableApps.end(),
                                    freeVariableApps.cbegin(),
@@ -251,7 +239,8 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     // Add with non-deterministic ordering
     break;
   }
-  case FIRST_OBSERVED: {
+  case FreeVariableToBufferAssignmentPassOptions::FreeVariableSortStrategyTy::
+      FIRST_OBSERVED: {
     // Nothing to do
     assert(orderedFreeVariableApps.size() == freeVariableApps.size());
     break;

@@ -22,6 +22,30 @@ llvm::cl::opt<bool> ByteAlignedBufferElements(
         "If enabled buffer elements are byte aligned (default: false)"),
     llvm::cl::init(false),
     llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
+llvm::cl::opt<jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions::
+                  FreeVariableSortStrategyTy>
+    FreeVariableSortStrategy(
+        "sort-free-variable-strategy",
+        llvm::cl::desc("Ordering of free variables in fuzzing buffer"),
+        llvm::cl::values(
+            clEnumValN(
+                jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions::
+                    FreeVariableSortStrategyTy::ALPHABETICAL,
+                "alphabetical", "Sort free variables alphabetically (slow)"),
+            clEnumValN(
+                jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions::
+                    FreeVariableSortStrategyTy::FIRST_OBSERVED,
+                "first_observed",
+                "sort free variables by observation order (default)"),
+            clEnumValN(
+                jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions::
+                    FreeVariableSortStrategyTy::NONE,
+                "none", "Do not order. This is non-deterministic")),
+        llvm::cl::init(
+            jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions::
+                FreeVariableSortStrategyTy::FIRST_OBSERVED),
+        llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 }
 
 namespace jfs {
@@ -39,6 +63,8 @@ buildFVTBAPOptionsFromCmdLine() {
   } else {
     opts->bufferElementBitAlignment = 1;
   }
+
+  opts->sortStrategy = FreeVariableSortStrategy;
   return opts;
 }
 } // namespace cl

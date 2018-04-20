@@ -16,7 +16,14 @@ namespace jfs {
 namespace fuzzingCommon {
 class FreeVariableToBufferAssignmentPassOptions {
 public:
+  enum class FreeVariableSortStrategyTy {
+    ALPHABETICAL,
+    FIRST_OBSERVED,
+    NONE, // Warning: Will likely be non-deterministic
+  };
   size_t bufferElementBitAlignment = 1;
+  FreeVariableSortStrategyTy sortStrategy =
+      FreeVariableSortStrategyTy::FIRST_OBSERVED;
   FreeVariableToBufferAssignmentPassOptions();
 };
 } // namespace fuzzingCommon
