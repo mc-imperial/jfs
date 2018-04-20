@@ -13,6 +13,7 @@
 #include "jfs/CXXFuzzingBackend/CXXProgramBuilderOptions.h"
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/SolverOptions.h"
+#include "jfs/FuzzingCommon/FuzzingSolverOptions.h"
 #include "jfs/FuzzingCommon/LibFuzzerOptions.h"
 #include "jfs/FuzzingCommon/SeedManagerOptions.h"
 #include <memory>
@@ -23,7 +24,8 @@ namespace cxxfb {
 class CXXFuzzingSolver;
 class CXXFuzzingSolverImpl;
 
-class CXXFuzzingSolverOptions : public jfs::core::SolverOptions {
+class CXXFuzzingSolverOptions
+    : public jfs::fuzzingCommon::FuzzingSolverOptions {
 private:
   // Options
   std::unique_ptr<ClangOptions> clangOpt;
@@ -33,6 +35,9 @@ private:
 
 public:
   CXXFuzzingSolverOptions(
+      std::unique_ptr<
+          jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions>
+          fvtbapOptions,
       std::unique_ptr<ClangOptions> clangOpt,
       std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt,
       std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt,

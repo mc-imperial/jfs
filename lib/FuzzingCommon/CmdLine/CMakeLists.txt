@@ -9,6 +9,7 @@
 #
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSFuzzingCommonCmdLine
+  FreeVariableToBufferAssignmentPassOptionsBuilder.cpp
   LibFuzzerOptionsBuilder.cpp
   SeedManagerOptionsBuilder.cpp
 )

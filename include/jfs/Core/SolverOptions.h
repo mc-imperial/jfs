@@ -19,7 +19,14 @@ namespace core {
 class SolverOptions {
   // START: LLVM RTTI boilerplate code
 public:
-  enum SolverOptionKind { SOLVER_OPTIONS_KIND, CXX_FUZZING_SOLVER_KIND };
+  // NOTE: When updating this enum make sure you update all implementations
+  // of `classof(const SolverOptions* so)`.
+  enum SolverOptionKind {
+    SOLVER_OPTIONS_KIND,
+    FUZZING_SOLVER_KIND,
+    CXX_FUZZING_SOLVER_KIND,
+    LAST_FUZZING_SOLVER_KIND // This is a dummy entry
+  };
 
 private:
   const SolverOptionKind kind;

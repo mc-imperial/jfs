@@ -11,7 +11,9 @@
 #include "jfs/FuzzingCommon/FuzzingSolver.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
+#include "jfs/FuzzingCommon/FuzzingSolverOptions.h"
 #include "jfs/Transform/QueryPassManager.h"
+#include "llvm/Support/Casting.h"
 #include <atomic>
 #include <mutex>
 
@@ -102,7 +104,11 @@ public:
 
     // Can't trivially prove sat/unsat, so we have to fuzz.
     // Collect the information we need to fuzz and start fuzz
-    auto fai = std::make_shared<FuzzingAnalysisInfo>();
+    FuzzingSolverOptions* fsOpts =
+        llvm::dyn_cast<FuzzingSolverOptions>(interF->options.get());
+    auto fai = std::make_shared<FuzzingAnalysisInfo>(
+        (fsOpts != nullptr) ? fsOpts->getFreeVariableToBufferAssignmentOptions()
+                            : nullptr);
     QueryPassManager preprocessingPassses;
     {
       // Make the pass manager cancellable

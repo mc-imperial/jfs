@@ -43,9 +43,12 @@ llvm::cl::opt<FreeVariableSortStrategyTy> FreeVariableSortStrategy(
 namespace jfs {
 namespace fuzzingCommon {
 
-BufferElement::BufferElement(const Z3ASTHandle declApp) : declApp(declApp) {
+BufferElement::BufferElement(const Z3ASTHandle declApp,
+                             size_t storeBitAlignment)
+    : storeBitAlignment(storeBitAlignment), declApp(declApp) {
   assert(declApp.isApp() && "should be an application");
   assert(declApp.asApp().isFreeVariable() && "should be an application");
+  assert(this->storeBitAlignment > 0 && "Alignment must be > 0");
 }
 
 unsigned BufferElement::getTypeBitWidth() const {
@@ -63,10 +66,12 @@ unsigned BufferElement::getTypeBitWidth() const {
 }
 
 unsigned BufferElement::getStoreBitWidth() const {
-  // FIXME: We should make this byte aligned.  However we can't do this yet
-  // because the mutators and the buffer reading functions aren't aware of this
-  // paddding.
-  return getTypeBitWidth();
+  assert(storeBitAlignment > 0);
+  unsigned result =
+      ((getTypeBitWidth() + (storeBitAlignment - 1)) / storeBitAlignment) *
+      storeBitAlignment;
+  assert((result % storeBitAlignment) == 0);
+  return result;
 }
 
 Z3FuncDeclHandle BufferElement::getDecl() const {
@@ -149,8 +154,15 @@ void ConstantAssignment::print(llvm::raw_ostream& os) const {
 void ConstantAssignment::dump() const { print(llvm::errs()); }
 
 FreeVariableToBufferAssignmentPass::FreeVariableToBufferAssignmentPass(
-    const EqualityExtractionPass& eep)
-    : eep(eep) {}
+    const EqualityExtractionPass& eep,
+    FreeVariableToBufferAssignmentPassOptions* options)
+    : eep(eep), options(options) {
+  if (options == nullptr) {
+    // Use default options if not set.
+    defaultOptions.reset(new FreeVariableToBufferAssignmentPassOptions());
+    options = defaultOptions.get();
+  }
+}
 
 llvm::StringRef FreeVariableToBufferAssignmentPass::getName() {
   return "FreeVariableToBufferAssignmentPass";
@@ -214,6 +226,9 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   // Apply sort strategy.
   // FIXME: This should be refactored so it can be changed by an API. Not
   // on the command line.
+  // FIXME: We should implement another strategy that is optimal (minimise
+  // wasted bits) when buffer elements are byte aligned. We could also tightly
+  // pack booleans together (slightly violating the buffer alignment).
   switch (FreeVariableSortStrategy) {
   case ALPHABETICAL: {
     // This strategy scales very poorly with a large number of free variables.
@@ -245,6 +260,12 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     llvm_unreachable("Unknown sort strategy");
   }
 
+  // Pick the alignment
+  size_t bufferElStoreBitAlignment = 1;
+  if (options) {
+    bufferElStoreBitAlignment = options->bufferElementBitAlignment;
+  }
+
   // Now record the buffer assignment taking into account equalities
   // NOTE: This approach means that equalities that aren't used in
   // the query are not added. From a fuzzing perspective this means
@@ -271,7 +292,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
     const auto equalitySetsIt = eep.mapping.find(freeVarApp);
     if (equalitySetsIt == eep.mapping.end()) {
       // No equalites so append to buffer
-      BufferElement el(freeVarApp);
+      BufferElement el(freeVarApp, bufferElStoreBitAlignment);
       bufferAssignment->appendElement(el);
       continue;
     }
@@ -314,7 +335,7 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
 
     // The variable needs to be assigned to the buffer but there
     // are equalities that need to be enforced.
-    BufferElement el(freeVarApp);
+    BufferElement el(freeVarApp, bufferElStoreBitAlignment);
     for (const auto& e : equalitySet) {
       if (e == freeVarApp) {
         continue;

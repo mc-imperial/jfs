@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
+#include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPassOptions.h"
 #include "llvm/Support/CommandLine.h"
 
 namespace {
@@ -21,10 +22,11 @@ llvm::cl::opt<bool> DisableEqualityExtraction(
 namespace jfs {
 namespace fuzzingCommon {
 
-FuzzingAnalysisInfo::FuzzingAnalysisInfo()
+FuzzingAnalysisInfo::FuzzingAnalysisInfo(
+    FreeVariableToBufferAssignmentPassOptions* fvtbapOptions)
     : equalityExtraction(std::make_shared<EqualityExtractionPass>()) {
-  freeVariableAssignment =
-      std::make_shared<FreeVariableToBufferAssignmentPass>(*equalityExtraction);
+  freeVariableAssignment = std::make_shared<FreeVariableToBufferAssignmentPass>(
+      *equalityExtraction, fvtbapOptions);
 }
 
 FuzzingAnalysisInfo::~FuzzingAnalysisInfo() {}

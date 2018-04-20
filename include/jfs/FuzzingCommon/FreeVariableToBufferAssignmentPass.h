@@ -15,6 +15,7 @@
 #include "jfs/Core/Z3NodeMap.h"
 #include "jfs/Core/Z3NodeSet.h"
 #include "jfs/FuzzingCommon/EqualityExtractionPass.h"
+#include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPassOptions.h"
 #include "jfs/Transform/QueryPass.h"
 #include <vector>
 
@@ -22,11 +23,16 @@ namespace jfs {
 namespace fuzzingCommon {
 
 class BufferElement {
+private:
+  size_t storeBitAlignment;
+
 public:
   const jfs::core::Z3ASTHandle declApp;
-  BufferElement(const jfs::core::Z3ASTHandle declApp);
+  BufferElement(const jfs::core::Z3ASTHandle declApp,
+                size_t storeBitAlignment = 1);
   unsigned getTypeBitWidth() const;  // Does not include padding
   unsigned getStoreBitWidth() const; // Includes any required padding
+  size_t getStoreBitAlignment() const { return storeBitAlignment; }
   // FIXME: put this behind an interface once we know the requirements
   std::vector<jfs::core::Z3ASTHandle> equalities;
   void print(llvm::raw_ostream&) const;
@@ -74,9 +80,14 @@ public:
 class FreeVariableToBufferAssignmentPass : public jfs::transform::QueryPass {
 private:
   const EqualityExtractionPass& eep;
+  // raw ptr because we don't own storage
+  FreeVariableToBufferAssignmentPassOptions* options;
+  std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> defaultOptions;
 
 public:
-  FreeVariableToBufferAssignmentPass(const EqualityExtractionPass&);
+  FreeVariableToBufferAssignmentPass(
+      const EqualityExtractionPass&,
+      FreeVariableToBufferAssignmentPassOptions* options);
   ~FreeVariableToBufferAssignmentPass() {}
   bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;

@@ -25,10 +25,10 @@ public:
   std::shared_ptr<EqualityExtractionPass> equalityExtraction;
   std::shared_ptr<FreeVariableToBufferAssignmentPass> freeVariableAssignment;
   void addTo(jfs::transform::QueryPassManager& pm);
-  FuzzingAnalysisInfo();
+  FuzzingAnalysisInfo(FreeVariableToBufferAssignmentPassOptions* fvtbapOptions);
   ~FuzzingAnalysisInfo();
 };
-}
-}
+} // namespace fuzzingCommon
+} // namespace jfs
 
 #endif

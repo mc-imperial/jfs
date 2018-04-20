@@ -19,11 +19,15 @@ namespace jfs {
 namespace cxxfb {
 
 CXXFuzzingSolverOptions::CXXFuzzingSolverOptions(
+    std::unique_ptr<
+        jfs::fuzzingCommon::FreeVariableToBufferAssignmentPassOptions>
+        fvtbapOptions,
     std::unique_ptr<ClangOptions> clangOpt,
     std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt,
     std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt,
     std::unique_ptr<jfs::fuzzingCommon::SeedManagerOptions> seedManagerOpt)
-    : jfs::core::SolverOptions(CXX_FUZZING_SOLVER_KIND),
+    : jfs::fuzzingCommon::FuzzingSolverOptions(std::move(fvtbapOptions),
+                                               CXX_FUZZING_SOLVER_KIND),
       clangOpt(std::move(clangOpt)), libFuzzerOpt(std::move(libFuzzerOpt)),
       cxxProgramBuilderOpt(std::move(cxxProgramBuilderOpt)),
       seedManagerOpt(std::move(seedManagerOpt)), redirectClangOutput(false),

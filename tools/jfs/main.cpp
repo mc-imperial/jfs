@@ -21,6 +21,7 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
+#include "jfs/FuzzingCommon/CmdLine/FreeVariableToBufferAssignmentPassOptionsBuilder.h"
 #include "jfs/FuzzingCommon/CmdLine/LibFuzzerOptionsBuilder.h"
 #include "jfs/FuzzingCommon/CmdLine/SeedManagerOptionsBuilder.h"
 #include "jfs/FuzzingCommon/DummyFuzzingSolver.h"
@@ -208,8 +209,12 @@ makeSolver(JFSContext& ctx,
     auto cxxProgramBuilderOptions =
         jfs::cxxfb::cl::buildCXXProgramBuilderOptionsFromCmdLine();
 
+    auto freeVariableToBufferAssignmentPassOptions =
+        jfs::fuzzingCommon::cl::buildFVTBAPOptionsFromCmdLine();
+
     std::unique_ptr<jfs::cxxfb::CXXFuzzingSolverOptions> solverOptions(
         new jfs::cxxfb::CXXFuzzingSolverOptions(
+            std::move(freeVariableToBufferAssignmentPassOptions),
             std::move(clangOptions), std::move(libFuzzerOptions),
             std::move(cxxProgramBuilderOptions), std::move(seedManagerOpts)));
     // Decide if the clang/LibFuzzer stdout/stderr should be redirected

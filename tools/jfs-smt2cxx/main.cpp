@@ -16,6 +16,7 @@
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
+#include "jfs/FuzzingCommon/CmdLine/FreeVariableToBufferAssignmentPassOptionsBuilder.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/Support/ErrorMessages.h"
 #include "jfs/Support/version.h"
@@ -79,7 +80,8 @@ int main(int argc, char** argv) {
   }
 
   QueryPassManager pm;
-  auto info = std::make_shared<FuzzingAnalysisInfo>();
+  auto fvtbap = jfs::fuzzingCommon::cl::buildFVTBAPOptionsFromCmdLine();
+  auto info = std::make_shared<FuzzingAnalysisInfo>(fvtbap.get());
   info->addTo(pm);
   auto cxxProgramBuilderOptions =
       jfs::cxxfb::cl::buildCXXProgramBuilderOptionsFromCmdLine();
