@@ -343,6 +343,7 @@ public:
     }
 
     switch (fuzzingResponse->outcome) {
+    case LibFuzzerResponse::ResponseTy::RUN_BOUND_REACHED:
     case LibFuzzerResponse::ResponseTy::UNKNOWN:
     case LibFuzzerResponse::ResponseTy::CANCELLED: {
       return std::unique_ptr<SolverResponse>(

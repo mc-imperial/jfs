@@ -14,8 +14,8 @@ namespace jfs {
 namespace fuzzingCommon {
 
 LibFuzzerOptions::LibFuzzerOptions()
-    : seed(1), mutationDepth(5), crossOver(true), maxLength(0), useCmp(false),
-      printFinalStats(true), reduceInputs(false),
+    : runs(-1L), seed(1), mutationDepth(5), crossOver(true), maxLength(0),
+      useCmp(false), printFinalStats(true), reduceInputs(false),
       defaultMutationsResizeInput(true), handleSIGABRT(true),
       handleSIGBUS(true), handleSIGFPE(true), handleSIGILL(true),
       handleSIGINT(true), handleSIGSEGV(true), handleSIGXFSZ(true) {}

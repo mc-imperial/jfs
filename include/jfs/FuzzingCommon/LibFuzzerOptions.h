@@ -20,6 +20,8 @@ namespace fuzzingCommon {
 // will get overwritten and others are public and can be changed. We need
 // to separate these two concerns.
 struct LibFuzzerOptions {
+  // NOTE: `runs` value of `0` means an infinite number of runs.
+  size_t runs; // Approximately corresponds to `-runs=<N>` option.
   // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a
   // random seed.
   uint64_t seed;          // Corresponds to `-seed=<N>` option

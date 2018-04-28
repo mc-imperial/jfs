@@ -13,6 +13,7 @@
 #include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/Support/CancellableProcess.h"
 #include "llvm/ADT/SmallVector.h"
+#include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Twine.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
@@ -32,6 +33,7 @@ private:
   static const int targetFoundExitCode = 77;
   static const int unitTimeoutExitCode = 88;
   static const int singleRunTargetNotFoundExitCode = 0;
+  static const int runBoundReachedExitCode = 0;
   std::atomic<bool> cancelled;
   CancellableProcess proc;
 
@@ -70,7 +72,24 @@ public:
     assert(llvm::sys::fs::exists(options->targetBinary));
     cmdLineArgs.push_back(options->targetBinary.data());
 
-    SET_ARG(numberOfRunsArgs, "-runs=" << (emptyBuffer ? "1" : "-1"));
+    std::string numRunsAsStr;
+    if (emptyBuffer) {
+      // If the buffer is empty we always try one run and ignore
+      // `options->runs`.
+      // TODO: Should we emit a warning if we do this?
+      numRunsAsStr = "1";
+    } else {
+      if (options->runs == 0) {
+        // Unbounded number of runs
+        numRunsAsStr = "-1";
+      } else {
+        // Use whatever the client actually asked for
+        numRunsAsStr = llvm::utostr(options->runs, /*isNeg=*/false);
+      }
+    }
+
+    // Number of fuzzing runs
+    SET_ARG(numberOfRunsArgs, "-runs=" << numRunsAsStr);
 
     // Seed
     SET_ARG(seedArg, "-seed=" << options->seed);
@@ -196,10 +215,17 @@ public:
       response->outcome = LibFuzzerResponse::ResponseTy::CANCELLED;
       return response;
     }
-    if (emptyBuffer && exitCode == singleRunTargetNotFoundExitCode) {
-      response->outcome =
-          LibFuzzerResponse::ResponseTy::SINGLE_RUN_TARGET_NOT_FOUND;
-      return response;
+    if (emptyBuffer) {
+      if (exitCode == singleRunTargetNotFoundExitCode) {
+        response->outcome =
+            LibFuzzerResponse::ResponseTy::SINGLE_RUN_TARGET_NOT_FOUND;
+        return response;
+      }
+    } else {
+      if (options->runs > 0 && exitCode == runBoundReachedExitCode) {
+        response->outcome = LibFuzzerResponse::ResponseTy::RUN_BOUND_REACHED;
+        return response;
+      }
     }
     if (exitCode != targetFoundExitCode) {
       ctx.getErrorStream() << "(error Unexpected exit code from LibFuzzer "

@@ -23,6 +23,7 @@ struct LibFuzzerResponse {
   enum class ResponseTy {
     TARGET_FOUND,
     SINGLE_RUN_TARGET_NOT_FOUND,
+    RUN_BOUND_REACHED,
     CANCELLED,
     UNKNOWN,
   };

@@ -758,7 +758,9 @@ int FuzzerDriver(int *argc, char ***argv, UserCallback Callback) {
     Printf("Done %zd runs in %zd second(s)\n", F->getTotalNumberOfRuns(),
            F->secondsSinceProcessStartUp());
   F->PrintFinalStats();
-
+  if (EF->LLVMFuzzerAtExit) {
+    EF->LLVMFuzzerAtExit();
+  }
   exit(0);  // Don't let F destroy itself.
 }
 

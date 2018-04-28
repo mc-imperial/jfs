@@ -24,6 +24,12 @@ llvm::cl::opt<unsigned> FuzzerSeed(
         "LibFuzzer random seed (0 means pick a random seed) (default: 1)"),
     llvm::cl::init(1), llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 
+llvm::cl::opt<unsigned long long> FuzzerRuns(
+    "libfuzzer-runs",
+    llvm::cl::desc(
+        "Number of LibFuzzer input runs (0 means unbounded) (default: 0)"),
+    llvm::cl::init(0), llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
 llvm::cl::opt<unsigned> MutationDepth(
     "libfuzzer-mutation-depth",
     llvm::cl::desc("Number of mutations to apply to an input (default: 5)"),
@@ -56,6 +62,8 @@ std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions>
 buildLibFuzzerOptionsFromCmdLine() {
   std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOptions(
       new jfs::fuzzingCommon::LibFuzzerOptions());
+  // Fuzzing runs
+  libFuzzerOptions->runs = FuzzerRuns;
 
   // Fuzzer seed
   libFuzzerOptions->seed = FuzzerSeed;
