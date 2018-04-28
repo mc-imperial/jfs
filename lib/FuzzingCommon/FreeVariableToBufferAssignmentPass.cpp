@@ -19,11 +19,6 @@
 
 using namespace jfs::core;
 
-namespace {
-// TODO: Once we figure out a good strategy we can make picking
-// them part of the API rather than a command line option.
-}
-
 namespace jfs {
 namespace fuzzingCommon {
 
