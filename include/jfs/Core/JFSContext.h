@@ -36,6 +36,8 @@ public:
                                        llvm::StringRef msg) = 0;
   virtual ErrorAction handleGenericError(JFSContext& ctx,
                                          llvm::StringRef msg) = 0;
+  JFSContextErrorHandler();
+  virtual ~JFSContextErrorHandler();
 };
 
 class JFSContextImpl;

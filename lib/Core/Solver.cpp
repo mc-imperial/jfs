@@ -13,6 +13,9 @@
 namespace jfs {
   namespace core {
 
+  SolverResponse::SolverResponse(SolverSatisfiability sat) : sat(sat) {}
+  SolverResponse::~SolverResponse() {}
+
   Solver::Solver(std::unique_ptr<SolverOptions> options, JFSContext& ctx)
       : options(std::move(options)), ctx(ctx) {}
 

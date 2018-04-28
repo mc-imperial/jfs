@@ -25,7 +25,7 @@ private:
 
 public:
   SeedGenerator(llvm::StringRef name);
-  ~SeedGenerator();
+  virtual ~SeedGenerator();
   // Called once by the SeedManager before any seeds are requested
   virtual void preGenerationCallBack(SeedManager& sm);
   // Returns true on success

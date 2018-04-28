@@ -23,7 +23,7 @@ private:
   std::unique_ptr<QueryPassManagerImpl> impl;
 public:
   QueryPassManager();
-  ~QueryPassManager();
+  virtual ~QueryPassManager();
   // This not a std::unique_ptr<QueryPass> because some passes just collect
   // information so clients will need to hold on to a pointer to those
   // passes.  This means we can't have unique ownership (otherwise clients

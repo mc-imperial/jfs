@@ -24,6 +24,9 @@ void z3_error_handler(Z3_context ctx, Z3_error_code ec);
 namespace jfs {
 namespace core {
 
+JFSContextErrorHandler::JFSContextErrorHandler() {}
+JFSContextErrorHandler::~JFSContextErrorHandler() {}
+
 class JFSContextImpl {
 public:
   // Really this should be private but seeing as this decl is

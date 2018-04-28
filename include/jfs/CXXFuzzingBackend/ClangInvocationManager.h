@@ -28,7 +28,7 @@ private:
 
 public:
   ClangInvocationManager(jfs::core::JFSContext& ctx);
-  ~ClangInvocationManager();
+  virtual ~ClangInvocationManager();
   // Compile `program`. If `sourceFile` is non-empty the source file
   // will be written to disk before being read by Clang. If `sourceFile`
   // is empty the implementation is allowed to pipe the program directly

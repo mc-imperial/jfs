@@ -20,7 +20,8 @@ class Model {
 protected:
   Z3ModelHandle model;
   Model(Z3ModelHandle m) : model(m) {}
-  Model() : model() {}
+  Model();
+  virtual ~Model();
 
 public:
   // Do we really need this method?

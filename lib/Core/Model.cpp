@@ -13,6 +13,9 @@
 namespace jfs {
 namespace core {
 
+Model::Model() : model() {}
+Model::~Model() {}
+
 Z3ASTHandle Model::getAssignment(Z3FuncDeclHandle funcDecl) {
   if (model.isNull()) {
     // No model available.

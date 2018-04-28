@@ -25,7 +25,8 @@ class Model;
 class SolverResponse {
 public:
   enum SolverSatisfiability { SAT, UNSAT, UNKNOWN };
-  SolverResponse(SolverSatisfiability sat) : sat(sat){};
+  SolverResponse(SolverSatisfiability sat);
+  virtual ~SolverResponse();
   const SolverSatisfiability sat;
   virtual std::shared_ptr<Model> getModel() = 0;
   static llvm::StringRef getSatString(SolverSatisfiability);

@@ -20,6 +20,7 @@ namespace support {
 class ICancellable {
 public:
   virtual void cancel() = 0;
+  virtual ~ICancellable();
 };
 }
 }

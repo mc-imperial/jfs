@@ -12,6 +12,7 @@ jfs_add_component(JFSSupport
   CancellableProcess.cpp
   ErrorMessages.cpp
   FileUtils.cpp
+  ICancellable.cpp
   JFSStat.cpp
   ScopedTimer.cpp
   StatisticsManager.cpp
