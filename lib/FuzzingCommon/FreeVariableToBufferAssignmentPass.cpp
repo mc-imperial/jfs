@@ -106,8 +106,11 @@ uint64_t BufferAssignment::computeStoreBitWidth() const {
 }
 
 void BufferAssignment::print(llvm::raw_ostream& os) const {
-  os << "(BufferAssignment " << getTypeBitWidth() << " (store "
-     << getStoreBitWidth() << ") bits";
+  os << "(BufferAssignment " << getTypeBitWidth() << ") type bits, "
+     << getTypeBitWidth() << " store bits";
+  if (chunks.size() > 0) {
+    os << "\n";
+  }
   for (const auto& be : chunks) {
     os << "  ";
     be.print(os);
