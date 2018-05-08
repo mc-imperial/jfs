@@ -1,3 +1,5 @@
+; NOTE: try-all-imncsf uses an experimental LibFuzzer feature (custom counters)
+; which currently only works on Linux.
 ; REQUIRES: linux
 ; RUN: %jfs-smt2cxx -branch-encoding=try-all-imncsf %s > %t.cpp
 ; RUN: %cxx-rt-syntax %t.cpp

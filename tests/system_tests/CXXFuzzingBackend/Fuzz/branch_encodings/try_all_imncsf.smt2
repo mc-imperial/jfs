@@ -1,3 +1,6 @@
+; NOTE: try-all-imncsf uses an experimental LibFuzzer feature (custom counters)
+; which currently only works on Linux.
+; REQUIRES: linux
 ; RUN: rm -rf %t-output-dir
 ; RUN: %jfs -branch-encoding=try-all-imncsf -cxx -disable-equality-extraction -disable-standard-passes -keep-output-dir -output-dir=%t-output-dir %s | %FileCheck %s
 
