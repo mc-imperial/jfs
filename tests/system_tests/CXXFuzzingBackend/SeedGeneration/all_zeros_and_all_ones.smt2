@@ -8,7 +8,7 @@
 ; RUN: %diff -q %t.output-dir/corpus/zeros_0 %S/3b_all_zeros
 ; RUN: %diff -q %t.output-dir/corpus/ones_0 %S/3b_all_ones
 ; FIXME: We should probably come up with a more elegant way of doing this.
-; RUN: ls %t.output-dir/corpus | wc -l | grep '^2$'
+; RUN: ls %t.output-dir/corpus | wc -l | grep '^\s*2$'
 
 
 (set-logic QF_BV)

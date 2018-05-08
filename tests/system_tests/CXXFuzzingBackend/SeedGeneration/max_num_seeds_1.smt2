@@ -3,7 +3,7 @@
 
 ; Check the seeds are exactly what we expect
 ; FIXME: We should probably come up with a more elegant way of doing this.
-; RUN: ls %t.output-dir/corpus | wc -l | grep '^1$'
+; RUN: ls %t.output-dir/corpus | wc -l | grep '^\s*1$'
 
 
 (set-logic QF_BV)
