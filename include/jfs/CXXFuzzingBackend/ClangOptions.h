@@ -45,7 +45,8 @@ struct ClangOptions {
   // If `pathToExecutable` is not empty then paths will be
   // inferred assuming that `pathToExecutable` is the absolute
   // path to the `jfs` binary.
-  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt);
+  ClangOptions(llvm::StringRef pathToExecutable, LibFuzzerBuildType lfbt,
+               bool pureRandomFuzzer);
   ClangOptions();
   void appendSanitizerCoverageOption(SanitizerCoverageTy opt);
   void dump() const;

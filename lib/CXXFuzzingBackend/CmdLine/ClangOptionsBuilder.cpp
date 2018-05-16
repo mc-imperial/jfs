@@ -65,6 +65,12 @@ llvm::cl::opt<bool> UseJFSRuntimeAsserts(
     "runtime-asserts",
     llvm::cl::desc("Build JFS runtime asserts enabled (default: false)"),
     llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
+
+llvm::cl::opt<bool> PureRandomFuzzer(
+    "libfuzzer-pure-random",
+    llvm::cl::desc("Replace LibFuzzer with LibPureRandomFuzzer for use as a "
+                   "control group (default: false)"),
+    llvm::cl::init(false), llvm::cl::cat(jfs::cxxfb::cl::CommandLineCategory));
 }
 
 namespace jfs {
@@ -75,7 +81,8 @@ std::unique_ptr<ClangOptions>
 buildClangOptionsFromCmdLine(llvm::StringRef pathToExecutable) {
   // Tell ClangOptions to try and infer all paths
   std::unique_ptr<ClangOptions> clangOptions(
-      new ClangOptions(pathToExecutable, LibFuzzerBuildTypeToLinkAgainst));
+      new ClangOptions(pathToExecutable, LibFuzzerBuildTypeToLinkAgainst,
+                       PureRandomFuzzer));
 
   // Sanitizer coverage options
   if (SanitizerCoverageOptions.size() == 0) {

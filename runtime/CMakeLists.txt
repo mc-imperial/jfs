@@ -86,6 +86,38 @@ foreach (buildType ${LibFuzzerBuildTypes})
 endforeach()
 
 ###############################################################################
+# Build LibPureRandomFuzzer
+###############################################################################
+# We build LibPureRandomFuzzer as an external project using Clang. We
+# build it in different configurations.
+include(ExternalProject)
+include(${CMAKE_SOURCE_DIR}/cmake/jfs_external_project_utils.cmake)
+
+# TODO: Add more
+set(LibPureRandomFuzzerBuildTypes RelWithDebInfo)
+
+foreach (buildType ${LibPureRandomFuzzerBuildTypes})
+  set(buildDir "${CMAKE_CURRENT_BINARY_DIR}/LibPureRandomFuzzer_${buildType}")
+  jfs_get_external_project_build_command(JFS_EXTERNAL_PROJECT_BUILD_COMMAND ${buildDir})
+  ExternalProject_Add(BuildLibPureRandomFuzzerRuntime_${buildType}
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/LibPureRandomFuzzer"
+    # FIXME: We should allow other generators
+    CMAKE_GENERATOR "Unix Makefiles"
+    CMAKE_ARGS
+      "-DCMAKE_CXX_COMPILER=${LLVM_CLANG_CXX_TOOL}"
+      "-DCMAKE_BUILD_TYPE=${buildType}"
+    BINARY_DIR "${buildDir}"
+    BUILD_ALWAYS 1
+    ${JFS_EXTERNAL_PROJECT_BUILD_COMMAND}
+    # Don't run install command
+    INSTALL_COMMAND ""
+    # FIXME: Guard these based on CMake version
+    USES_TERMINAL_BUILD 1
+    USES_TERMINAL_CONFIGURE 1
+  )
+endforeach()
+
+###############################################################################
 # SMTLIB runtime
 ###############################################################################
 add_subdirectory(SMTLIB)

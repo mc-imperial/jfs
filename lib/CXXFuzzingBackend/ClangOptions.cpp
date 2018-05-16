@@ -59,7 +59,7 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
 }
 
 ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
-                           LibFuzzerBuildType lfbt)
+                           LibFuzzerBuildType lfbt, bool pureRandomFuzzer)
     : ClangOptions() {
   // Try to infer paths
   assert(pathToExecutable.data() != nullptr);
@@ -89,16 +89,26 @@ ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
   // Remove "include"
   llvm::sys::path::remove_filename(mutablePath);
 
-  // Set path to libFuzzer library
+  // Set path to fuzzer library
+  std::string fuzzerDirPrefix;
+  if (pureRandomFuzzer) {
+    fuzzerDirPrefix = "LibPureRandomFuzzer_";
+  } else {
+    fuzzerDirPrefix = "LibFuzzer_";
+  }
   switch (lfbt) {
   case LibFuzzerBuildType::REL_WITH_DEB_INFO:
-    llvm::sys::path::append(mutablePath, "LibFuzzer_RelWithDebInfo");
+    llvm::sys::path::append(mutablePath, fuzzerDirPrefix + "RelWithDebInfo");
     break;
   default:
-    llvm_unreachable("Unhandled LibFuzzer build type");
+    llvm_unreachable("Unhandled fuzzer build type");
   }
   // FIXME: This won't work on Windows
-  llvm::sys::path::append(mutablePath, "Fuzzer", "libLLVMFuzzer.a");
+  if (pureRandomFuzzer) {
+    llvm::sys::path::append(mutablePath, "libPureRandomFuzzer.a");
+  } else {
+    llvm::sys::path::append(mutablePath, "Fuzzer", "libLLVMFuzzer.a");
+  }
   pathToLibFuzzerLib = std::string(mutablePath.data(), mutablePath.size());
 }
 
