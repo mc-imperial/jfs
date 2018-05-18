@@ -71,7 +71,10 @@ Options BuildOptions(int& argc, char**& argv) {
       if (#type == "uint") {                                                   \
         opts.name = stoul(valueInput);                                         \
       }                                                                        \
-      Debug("opts.", #name, " = ", valueInput);                                \
+      if (#type == "bool") {                                                   \
+        opts.name = !!stoul(valueInput);                                       \
+      }                                                                        \
+      Debug("opts.", #name, " = ", opts.name);                                 \
       continue;                                                                \
     }
 #include "Options.def"
@@ -80,6 +83,11 @@ Options BuildOptions(int& argc, char**& argv) {
   }
 
   return opts;
+}
+
+void AbortHandler(int sig) {
+  Debug("Abort occurred!");
+  exit(gOpts.errorExitCode);
 }
 
 void TimeoutHandler(int sig) {

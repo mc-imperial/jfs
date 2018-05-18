@@ -26,6 +26,7 @@ struct Options {
 int Driver(int& argc, char**& argv);
 Options BuildOptions(int& argc, char**& argv);
 
+void AbortHandler(int sig);
 void TimeoutHandler(int sig);
 
 } // prf

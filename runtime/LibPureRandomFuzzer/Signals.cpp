@@ -29,6 +29,9 @@ Signals::Signals(const Options& opts) {
       exit(1);
     }
   }
+  if (opts.handleSIGABRT) {
+    SetSignalHandler(SIGABRT, &AbortHandler);
+  }
 }
 
 void Signals::SetSignalHandler(uint sig, SignalHandler* handler) {

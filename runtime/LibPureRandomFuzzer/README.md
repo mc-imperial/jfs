@@ -31,7 +31,7 @@ currently implemented to match what's needed for JFS.
 - [ ] `shuffle`
 - [ ] `prefer_small`
 - [x] `timeout`
-- [ ] `error_exitcode`
+- [x] `error_exitcode`
 - [x] `timeout_exitcode`
 - [ ] `max_total_time`
 - [ ] `help`
@@ -65,7 +65,7 @@ currently implemented to match what's needed for JFS.
 - [ ] `dump_coverage`
 - [ ] `handle_segv`
 - [ ] `handle_bus`
-- [ ] `handle_abrt`
+- [x] `handle_abrt`
 - [ ] `handle_ill`
 - [ ] `handle_fpe`
 - [ ] `handle_int`
@@ -92,5 +92,5 @@ currently implemented to match what's needed for JFS.
 ## Exit Codes
 
 - [x] Normal: `0`
-- [ ] Error: `77` or `error_exitcode`
+- [x] Error: `77` or `error_exitcode`
 - [x] Timeout: `77` or `timeout_exitcode`
