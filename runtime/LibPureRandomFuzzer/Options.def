@@ -13,3 +13,5 @@
 
 PRF_OPTION(max_len, uint, dataLength, 0)
 PRF_OPTION(runs, int, maxRuns, -1)
+PRF_OPTION(timeout, int, timeout, 1200)
+PRF_OPTION(timeout_exitcode, int, timeoutExitCode, 77)

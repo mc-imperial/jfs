@@ -30,9 +30,9 @@ currently implemented to match what's needed for JFS.
 - [ ] `reduce_depth`
 - [ ] `shuffle`
 - [ ] `prefer_small`
-- [ ] `timeout`
+- [x] `timeout`
 - [ ] `error_exitcode`
-- [ ] `timeout_exitcode`
+- [x] `timeout_exitcode`
 - [ ] `max_total_time`
 - [ ] `help`
 - [ ] `merge`
@@ -93,4 +93,4 @@ currently implemented to match what's needed for JFS.
 
 - [x] Normal: `0`
 - [ ] Error: `77` or `error_exitcode`
-- [ ] Timeout: `77` or `timeout_exitcode`
+- [x] Timeout: `77` or `timeout_exitcode`

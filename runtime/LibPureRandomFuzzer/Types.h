@@ -9,25 +9,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef PRF_DRIVER_H
-#define PRF_DRIVER_H
-
-#include "Types.h"
+#ifndef PRF_TYPES_H
+#define PRF_TYPES_H
 
 namespace prf {
 
-struct Options {
-#define PRF_OPTION(_, type, name, value)                                       \
-  type name = value;
-#include "Options.def"
-#undef PRF_OPTION
-};
-
-int Driver(int& argc, char**& argv);
-Options BuildOptions(int& argc, char**& argv);
-
-void TimeoutHandler(int sig);
+typedef unsigned int uint;
 
 } // prf
 
-#endif // PRF_DRIVER_H
+#endif // PRF_TYPES_H

@@ -9,25 +9,23 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef PRF_DRIVER_H
-#define PRF_DRIVER_H
+#ifndef PRF_SIGNALS_H
+#define PRF_SIGNALS_H
 
+#include "Driver.h"
 #include "Types.h"
 
 namespace prf {
 
-struct Options {
-#define PRF_OPTION(_, type, name, value)                                       \
-  type name = value;
-#include "Options.def"
-#undef PRF_OPTION
+typedef void SignalHandler(int);
+
+class Signals {
+private:
+  void SetSignalHandler(uint sig, SignalHandler* handler);
+public:
+  Signals(const Options& opts);
 };
-
-int Driver(int& argc, char**& argv);
-Options BuildOptions(int& argc, char**& argv);
-
-void TimeoutHandler(int sig);
 
 } // prf
 
-#endif // PRF_DRIVER_H
+#endif // PRF_SIGNALS_H

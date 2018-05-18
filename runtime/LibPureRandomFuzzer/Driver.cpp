@@ -13,6 +13,7 @@
 
 #include "API.h"
 #include "Log.h"
+#include "Signals.h"
 #include "TestInput.h"
 #include <cassert>
 #include <cstdio>
@@ -22,25 +23,24 @@
 
 namespace prf {
 
-struct Options {
-#define PRF_OPTION(_, type, name, value)                                       \
-  type name = value;
-#include "Options.def"
-#undef PRF_OPTION
-};
+static Options gOpts;
 
 int Driver(int& argc, char**& argv) {
-  const Options opts = BuildOptions(argc, argv);
+  gOpts = BuildOptions(argc, argv);
 
-  if (!opts.dataLength) {
+  if (!gOpts.dataLength) {
     Debug("Test data length currently required");
     exit(1);
   }
-  TestInput testInput(opts.dataLength);
+  TestInput testInput(gOpts.dataLength);
   uint maxRuns = std::numeric_limits<uint>::max();
-  if (opts.maxRuns >= 0) {
-    maxRuns = opts.maxRuns;
+  if (gOpts.maxRuns >= 0) {
+    maxRuns = gOpts.maxRuns;
   }
+
+  // Set all appropriate signal and timer handlers
+  Signals signals(gOpts);
+
   for (uint run = 0; run < maxRuns; run++) {
     testInput.generate();
     LLVMFuzzerTestOneInput(testInput.get(), testInput.size());
@@ -80,6 +80,11 @@ Options BuildOptions(int& argc, char**& argv) {
   }
 
   return opts;
+}
+
+void TimeoutHandler(int sig) {
+  Debug("Timeout occurred!");
+  exit(gOpts.timeoutExitCode);
 }
 
 } // prf

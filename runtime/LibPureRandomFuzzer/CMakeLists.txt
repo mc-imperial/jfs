@@ -59,5 +59,6 @@ endif()
 add_library(PureRandomFuzzer STATIC
   Driver.cpp
   Main.cpp
+  Signals.cpp
   TestInput.cpp
 )
