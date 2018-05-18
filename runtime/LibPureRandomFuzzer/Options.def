@@ -9,8 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Driver.h"
+// PRF_OPTION(flag, type, name, default value)
 
-int main(int argc, char** argv) {
-  return prf::Driver(argc, argv);
-}
+PRF_OPTION(max_len, uint, dataLength, 0)
+PRF_OPTION(runs, int, maxRuns, -1)

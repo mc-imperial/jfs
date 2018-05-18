@@ -9,8 +9,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Driver.h"
+#include "TestInput.h"
 
-int main(int argc, char** argv) {
-  return prf::Driver(argc, argv);
+#include <algorithm>
+#include <cstring>
+
+namespace prf {
+
+void TestInput::generate() {
+  uint8_t* dest = data.data();
+  for (uint i = 0; i < data.size(); i += 4) {
+    uint32_t newData = randGen();
+    std::size_t length = std::min(data.size() - i, 4UL);
+    std::memcpy(dest + i, &newData, length);
+  }
 }
+
+} // prf

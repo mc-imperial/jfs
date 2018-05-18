@@ -9,8 +9,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Driver.h"
+#ifndef PRF_DRIVER_H
+#define PRF_DRIVER_H
 
-int main(int argc, char** argv) {
-  return prf::Driver(argc, argv);
-}
+namespace prf {
+
+struct Options;
+
+int Driver(int& argc, char**& argv);
+Options BuildOptions(int& argc, char**& argv);
+
+} // prf
+
+#endif // PRF_DRIVER_H

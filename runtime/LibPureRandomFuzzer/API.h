@@ -9,8 +9,21 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Driver.h"
+#ifndef PRF_API_H
+#define PRF_API_H
 
-int main(int argc, char** argv) {
-  return prf::Driver(argc, argv);
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+// user-provided, required
+int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size);
+
+#ifdef __cplusplus
 }
+#endif // __cplusplus
+
+#endif // PRF_API_H

@@ -9,8 +9,19 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Driver.h"
+#ifndef PRF_LOG_H
+#define PRF_LOG_H
 
-int main(int argc, char** argv) {
-  return prf::Driver(argc, argv);
+#include <iostream>
+
+namespace prf {
+
+template<typename... Ts>
+void Debug(Ts... args) {
+  int dummy[] = {0, (std::cerr << args, 0)...};
+  std::cerr << std::endl;
 }
+
+} // prf
+
+#endif // PRF_LOG_H

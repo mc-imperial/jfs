@@ -10,7 +10,7 @@ currently implemented to match what's needed for JFS.
 
 ## Functions
 
-- [ ] `LLVMFuzzerTestOneInput` (user-provided, required)
+- [x] `LLVMFuzzerTestOneInput` (user-provided, required)
 - [ ] `LLVMFuzzerInitialize` (user-provided, optional)
 - [ ] `LLVMFuzzerCustomMutator` (user-provided, optional)
 - [ ] `LLVMFuzzerCustomCrossOver` (user-provided, optional)
@@ -22,8 +22,8 @@ currently implemented to match what's needed for JFS.
 
 - [ ] `verbosity`
 - [ ] `seed`
-- [ ] `runs`
-- [ ] `max_len`
+- [x] `runs`
+- [x] `max_len`
 - [ ] `experimental_len_control`
 - [ ] `cross_over`
 - [ ] `mutate_depth`
