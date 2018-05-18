@@ -38,7 +38,7 @@ int Driver(int& argc, char**& argv) {
     Debug("Test data length currently required");
     exit(1);
   }
-  TestInput testInput(gOpts.dataLength);
+  TestInput testInput(gOpts.dataLength, gOpts.seed);
   uint maxRuns = std::numeric_limits<uint>::max();
   if (gOpts.maxRuns >= 0) {
     maxRuns = gOpts.maxRuns;

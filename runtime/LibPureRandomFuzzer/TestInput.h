@@ -23,7 +23,8 @@ private:
   std::mt19937 randGen;
 
 public:
-  TestInput(std::size_t length) : data(length) {}
+  TestInput(std::size_t length, uint seed)
+      : data(length), randGen(seed ? seed : std::mt19937::default_seed) {}
   void generate();
   const uint8_t* get() { return data.data(); }
   std::size_t size() { return data.size(); }
