@@ -16,6 +16,7 @@
 #include "Signals.h"
 #include "TestInput.h"
 #include <cassert>
+#include <chrono>
 #include <cstdio>
 #include <limits>
 #include <string>
@@ -24,6 +25,11 @@
 namespace prf {
 
 static Options gOpts;
+
+typedef std::chrono::system_clock::time_point time_point;
+static const time_point gStartTime = std::chrono::system_clock::now();
+
+static uint gRuns;
 
 int Driver(int& argc, char**& argv) {
   gOpts = BuildOptions(argc, argv);
@@ -41,12 +47,23 @@ int Driver(int& argc, char**& argv) {
   // Set all appropriate signal and timer handlers
   Signals signals(gOpts);
 
-  for (uint run = 0; run < maxRuns; run++) {
+  for (gRuns = 0; gRuns < maxRuns; gRuns++) {
     testInput.generate();
     LLVMFuzzerTestOneInput(testInput.get(), testInput.size());
   }
 
+  PrintFinalStats();
   return 0;
+}
+
+void PrintFinalStats() {
+  if (!gOpts.printFinalStats) {
+    return;
+  }
+  Print("Runs: ", gRuns);
+  std::chrono::duration<float> elapsed =
+      std::chrono::system_clock::now() - gStartTime;
+  Print("Elapsed Time: ", elapsed.count(), "s");
 }
 
 Options BuildOptions(int& argc, char**& argv) {
@@ -87,11 +104,13 @@ Options BuildOptions(int& argc, char**& argv) {
 
 void AbortHandler(int sig) {
   Debug("Abort occurred!");
+  PrintFinalStats();
   exit(gOpts.errorExitCode);
 }
 
 void TimeoutHandler(int sig) {
   Debug("Timeout occurred!");
+  PrintFinalStats();
   exit(gOpts.timeoutExitCode);
 }
 

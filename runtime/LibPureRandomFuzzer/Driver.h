@@ -24,6 +24,9 @@ struct Options {
 };
 
 int Driver(int& argc, char**& argv);
+
+void PrintFinalStats();
+
 Options BuildOptions(int& argc, char**& argv);
 
 void AbortHandler(int sig);

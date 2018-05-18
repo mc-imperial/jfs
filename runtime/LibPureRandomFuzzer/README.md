@@ -59,7 +59,7 @@ currently implemented to match what's needed for JFS.
 - [ ] `exact_artifact_path`
 - [ ] `print_pcs`
 - [ ] `print_funcs`
-- [ ] `print_final_stats`
+- [x] `print_final_stats`
 - [ ] `print_corpus_stats`
 - [ ] `print_coverage`
 - [ ] `dump_coverage`

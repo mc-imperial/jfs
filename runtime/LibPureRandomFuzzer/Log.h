@@ -17,6 +17,12 @@
 namespace prf {
 
 template<typename... Ts>
+void Print(Ts... args) {
+  int dummy[] = {0, (std::cout << args, 0)...};
+  std::cout << std::endl;
+}
+
+template<typename... Ts>
 void Debug(Ts... args) {
   int dummy[] = {0, (std::cerr << args, 0)...};
   std::cerr << std::endl;
