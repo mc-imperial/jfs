@@ -14,7 +14,7 @@ currently implemented to match what's needed for JFS.
 - [ ] `LLVMFuzzerInitialize` (user-provided, optional)
 - [ ] `LLVMFuzzerCustomMutator` (user-provided, optional)
 - [ ] `LLVMFuzzerCustomCrossOver` (user-provided, optional)
-- [ ] `LLVMFuzzerAtExit` (user-provided, optional)
+- [x] `LLVMFuzzerAtExit` (user-provided, optional)
 - [ ] `LLVMFuzzerMutate` (fuzzer-provided)
 - [ ] `LLVMFuzzerAnnounceOutput` (fuzzer-provided)
 

@@ -21,9 +21,27 @@ extern "C" {
 
 // user-provided, required
 int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size);
+typedef int TestOneInputT(const uint8_t* Data, size_t Size);
+// user-provided, optional
+void LLVMFuzzerAtExit();
+typedef void AtExitT();
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
+
+namespace prf {
+
+class API {
+private:
+  AtExitT* atExit;
+
+public:
+  API();
+  TestOneInputT* TestOneInput;
+  AtExitT AtExit;
+};
+
+} // prf
 
 #endif // PRF_API_H

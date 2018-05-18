@@ -31,6 +31,8 @@ static const time_point gStartTime = std::chrono::system_clock::now();
 
 static uint gRuns;
 
+static API* gAPI;
+
 int Driver(int& argc, char**& argv) {
   gOpts = BuildOptions(argc, argv);
 
@@ -47,12 +49,17 @@ int Driver(int& argc, char**& argv) {
   // Set all appropriate signal and timer handlers
   Signals signals(gOpts);
 
+  // Load any optional functions
+  gAPI = new API();
+
+  TestOneInputT* runTest = gAPI->TestOneInput;
   for (gRuns = 0; gRuns < maxRuns; gRuns++) {
     testInput.generate();
-    LLVMFuzzerTestOneInput(testInput.get(), testInput.size());
+    runTest(testInput.get(), testInput.size());
   }
 
   PrintFinalStats();
+  gAPI->AtExit();
   return 0;
 }
 
@@ -105,12 +112,14 @@ Options BuildOptions(int& argc, char**& argv) {
 void AbortHandler(int sig) {
   Debug("Abort occurred!");
   PrintFinalStats();
+  gAPI->AtExit();
   exit(gOpts.errorExitCode);
 }
 
 void TimeoutHandler(int sig) {
   Debug("Timeout occurred!");
   PrintFinalStats();
+  gAPI->AtExit();
   exit(gOpts.timeoutExitCode);
 }
 

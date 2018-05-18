@@ -57,6 +57,7 @@ endif()
 # LibPureRandomFuzzer
 ###############################################################################
 add_library(PureRandomFuzzer STATIC
+  API.cpp
   Driver.cpp
   Main.cpp
   Signals.cpp
