@@ -9,13 +9,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-// PRF_OPTION(flag, type, name, default value)
+// PRF_OPTION_<TYPE>(flag, name, default value)
 
-PRF_OPTION(max_len, uint, dataLength, 0)
-PRF_OPTION(runs, int, maxRuns, -1)
-PRF_OPTION(seed, uint, seed, 0)
-PRF_OPTION(timeout, int, timeout, 1200)
-PRF_OPTION(timeout_exitcode, int, timeoutExitCode, 77)
-PRF_OPTION(handle_abrt, bool, handleSIGABRT, true)
-PRF_OPTION(error_exitcode, int, errorExitCode, 77)
-PRF_OPTION(print_final_stats, bool, printFinalStats, false)
+PRF_OPTION_UINT(max_len, dataLength, 0)
+PRF_OPTION_INT(runs, maxRuns, -1)
+PRF_OPTION_UINT(seed, seed, 0)
+PRF_OPTION_INT(timeout, timeout, 1200)
+PRF_OPTION_INT(timeout_exitcode, timeoutExitCode, 77)
+PRF_OPTION_BOOL(handle_abrt, handleSIGABRT, true)
+PRF_OPTION_INT(error_exitcode, errorExitCode, 77)
+PRF_OPTION_BOOL(print_final_stats, printFinalStats, false)
+PRF_OPTION_STRING(artifact_prefix, artifactPrefix, "")

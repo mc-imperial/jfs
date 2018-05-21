@@ -13,6 +13,7 @@
 #define PRF_TEST_INPUT_H
 
 #include <random>
+#include <string>
 #include <vector>
 
 namespace prf {
@@ -27,6 +28,7 @@ public:
       : data(length), randGen(seed ? seed : std::mt19937::default_seed) {}
   void generate();
   const uint8_t* get() { return data.data(); }
+  const std::string str() { return std::string(data.begin(), data.end()); }
   std::size_t size() { return data.size(); }
 };
 

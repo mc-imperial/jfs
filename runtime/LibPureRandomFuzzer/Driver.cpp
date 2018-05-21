@@ -18,58 +18,68 @@
 #include <cassert>
 #include <chrono>
 #include <cstdio>
+#include <fstream>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <vector>
 
 namespace prf {
 
-static Options gOpts;
-
 typedef std::chrono::system_clock::time_point time_point;
-static const time_point gStartTime = std::chrono::system_clock::now();
 
-static uint gRuns;
-
-static API* gAPI;
+struct Fuzzer {
+  const time_point startTime = std::chrono::system_clock::now();
+  Options opts;
+  TestInput* testInput;
+  uint runs;
+  API* API;
+};
+static Fuzzer gFuzzer;
 
 int Driver(int& argc, char**& argv) {
-  gOpts = BuildOptions(argc, argv);
+  gFuzzer.opts = BuildOptions(argc, argv);
+  const Options& opts = gFuzzer.opts;
 
-  if (!gOpts.dataLength) {
+  const uint& dataLength = opts.dataLength;
+  if (!dataLength) {
     Debug("Test data length currently required");
     exit(1);
   }
-  TestInput testInput(gOpts.dataLength, gOpts.seed);
+
+  gFuzzer.testInput = new TestInput(dataLength, opts.seed);
   uint maxRuns = std::numeric_limits<uint>::max();
-  if (gOpts.maxRuns >= 0) {
-    maxRuns = gOpts.maxRuns;
+  if (opts.maxRuns >= 0) {
+    maxRuns = opts.maxRuns;
   }
 
   // Set all appropriate signal and timer handlers
-  Signals signals(gOpts);
+  Signals signals(opts);
 
   // Load any optional functions
-  gAPI = new API();
+  gFuzzer.API = new API();
 
-  TestOneInputT* runTest = gAPI->TestOneInput;
-  for (gRuns = 0; gRuns < maxRuns; gRuns++) {
+  // Start testing loop
+  TestOneInputT* runTest = gFuzzer.API->TestOneInput;
+  TestInput& testInput = *gFuzzer.testInput;
+  uint& runs = gFuzzer.runs;
+  for (runs = 0; runs < maxRuns; runs++) {
     testInput.generate();
-    runTest(testInput.get(), testInput.size());
+    runTest(testInput.get(), dataLength);
   }
 
   PrintFinalStats();
-  gAPI->AtExit();
+  gFuzzer.API->AtExit();
   return 0;
 }
 
 void PrintFinalStats() {
-  if (!gOpts.printFinalStats) {
+  if (!gFuzzer.opts.printFinalStats) {
     return;
   }
-  Print("Runs: ", gRuns);
+  Print("Runs: ", gFuzzer.runs);
   std::chrono::duration<float> elapsed =
-      std::chrono::system_clock::now() - gStartTime;
+      std::chrono::system_clock::now() - gFuzzer.startTime;
   Print("Elapsed Time: ", elapsed.count(), "s");
 }
 
@@ -87,40 +97,68 @@ Options BuildOptions(int& argc, char**& argv) {
     }
     auto flagInput = arg.substr(1, equals - 1);
     auto valueInput = arg.substr(equals + 1);
-#define PRF_OPTION(flag, type, name, _)                                        \
+#define PRF_OPTION_UINT(flag, name, _)                                         \
     if (flagInput == #flag) {                                                  \
-      if (#type == "int") {                                                    \
-        opts.name = stoi(valueInput);                                          \
-      }                                                                        \
-      if (#type == "uint") {                                                   \
-        opts.name = stoul(valueInput);                                         \
-      }                                                                        \
-      if (#type == "bool") {                                                   \
-        opts.name = !!stoul(valueInput);                                       \
-      }                                                                        \
+      opts.name = stoul(valueInput);                                           \
+      Debug("opts.", #name, " = ", opts.name);                                 \
+      continue;                                                                \
+    }
+#define PRF_OPTION_INT(flag, name, _)                                          \
+    if (flagInput == #flag) {                                                  \
+      opts.name = stoi(valueInput);                                            \
+      Debug("opts.", #name, " = ", opts.name);                                 \
+      continue;                                                                \
+    }
+#define PRF_OPTION_BOOL(flag, name, _)                                         \
+    if (flagInput == #flag) {                                                  \
+      opts.name = !!stoul(valueInput);                                         \
+      Debug("opts.", #name, " = ", opts.name);                                 \
+      continue;                                                                \
+    }
+#define PRF_OPTION_STRING(flag, name, _)                                       \
+    if (flagInput == #flag) {                                                  \
+      opts.name = std::move(valueInput);                                       \
       Debug("opts.", #name, " = ", opts.name);                                 \
       continue;                                                                \
     }
 #include "Options.def"
-#undef PRF_OPTION
+#undef PRF_OPTION_UINT
+#undef PRF_OPTION_INT
+#undef PRF_OPTION_BOOL
+#undef PRF_OPTION_STRING
     Debug("Ignored unknown option: ", arg);
   }
 
   return opts;
 }
 
+void WriteArtifact(const char* artifactType) {
+  static uint fileIndex = 0;
+  const std::string& artifactDir = gFuzzer.opts.artifactPrefix;
+  if (artifactDir.empty()) {
+    return;
+  }
+  std::stringstream filePath;
+  filePath << artifactDir << artifactType << "-" << (fileIndex++);
+  Debug("Writing arifact to: ", filePath.str());
+  std::fstream file(filePath.str(), std::ios::binary | std::ios::out);
+  file << gFuzzer.testInput->str();
+}
+
 void AbortHandler(int sig) {
   Debug("Abort occurred!");
+  Debug("Found artifact: ", gFuzzer.testInput->str());
+  WriteArtifact("abort");
   PrintFinalStats();
-  gAPI->AtExit();
-  exit(gOpts.errorExitCode);
+  gFuzzer.API->AtExit();
+  exit(gFuzzer.opts.errorExitCode);
 }
 
 void TimeoutHandler(int sig) {
   Debug("Timeout occurred!");
   PrintFinalStats();
-  gAPI->AtExit();
-  exit(gOpts.timeoutExitCode);
+  gFuzzer.API->AtExit();
+  exit(gFuzzer.opts.timeoutExitCode);
 }
 
 } // prf

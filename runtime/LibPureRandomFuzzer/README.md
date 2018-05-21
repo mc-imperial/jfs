@@ -55,7 +55,7 @@ currently implemented to match what's needed for JFS.
 - [ ] `report_slow_units`
 - [ ] `only_ascii`
 - [ ] `dict`
-- [ ] `crash`
+- [x] `artifact_prefix`
 - [ ] `exact_artifact_path`
 - [ ] `print_pcs`
 - [ ] `print_funcs`
