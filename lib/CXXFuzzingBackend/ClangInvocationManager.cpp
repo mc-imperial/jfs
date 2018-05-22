@@ -201,6 +201,12 @@ public:
       cmdLineArgs.push_back("-DENABLE_JFS_RUNTIME_ASSERTS");
     }
 
+#ifdef __linux__
+    // On Linux, export all symbols so that optional functions (such as
+    // `LLVMFuzzerAtExit`) can be found via `dlsym` in the fuzzer.
+    cmdLineArgs.push_back("-Wl,--export-dynamic");
+#endif
+
     // Source file to compile
     cmdLineArgs.push_back(sourceFile.data());
 
