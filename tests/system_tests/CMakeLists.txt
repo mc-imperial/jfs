@@ -43,3 +43,6 @@ add_custom_target(systemtests
   COMMENT "Running system tests"
   ${ADD_CUSTOM_COMMAND_USES_TERMINAL_ARG}
 )
+
+# CXXFuzzingBackend customizes the testing harness
+add_subdirectory(CXXFuzzingBackend)
