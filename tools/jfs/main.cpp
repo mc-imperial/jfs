@@ -51,7 +51,8 @@ llvm::cl::opt<std::string> InputFilename(llvm::cl::Positional,
                                          llvm::cl::desc("<input file>"),
                                          llvm::cl::init("-"));
 llvm::cl::opt<unsigned> Verbosity("v", llvm::cl::desc("Verbosity level"),
-                                  llvm::cl::init(0));
+                                  llvm::cl::init(0),
+                                  llvm::cl::ZeroOrMore);
 
 llvm::cl::opt<unsigned>
     MaxTime("max-time", llvm::cl::desc("Max allowed solver time (seconds). "
@@ -64,7 +65,8 @@ llvm::cl::opt<std::string> OutputDirectory(
 
 llvm::cl::opt<bool>
     KeepOutputDirectory("keep-output-dir", llvm::cl::init(false),
-                        llvm::cl::desc("Keep output directory (default false)"));
+                        llvm::cl::desc("Keep output directory (default false)"),
+                        llvm::cl::ZeroOrMore);
 
 llvm::cl::opt<std::string>
     StatsFilename("stats-file",
