@@ -1,3 +1,5 @@
+; NOTE: This test depends on input size warnings only triggered with LibFuzzer.
+; REQUIRES: LibFuzzer
 ; RUN: rm -f %t-stats_fail-fast.yml
 
 ; Fail fast encoding

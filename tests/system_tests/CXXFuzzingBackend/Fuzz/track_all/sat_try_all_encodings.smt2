@@ -1,3 +1,5 @@
+; NOTE: This test depends on input size warnings only triggered with LibFuzzer.
+; REQUIRES: LibFuzzer
 ; RUN: rm -rf %t-stats_try-all.yml
 
 ; Try all encoding
