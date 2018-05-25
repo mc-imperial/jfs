@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_CORE_MODEL_H
 #define JFS_CORE_MODEL_H
+#include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Z3Node.h"
 #include <string>
 
@@ -18,16 +19,18 @@ namespace core {
 
 class Model {
 protected:
-  Z3ModelHandle model;
-  Model(Z3ModelHandle m) : model(m) {}
-  Model();
+  JFSContext& ctx;
+  Model(JFSContext& ctx);
   virtual ~Model();
 
 public:
-  // Do we really need this method?
-  virtual Z3ASTHandle getAssignment(Z3FuncDeclHandle);
-  virtual Z3ModelHandle getRepr() { return model; }
+  virtual Z3ASTHandle getAssignmentFor(Z3FuncDeclHandle);
+  virtual bool addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
+                                bool allowOverwrite = false);
   virtual std::string getSMTLIBString();
+  virtual bool hasAssignmentFor(Z3FuncDeclHandle decl);
+  virtual Z3ModelHandle getRepr() = 0;
+  JFSContext& getContext();
 };
 
 } // namespace core

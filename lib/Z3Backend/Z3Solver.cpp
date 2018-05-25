@@ -25,8 +25,12 @@ namespace jfs {
   llvm::StringRef Z3Solver::getName() const { return "Z3Solver"; }
 
   class Z3Model : public jfs::core::Model {
-    public:
-      Z3Model(Z3ModelHandle m) : jfs::core::Model(m) {}
+  private:
+    Z3ModelHandle z3Model;
+
+  public:
+    Z3Model(JFSContext& ctx, Z3ModelHandle m) : Model(ctx), z3Model(m) {}
+    Z3ModelHandle getRepr() override { return z3Model; }
   };
 
   class Z3SolverResponse : public SolverResponse {
@@ -40,8 +44,8 @@ namespace jfs {
     }
     friend class Z3Solver;
     // To be used by Z3Solver only
-    void setModel(Z3ModelHandle m) {
-      model.reset(new Z3Model(m));
+    void setModel(JFSContext& ctx, Z3ModelHandle m) {
+      model.reset(new Z3Model(ctx, m));
     }
   };
 
@@ -87,7 +91,7 @@ namespace jfs {
     if (getModel && sat == SolverResponse::SAT) {
       // Add the model
       Z3ModelHandle model = Z3ModelHandle(::Z3_solver_get_model(z3Ctx, solver), z3Ctx);
-      static_cast<Z3SolverResponse*>(resp.get())->setModel(model);
+      static_cast<Z3SolverResponse*>(resp.get())->setModel(ctx, model);
     }
     return resp;
   }

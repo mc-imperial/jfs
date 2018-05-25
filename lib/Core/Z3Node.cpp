@@ -69,6 +69,7 @@ template <> std::string Z3NodeHandle<Z3_params>::toStr() const {
   return ::Z3_params_to_string(context, node);
 }
 
+// Z3ModelHandle helper methods
 template <> void Z3NodeHandle<Z3_model>::dump() const {
   llvm::errs() << "Z3ModelHandle:\n" << toStr() << "\n";
 }
@@ -76,6 +77,11 @@ template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
   // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
   // to make this thread safe.
   return ::Z3_model_to_string(context, node);
+}
+
+bool Z3ModelHandle::hasAssignmentFor(Z3FuncDeclHandle decl) const {
+  assert(decl.getContext() == context && "mismached contexts");
+  return ::Z3_model_has_interp(context, node, decl);
 }
 
 // Z3SortHandle helper methods

@@ -252,10 +252,16 @@ template <> inline void Z3NodeHandle<Z3_model>::inc_ref(Z3_model node) {
 template <> inline void Z3NodeHandle<Z3_model>::dec_ref(Z3_model node) {
   ::Z3_model_dec_ref(context, node);
 }
-typedef Z3NodeHandle<Z3_model> Z3ModelHandle;
 template <> void Z3NodeHandle<Z3_model>::dump() const __attribute__((used));
 template <>
 std::string Z3NodeHandle<Z3_model>::toStr() const __attribute__((used));
+
+class Z3ModelHandle : public Z3NodeHandle<Z3_model> {
+  // Inherit constructors
+public:
+  using Z3NodeHandle<Z3_model>::Z3NodeHandle;
+  bool hasAssignmentFor(Z3FuncDeclHandle d) const;
+};
 
 // Specialise for Z3_goal
 template <> inline void Z3NodeHandle<Z3_goal>::inc_ref(Z3_goal node) {
