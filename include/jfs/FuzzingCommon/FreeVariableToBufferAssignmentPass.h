@@ -14,6 +14,7 @@
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
 #include "jfs/Core/Z3NodeSet.h"
+#include "jfs/FuzzingCommon/BufferAssignment.h"
 #include "jfs/FuzzingCommon/EqualityExtractionPass.h"
 #include "jfs/FuzzingCommon/FreeVariableToBufferAssignmentPassOptions.h"
 #include "jfs/Transform/QueryPass.h"
@@ -21,53 +22,6 @@
 
 namespace jfs {
 namespace fuzzingCommon {
-
-class BufferElement {
-private:
-  size_t storeBitAlignment;
-
-public:
-  const jfs::core::Z3ASTHandle declApp;
-  BufferElement(const jfs::core::Z3ASTHandle declApp,
-                size_t storeBitAlignment = 1);
-  unsigned getTypeBitWidth() const;  // Does not include padding
-  unsigned getStoreBitWidth() const; // Includes any required padding
-  size_t getStoreBitAlignment() const { return storeBitAlignment; }
-  // FIXME: put this behind an interface once we know the requirements
-  std::vector<jfs::core::Z3ASTHandle> equalities;
-  void print(llvm::raw_ostream&) const;
-  void dump() const;
-  jfs::core::Z3FuncDeclHandle getDecl() const;
-  std::string getName() const;
-  jfs::core::Z3SortHandle getSort() const;
-};
-
-class BufferAssignment {
-private:
-  typedef std::vector<BufferElement> ChunksTy;
-  ChunksTy chunks;
-  uint64_t cachedTypeBitWidth;
-  uint64_t cachedStoreBitWidth;
-  uint64_t computeTypeBitWidth() const;
-  uint64_t computeStoreBitWidth() const;
-
-public:
-  BufferAssignment() : cachedTypeBitWidth(0), cachedStoreBitWidth(0) {}
-  ~BufferAssignment() {}
-  void appendElement(BufferElement&);
-  uint64_t getTypeBitWidth() const { return cachedTypeBitWidth; }
-  uint64_t getStoreBitWidth() const { return cachedStoreBitWidth; }
-  uint64_t getRequiredStoreBytes() const {
-    return (getStoreBitWidth() + 7) / 8;
-  }
-  ChunksTy::const_iterator cbegin() const { return chunks.begin(); }
-  ChunksTy::const_iterator cend() const { return chunks.end(); }
-  ChunksTy::const_iterator begin() const { return cbegin(); }
-  ChunksTy::const_iterator end() const { return cend(); }
-  size_t size() const { return chunks.size(); }
-  void print(llvm::raw_ostream&) const;
-  void dump() const;
-};
 
 class ConstantAssignment {
 public:
@@ -102,7 +56,7 @@ public:
   // EqualityExtractionPass has run and so constantAssignment is always empty.
   std::shared_ptr<ConstantAssignment> constantAssignments;
 };
-}
-}
+} // namespace fuzzingCommon
+} // namespace jfs
 
 #endif

@@ -68,6 +68,8 @@ message(STATUS "JFS_STATIC_RUNTIME_PATH: ${JFS_STATIC_RUNTIME_PATH}")
 ################################################################################
 
 jfs_add_component(JFSFuzzingCommon
+  BufferAssignment.cpp
+  BufferElement.cpp
   CommandLineCategory.cpp
   DummyFuzzingSolver.cpp
   EqualityExtractionPass.cpp
