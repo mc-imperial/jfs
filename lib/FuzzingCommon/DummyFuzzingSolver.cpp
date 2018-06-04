@@ -32,7 +32,7 @@ void DummyFuzzingSolver::cancel() {
 class DummyFuzzingSolverResponse : public SolverResponse {
 public:
   DummyFuzzingSolverResponse() : SolverResponse(SolverResponse::UNKNOWN) {}
-  std::shared_ptr<Model> getModel() override {
+  Model* getModel() override {
     // There is no model
     return nullptr;
   }

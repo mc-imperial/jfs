@@ -116,6 +116,9 @@ public:
   unsigned getFloatingPointExponentBitWidth() const;
   unsigned getFloatingPointSignificandBitWidth() const; // Includes implicit bit
   Z3ASTHandle asAST() const;
+
+  static Z3SortHandle getBoolTy(Z3_context ctx);
+  static Z3SortHandle getBitVectorTy(Z3_context, unsigned bitWidth);
 };
 
 // Specialise for Z3_ast
@@ -156,6 +159,9 @@ public:
 
   Z3AppHandle asApp() const;
   Z3FuncDeclHandle asFuncDecl() const;
+
+  static Z3ASTHandle getTrue(Z3_context ctx);
+  static Z3ASTHandle getFalse(Z3_context ctx);
 };
 
 // Specialise for Z3_app
@@ -260,7 +266,10 @@ class Z3ModelHandle : public Z3NodeHandle<Z3_model> {
   // Inherit constructors
 public:
   using Z3NodeHandle<Z3_model>::Z3NodeHandle;
+  Z3ASTHandle getAssignmentFor(Z3FuncDeclHandle);
   bool hasAssignmentFor(Z3FuncDeclHandle d) const;
+  bool addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
+                        bool allowOverwrite = false);
 };
 
 // Specialise for Z3_goal

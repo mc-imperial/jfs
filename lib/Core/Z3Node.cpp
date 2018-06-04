@@ -79,9 +79,41 @@ template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
   return ::Z3_model_to_string(context, node);
 }
 
+Z3ASTHandle Z3ModelHandle::getAssignmentFor(Z3FuncDeclHandle funcDecl) {
+  assert(funcDecl.getContext() == context && "mismatched contexts");
+  Z3_ast rawPointer = nullptr;
+  Z3_bool success =
+      ::Z3_model_eval(context, node, ::Z3_func_decl_to_ast(context, funcDecl),
+                      /*model_completion=*/true, &rawPointer);
+  assert(success && "Failed to get assignment from Z3 model");
+  return Z3ASTHandle(rawPointer, context);
+}
+
 bool Z3ModelHandle::hasAssignmentFor(Z3FuncDeclHandle decl) const {
   assert(decl.getContext() == context && "mismached contexts");
   return ::Z3_model_has_interp(context, node, decl);
+}
+
+bool Z3ModelHandle::addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
+                                     bool allowOverwrite) {
+  assert(decl.getContext() == context && "mistached decl and model context");
+  assert(e.getContext() == context &&
+         "mismatched assignment and model context");
+  if (!allowOverwrite) {
+    // Check if an assignment already exists
+    if (hasAssignmentFor(decl)) {
+      return false;
+    }
+  }
+  if (!e.isConstant()) {
+    // We only support constant assignments right now.
+    // Z3's API allows giving assignments to arrays and
+    // uninterpreted functions but let's not worry about that
+    // right now.
+    return false;
+  }
+  Z3_add_const_interp(context, node, decl, e);
+  return true;
 }
 
 // Z3SortHandle helper methods
@@ -125,6 +157,14 @@ unsigned Z3SortHandle::getFloatingPointBitWidth() const {
 
 Z3ASTHandle Z3SortHandle::asAST() const {
   return Z3ASTHandle(::Z3_sort_to_ast(context, node), context);
+}
+
+Z3SortHandle Z3SortHandle::getBoolTy(Z3_context ctx) {
+  return Z3SortHandle(Z3_mk_bool_sort(ctx), ctx);
+}
+
+Z3SortHandle Z3SortHandle::getBitVectorTy(Z3_context ctx, unsigned bitWidth) {
+  return Z3SortHandle(Z3_mk_bv_sort(ctx, bitWidth), ctx);
 }
 
 // Z3ASTHandle helper methods
@@ -219,6 +259,14 @@ Z3FuncDeclHandle Z3ASTHandle::asFuncDecl() const {
   if (!isFuncDecl())
     return Z3FuncDeclHandle();
   return Z3FuncDeclHandle(::Z3_to_func_decl(context, node), context);
+}
+
+Z3ASTHandle Z3ASTHandle::getTrue(Z3_context ctx) {
+  return Z3ASTHandle(::Z3_mk_true(ctx), ctx);
+}
+
+Z3ASTHandle Z3ASTHandle::getFalse(Z3_context ctx) {
+  return Z3ASTHandle(::Z3_mk_false(ctx), ctx);
 }
 
 // Z3AppHandle helpers

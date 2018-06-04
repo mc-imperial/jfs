@@ -16,6 +16,7 @@
 #include "jfs/CXXFuzzingBackend/ClangOptions.h"
 #include "jfs/Core/IfVerbose.h"
 #include "jfs/Core/JFSTimerMacros.h"
+#include "jfs/FuzzingCommon/FileSerializableModel.h"
 #include "jfs/FuzzingCommon/JFSRuntimeFuzzingStat.h"
 #include "jfs/FuzzingCommon/LibFuzzerInvocationManager.h"
 #include "jfs/FuzzingCommon/SeedManager.h"
@@ -53,14 +54,17 @@ llvm::cl::opt<bool> DebugStopAfterSeedGeneration(
 namespace jfs {
 namespace cxxfb {
 
+class CXXFuzzingSolverImpl;
+
 class CXXFuzzingSolverResponse : public SolverResponse {
+private:
+  std::unique_ptr<FileSerializableModel> model;
+
 public:
   CXXFuzzingSolverResponse(SolverResponse::SolverSatisfiability sat)
       : SolverResponse(sat) {}
-  std::shared_ptr<Model> getModel() override {
-    // TODO: Figure out how to do model generation
-    return nullptr;
-  }
+  Model* getModel() override { return model.get(); }
+  friend class CXXFuzzingSolverImpl;
 };
 
 class CXXFuzzingSolverImpl {
@@ -179,10 +183,6 @@ public:
   fuzz(jfs::core::Query &q, bool produceModel,
        std::shared_ptr<FuzzingAnalysisInfo> info) {
     assert(ctx == q.getContext());
-    if (produceModel) {
-      ctx.raiseFatalError("model generation is not supported");
-      return nullptr;
-    }
 #define CHECK_CANCELLED()                                                      \
   if (cancelled) {                                                             \
     IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n"); \
@@ -357,9 +357,18 @@ public:
     }
     case LibFuzzerResponse::ResponseTy::TARGET_FOUND: {
       // Solution found
-      // TODO: Handle setting up model if its needed.
-      return std::unique_ptr<SolverResponse>(
+      std::unique_ptr<CXXFuzzingSolverResponse> resp(
           new CXXFuzzingSolverResponse(SolverResponse::SAT));
+      if (produceModel) {
+        auto mb = fuzzingResponse->getInputForTarget();
+        if (mb.get() == nullptr) {
+          ctx.raiseFatalError("Failed to get model");
+        }
+        resp->model = std::move(FileSerializableModel::loadFrom(
+            mb.get(), info->freeVariableAssignment->bufferAssignment.get(),
+            ctx));
+      }
+      return resp;
     }
     default:
       llvm_unreachable("Unhandled LibFuzzerResponse");

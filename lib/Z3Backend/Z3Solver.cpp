@@ -31,17 +31,17 @@ namespace jfs {
   public:
     Z3Model(JFSContext& ctx, Z3ModelHandle m) : Model(ctx), z3Model(m) {}
     Z3ModelHandle getRepr() override { return z3Model; }
+    ~Z3Model() {}
   };
 
   class Z3SolverResponse : public SolverResponse {
     private:
-      std::shared_ptr<Model> model;
+      std::unique_ptr<Model> model;
+
     public:
     Z3SolverResponse(SolverSatisfiability sat) : SolverResponse(sat), model(nullptr) {}
     ~Z3SolverResponse() {}
-    std::shared_ptr<Model> getModel() override {
-      return model;
-    }
+    Model* getModel() override { return model.get(); }
     friend class Z3Solver;
     // To be used by Z3Solver only
     void setModel(JFSContext& ctx, Z3ModelHandle m) {

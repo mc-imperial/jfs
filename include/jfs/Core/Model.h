@@ -19,9 +19,9 @@ namespace core {
 
 class Model {
 protected:
+  jfs::core::Z3ModelHandle z3Model;
   JFSContext& ctx;
   Model(JFSContext& ctx);
-  virtual ~Model();
 
 public:
   virtual Z3ASTHandle getAssignmentFor(Z3FuncDeclHandle);
@@ -29,8 +29,9 @@ public:
                                 bool allowOverwrite = false);
   virtual std::string getSMTLIBString();
   virtual bool hasAssignmentFor(Z3FuncDeclHandle decl);
-  virtual Z3ModelHandle getRepr() = 0;
+  virtual Z3ModelHandle getRepr() { return z3Model; }
   JFSContext& getContext();
+  virtual ~Model();
 };
 
 } // namespace core

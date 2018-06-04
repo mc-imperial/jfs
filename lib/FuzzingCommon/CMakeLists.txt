@@ -73,6 +73,7 @@ jfs_add_component(JFSFuzzingCommon
   CommandLineCategory.cpp
   DummyFuzzingSolver.cpp
   EqualityExtractionPass.cpp
+  FileSerializableModel.cpp
   FreeVariableToBufferAssignmentPass.cpp
   FreeVariableToBufferAssignmentPassOptions.cpp
   FuzzingSolver.cpp
@@ -87,7 +88,26 @@ jfs_add_component(JFSFuzzingCommon
   SeedManagerStat.cpp
   SortConformanceCheckPass.cpp
   WorkingDirectoryManager.cpp
+  # FIXME: This is a hack. Can we do this in a cleaner way?
+  # Runtime code
+  ${CMAKE_SOURCE_DIR}/runtime/SMTLIB/SMTLIB/NativeBitVector.cpp
 )
+
+# JFSFuzzingCommon needs to build some of the runtime functions
+# into itself so add the include the head path
+target_include_directories(JFSFuzzingCommon
+  PRIVATE
+  "${CMAKE_SOURCE_DIR}/runtime/SMTLIB"
+)
+# HACK: Make runtime asserts into aborts so that when we use runtime
+# functions directly we always use its asserts.
+target_compile_definitions(JFSFuzzingCommon
+  PRIVATE
+  JFS_RUNTIME_FAILURE_CALLS_ABORT
+  ENABLE_JFS_RUNTIME_ASSERTS
+)
+
+
 target_link_libraries(JFSFuzzingCommon
   PUBLIC
   JFSTransform

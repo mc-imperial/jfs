@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FuzzingSolver.h"
 #include "jfs/Core/IfVerbose.h"
+#include "jfs/FuzzingCommon/FileSerializableModel.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/FuzzingCommon/FuzzingSolverOptions.h"
 #include "jfs/Transform/QueryPassManager.h"
@@ -27,14 +28,16 @@ namespace fuzzingCommon {
 // This response type is used for the trivial queries
 // that we can solve without fuzzing
 class TrivialFuzzingSolverResponse : public jfs::core::SolverResponse {
+private:
+  std::unique_ptr<FileSerializableModel> model;
+
 public:
   TrivialFuzzingSolverResponse(SolverResponse::SolverSatisfiability sat)
       : SolverResponse(sat) {}
-  std::shared_ptr<Model> getModel() override {
-    // TODO: Figure out how to support Model generation.
-    // Can we have common code for all fuzzing backends or
-    // will they need their own?
-    return nullptr;
+  Model* getModel() override {
+    if (sat != SolverSatisfiability::SAT)
+      return nullptr;
+    return model.get();
   }
 };
 

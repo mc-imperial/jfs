@@ -14,7 +14,9 @@
 #include "jfs/FuzzingCommon/LibFuzzerOptions.h"
 #include "jfs/Support/ICancellable.h"
 #include "llvm/ADT/StringRef.h"
+#include "llvm/Support/MemoryBuffer.h"
 #include <memory>
+#include <string>
 
 namespace jfs {
 namespace fuzzingCommon {
@@ -28,10 +30,11 @@ struct LibFuzzerResponse {
     UNKNOWN,
   };
   ResponseTy outcome;
+  std::string pathToInput;
   LibFuzzerResponse();
   ~LibFuzzerResponse();
-  // TODO: Add stuff here to gain access to the
-  // input that hit the target if relevant.
+  // Returns nullptr if outcome was not `TARGET_FOUND`.
+  std::unique_ptr<llvm::MemoryBuffer> getInputForTarget() const;
 };
 
 class LibFuzzerInvocationManagerImpl;

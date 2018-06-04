@@ -234,8 +234,39 @@ public:
       return response;
     }
 
-    // TODO: Populate response with input that caused the target to be found
+    // Populate response with information on the target
     response->outcome = LibFuzzerResponse::ResponseTy::TARGET_FOUND;
+    // Find the artifact file
+    {
+      // Keep all the filesystem stuff scoped.
+      std::error_code ec;
+      llvm::sys::fs::directory_iterator artifactDirIt(options->artifactDir, ec);
+      for (llvm::sys::fs::directory_iterator endIt; artifactDirIt != endIt;
+           artifactDirIt.increment(ec)) {
+        if (ec) {
+          ctx.getWarningStream()
+              << "(warning Failed to find artifact:" << ec.message() << ")\n";
+          break;
+        }
+        auto fileStatusOrError = artifactDirIt->status();
+        if (auto ec = fileStatusOrError.getError()) {
+          ctx.getWarningStream()
+              << "(warning Failed to find artifact:" << ec.message() << ")\n";
+          break;
+        }
+        if (fileStatusOrError->type() !=
+            llvm::sys::fs::file_type::regular_file) {
+          continue;
+        }
+        // Regular file. For now just assume this is the artifact file because
+        // that should be the only regular file in the directory.
+        response->pathToInput = artifactDirIt->path();
+        IF_VERB(ctx, ctx.getDebugStream()
+                         << "(LibFuzzerInvocationManager found artifact: "
+                         << response->pathToInput << ")\n");
+        break;
+      }
+    }
     return response;
   }
 };
@@ -244,6 +275,19 @@ public:
 
 LibFuzzerResponse::LibFuzzerResponse() : outcome(ResponseTy::UNKNOWN) {}
 LibFuzzerResponse::~LibFuzzerResponse() {}
+
+std::unique_ptr<llvm::MemoryBuffer>
+LibFuzzerResponse::getInputForTarget() const {
+  if (pathToInput.size() == 0)
+    return nullptr;
+  auto bufferOrError =
+      llvm::MemoryBuffer::getFile(pathToInput, /*FileSize=*/-1,
+                                  /*RequiresNullTerminator=*/false);
+  if (auto ec = bufferOrError.getError()) {
+    return nullptr;
+  }
+  return std::move(*bufferOrError);
+}
 
 // LibFuzzerInvocationManager
 LibFuzzerInvocationManager::LibFuzzerInvocationManager(JFSContext& ctx)
