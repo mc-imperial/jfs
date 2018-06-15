@@ -270,6 +270,8 @@ public:
   bool hasAssignmentFor(Z3FuncDeclHandle d) const;
   bool addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
                         bool allowOverwrite = false);
+  uint64_t getNumAssignments() const;
+  bool isEmpty() const;
 };
 
 // Specialise for Z3_goal

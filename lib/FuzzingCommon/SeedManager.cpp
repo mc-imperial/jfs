@@ -81,6 +81,10 @@ public:
     this->seedSize = bufferAssignment->getRequiredStoreBytes();
     this->fai = info;
     this->query = q;
+    if (seedSize == 0) {
+      // The buffer is empty so we don't generate any seeds.
+      return numSeedsWritten;
+    }
     uint64_t boundBasedOnSpace = getSpaceLimit() / seedSize;
     uint64_t effectiveBound =
         std::min(((getSpaceLimit() > 0) ? boundBasedOnSpace : UINT64_MAX),

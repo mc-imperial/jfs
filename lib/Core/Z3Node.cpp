@@ -76,7 +76,13 @@ template <> void Z3NodeHandle<Z3_model>::dump() const {
 template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
   // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
   // to make this thread safe.
-  return ::Z3_model_to_string(context, node);
+  // FIXME: The syntax we print isn't standard. We should try to use
+  // the SMT-LIBv2.6 standard instead.
+  const char* s = ::Z3_model_to_string(context, node);
+  if (s[0] == '\0') {
+    return "(model )";
+  }
+  return s;
 }
 
 Z3ASTHandle Z3ModelHandle::getAssignmentFor(Z3FuncDeclHandle funcDecl) {
@@ -114,6 +120,17 @@ bool Z3ModelHandle::addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
   }
   Z3_add_const_interp(context, node, decl, e);
   return true;
+}
+
+uint64_t Z3ModelHandle::getNumAssignments() const {
+  if (context == nullptr || node == nullptr) {
+    return 0;
+  }
+  return Z3_model_get_num_consts(context, node);
+}
+
+bool Z3ModelHandle::isEmpty() const {
+  return getNumAssignments() == 0;
 }
 
 // Z3SortHandle helper methods
