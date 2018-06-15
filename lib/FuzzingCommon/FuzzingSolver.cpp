@@ -24,12 +24,15 @@ using namespace jfs::transform;
 namespace jfs {
 namespace fuzzingCommon {
 
+class FuzzingSolverImpl;
 
 // This response type is used for the trivial queries
 // that we can solve without fuzzing
 class TrivialFuzzingSolverResponse : public jfs::core::SolverResponse {
 private:
-  std::unique_ptr<FileSerializableModel> model;
+  friend class FuzzingSolverImpl;
+  std::unique_ptr<jfs::core::Model> model;
+  void setModel(std::unique_ptr<jfs::core::Model> m) { model = std::move(m); }
 
 public:
   TrivialFuzzingSolverResponse(SolverResponse::SolverSatisfiability sat)
@@ -74,9 +77,14 @@ public:
     // Check for trivial SAT
     if (q.constraints.size() == 0) {
       // Empty constraint set is trivially satisifiable
-      assert(!produceModel && "producing models not implemented");
-      return std::unique_ptr<SolverResponse>(
+
+      // Make empty model
+      auto model = std::unique_ptr<FileSerializableModel>(
+          new FileSerializableModel(q.getContext()));
+      auto resp = std::unique_ptr<TrivialFuzzingSolverResponse>(
           new TrivialFuzzingSolverResponse(SolverResponse::SAT));
+      resp->setModel(std::move(model));
+      return resp;
     }
 
     CHECK_CANCELLED()
