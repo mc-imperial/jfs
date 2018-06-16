@@ -235,7 +235,9 @@ bool EqualityExtractionPass::convertModel(jfs::core::Model* model) {
         // This implies that all other variables in the equality
         // set should get this assignment.
         assert(assignment.size() == 0);
-        auto successIteratorPair = assignment.insert(e);
+        Z3ASTHandle assignmentForSet = model->getAssignmentFor(decl);
+        assert(!assignmentForSet.isNull());
+        auto successIteratorPair = assignment.insert(assignmentForSet);
         assert(successIteratorPair.second && "insertion failed");
         continue;
       }
