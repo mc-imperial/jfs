@@ -18,6 +18,7 @@
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/JFSTimerMacros.h"
 #include "jfs/Core/Model.h"
+#include "jfs/Core/ModelValidator.h"
 #include "jfs/Core/SMTLIB2Parser.h"
 #include "jfs/Core/ScopedJFSContextErrorHandler.h"
 #include "jfs/Core/ToolErrorHandler.h"
@@ -120,9 +121,14 @@ llvm::cl::opt<BackendTy> SolverBackend(
 llvm::cl::opt<bool>
     GetModel("get-model", llvm::cl::init(false),
              llvm::cl::desc("If sat report the found model (default false)"));
+
+llvm::cl::opt<bool> ValidateModel(
+    "validate-model", llvm::cl::init(false),
+    llvm::cl::desc(
+        "Validate model if one is found (default false). Implies -get-model"));
 } // namespace
 
-bool shouldRequestModel() { return GetModel; }
+bool shouldRequestModel() { return GetModel || ValidateModel; }
 
 void printVersion(llvm::raw_ostream& os) {
   os << support::getVersionString() << "\n";
@@ -333,6 +339,13 @@ int main(int argc, char** argv) {
   }
   parsingDone = true;
   IF_VERB(ctx, ctx.getDebugStream() << "(Parser finished)\n");
+  std::unique_ptr<Query> originalQuery;
+  if (ValidateModel) {
+    // When we perform model validation we should do so with respect
+    // to the original query. The query gets modified in place by the
+    // passes so we have to make a copy.
+    originalQuery.reset(new Query(*query));
+  }
   if (Verbosity > 10)
     ctx.getDebugStream() << *query;
 
@@ -349,6 +362,7 @@ int main(int argc, char** argv) {
   if (Verbosity > 0)
     ctx.getDebugStream() << "(using solver \"" << solver->getName() << "\")\n";
 
+  int toolExitCode = 0;
   auto response = solver->solve(*query, /*produceModel=*/shouldRequestModel());
   llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";
 
@@ -366,9 +380,27 @@ int main(int argc, char** argv) {
       // Sort the declarations so they are listed in a deterministic order.
       mpo.sortDecls = true;
       llvm::outs() << model->getSMTLIBString(&mpo) << "\n";
+
+      // Validate model if requested
+      if (ValidateModel) {
+        assert(originalQuery.get() != nullptr);
+        ModelValidator validator;
+        ModelValidationOptions mvo;
+        mvo.warnOnVariablesMissingAssignment = true;
+        validator.validate(*originalQuery, model, &mvo);
+        if (validator.getNumberOfFailures() > 0) {
+          ctx.getErrorStream() << "(error model validation failed:\n"
+                               << validator.toStr() << "\n)";
+          toolExitCode = 1;
+        } else {
+          IF_VERB(ctx, ctx.getDebugStream()
+                           << "(model validation succeeded)\n");
+        }
+      }
     } else {
       // Don't bail out here because we may want to still record stats.
       ctx.getErrorStream() << "(error Failed to get model)\n";
+      toolExitCode = 1;
     }
   }
 
@@ -382,5 +414,5 @@ int main(int argc, char** argv) {
     ctx.getStats()->printYAML(*sf);
     sf->flush();
   }
-  return 0;
+  return toolExitCode;
 }

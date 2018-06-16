@@ -127,6 +127,18 @@ Z3FuncDeclHandle Z3ModelHandle::getVariableDeclForIndex(uint64_t index) {
                           context);
 }
 
+Z3ASTHandle Z3ModelHandle::evaluate(Z3ASTHandle e, bool modelCompletion) {
+  assert(e.getContext() == context);
+  assert(!e.isNull());
+  Z3_ast raw_ast = nullptr;
+  bool success = ::Z3_model_eval(context, node, e,
+                                 /*modelCompletion=*/modelCompletion, &raw_ast);
+  if (!success) {
+    return Z3ASTHandle();
+  }
+  return Z3ASTHandle(raw_ast, context);
+}
+
 bool Z3ModelHandle::isEmpty() const {
   return getNumAssignments() == 0;
 }

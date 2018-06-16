@@ -40,6 +40,7 @@ public:
   virtual bool hasAssignmentFor(Z3FuncDeclHandle decl);
   virtual Z3ModelHandle getRepr() { return z3Model; }
   virtual bool replaceRepr(Z3ModelHandle replacement);
+  virtual Z3ASTHandle evaluate(Z3ASTHandle e, bool modelCompletion);
 
   JFSContext& getContext();
   virtual ~Model();

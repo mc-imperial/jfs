@@ -37,6 +37,10 @@ bool Model::addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
   return getRepr().addAssignmentFor(decl, e, allowOverwrite);
 }
 
+Z3ASTHandle Model::evaluate(Z3ASTHandle e, bool modelCompletion) {
+  return getRepr().evaluate(e, modelCompletion);
+}
+
 std::string Model::getSMTLIBString(ModelPrintOptions* opts) {
   if (opts == nullptr) {
     // Use default options if none provided.

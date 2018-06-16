@@ -11,12 +11,14 @@
 jfs_add_component(JFSCore
   JFSContext.cpp
   Model.cpp
+  ModelValidator.cpp
   Query.cpp
   SMTLIB2Parser.cpp
   Solver.cpp
   ToolErrorHandler.cpp
   Z3ASTVisitor.cpp
   Z3Node.cpp
+  Z3NodeUtil.cpp
 )
 # Needed for command line support
 jfs_get_llvm_components(llvm_components support)

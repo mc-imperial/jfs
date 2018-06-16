@@ -39,6 +39,7 @@ void Query::dump() const {
 
 void Query::print(llvm::raw_ostream& os) const {
   Z3_context z3Ctx = ctx.getZ3Ctx();
+  // FIXME: Refactor this to use Z3NodeUtil
   std::list<Z3ASTHandle> workList;
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
     workList.push_front(*bi);

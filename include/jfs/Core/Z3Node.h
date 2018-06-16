@@ -275,6 +275,7 @@ public:
                         bool allowOverwrite = false);
   uint64_t getNumAssignments() const;
   Z3FuncDeclHandle getVariableDeclForIndex(uint64_t index);
+  Z3ASTHandle evaluate(Z3ASTHandle e, bool modelCompletion);
   bool isEmpty() const;
 };
 
