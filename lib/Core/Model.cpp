@@ -101,5 +101,20 @@ bool Model::replaceRepr(Z3ModelHandle replacement) {
   return true;
 }
 
+Z3ASTHandle Model::getDefaultValueFor(Z3SortHandle sort) {
+  switch (sort.getKind()) {
+  case Z3_BOOL_SORT: {
+    return Z3ASTHandle::getTrue(sort.getContext());
+  }
+  case Z3_FLOATING_POINT_SORT: {
+    return Z3ASTHandle::getFloatPositiveZero(sort);
+  }
+  case Z3_BV_SORT: {
+    return Z3ASTHandle::getBVZero(sort);
+  }
+  default: { llvm_unreachable("Unhandled sort"); }
+  }
+}
+
 } // namespace core
 } // namespace jfs

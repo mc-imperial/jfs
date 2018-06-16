@@ -273,6 +273,10 @@ bool Z3ASTHandle::isStructurallyEqualTo(Z3ASTHandle other) const {
 }
 
 Z3SortHandle Z3ASTHandle::getSort() const {
+  if (isFuncDecl()) {
+    // We assume that the client wants the range of the function declaration.
+    return asFuncDecl().getSort();
+  }
   return Z3SortHandle(::Z3_get_sort(context, node), context);
 }
 
@@ -294,6 +298,25 @@ Z3ASTHandle Z3ASTHandle::getTrue(Z3_context ctx) {
 
 Z3ASTHandle Z3ASTHandle::getFalse(Z3_context ctx) {
   return Z3ASTHandle(::Z3_mk_false(ctx), ctx);
+}
+
+Z3ASTHandle Z3ASTHandle::getBVZero(Z3_context ctx, unsigned width) {
+  assert(width > 0);
+  return getBVZero(Z3SortHandle::getBitVectorTy(ctx, width));
+}
+
+Z3ASTHandle Z3ASTHandle::getBVZero(Z3SortHandle sort) {
+  assert(sort.isBitVectorTy());
+  return Z3ASTHandle(::Z3_mk_unsigned_int(sort.getContext(), 0, sort),
+                     sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatPositiveZero(Z3SortHandle sort) {
+  assert(sort.isFloatingPointTy());
+  return Z3ASTHandle(
+      ::Z3_mk_fpa_zero(sort.getContext(), sort, /*negative=*/false),
+      sort.getContext());
+  ;
 }
 
 // Z3AppHandle helpers

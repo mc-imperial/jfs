@@ -217,7 +217,7 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
 
 bool EqualityExtractionPass::convertModel(jfs::core::Model* model) {
   for (auto& es : equalities) {
-    Z3ASTSet needsAssignment;
+    Z3FuncDeclSet needsAssignment;
     Z3ASTSet assignment;
     for (auto& e : *es) {
       if (e.isConstant()) {
@@ -241,7 +241,23 @@ bool EqualityExtractionPass::convertModel(jfs::core::Model* model) {
       }
 
       // This variable needs an assignment
-      auto successIteratorPair = needsAssignment.insert(decl.asAST());
+      auto successIteratorPair = needsAssignment.insert(decl);
+      assert(successIteratorPair.second && "insertion failed");
+    }
+    if (needsAssignment.size() == 0) {
+      // Nothing to do
+      continue;
+    }
+    assert(assignment.size() == 0 || assignment.size() == 1);
+    if (assignment.size() == 0) {
+      // Special case: The supplied model didn't provide an assignment
+      // to any decl in the equality set. This implies we can pick any value.
+      // We have to add the assignment because model completion won't know
+      // the relationship between these variables.
+      Z3SortHandle sort = needsAssignment.begin()->getSort();
+      // Based on the sort pick a sensible value
+      Z3ASTHandle assignmentToUse = Model::getDefaultValueFor(sort);
+      auto successIteratorPair = assignment.insert(assignmentToUse);
       assert(successIteratorPair.second && "insertion failed");
     }
 
@@ -249,8 +265,7 @@ bool EqualityExtractionPass::convertModel(jfs::core::Model* model) {
     assert(assignment.size() == 1);
     Z3ASTHandle assignmentForSet = *(assignment.begin());
     for (auto& decl : needsAssignment) {
-      assert(decl.isFuncDecl());
-      model->addAssignmentFor(decl.asFuncDecl(), assignmentForSet);
+      model->addAssignmentFor(decl, assignmentForSet);
     }
   }
   return true;

@@ -163,6 +163,9 @@ public:
 
   static Z3ASTHandle getTrue(Z3_context ctx);
   static Z3ASTHandle getFalse(Z3_context ctx);
+  static Z3ASTHandle getBVZero(Z3_context, unsigned width);
+  static Z3ASTHandle getBVZero(Z3SortHandle sort);
+  static Z3ASTHandle getFloatPositiveZero(Z3SortHandle sort);
 };
 
 // Specialise for Z3_app

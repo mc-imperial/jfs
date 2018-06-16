@@ -44,6 +44,8 @@ public:
 
   JFSContext& getContext();
   virtual ~Model();
+
+  static Z3ASTHandle getDefaultValueFor(Z3SortHandle sort);
 };
 
 } // namespace core
