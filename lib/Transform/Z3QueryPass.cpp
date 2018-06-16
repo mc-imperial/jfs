@@ -38,8 +38,10 @@ bool Z3QueryPass::convertModel(jfs::core::Model* m) {
   // of the same model for each sub-goal.
   Z3ModelHandle mh = m->getRepr();
   for (unsigned goalIndex = 0; goalIndex < result.getNumGoals(); ++goalIndex) {
+    assert(!mh.isNull());
     mh = result.convertModelForGoal(goalIndex, mh);
   }
+  assert(!mh.isNull());
   // AFAICT Z3's implementation copies the provided model rather than modifying
   // in-place. This means we have to modify the `jfs::core::Model` to use the
   // copy.

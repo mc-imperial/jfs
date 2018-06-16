@@ -25,12 +25,8 @@ namespace jfs {
   llvm::StringRef Z3Solver::getName() const { return "Z3Solver"; }
 
   class Z3Model : public jfs::core::Model {
-  private:
-    Z3ModelHandle z3Model;
-
   public:
-    Z3Model(JFSContext& ctx, Z3ModelHandle m) : Model(ctx), z3Model(m) {}
-    Z3ModelHandle getRepr() override { return z3Model; }
+    Z3Model(JFSContext& ctx, Z3ModelHandle m) : Model(ctx) { z3Model = m; }
     ~Z3Model() {}
   };
 
