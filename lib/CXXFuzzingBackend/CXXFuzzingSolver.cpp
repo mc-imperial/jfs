@@ -364,9 +364,9 @@ public:
         if (mb.get() == nullptr) {
           ctx.raiseFatalError("Failed to get model");
         }
-        resp->model = std::move(FileSerializableModel::loadFrom(
+        resp->model = FileSerializableModel::loadFrom(
             mb.get(), info->freeVariableAssignment->bufferAssignment.get(),
-            ctx));
+            ctx);
       }
       return resp;
     }
