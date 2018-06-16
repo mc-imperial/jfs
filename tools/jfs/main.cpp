@@ -125,7 +125,8 @@ llvm::cl::opt<bool>
 llvm::cl::opt<bool> ValidateModel(
     "validate-model", llvm::cl::init(false),
     llvm::cl::desc(
-        "Validate model if one is found (default false). Implies -get-model"));
+        "Validate model if one is found (default false). Implies -get-model"),
+    llvm::cl::ZeroOrMore);
 } // namespace
 
 bool shouldRequestModel() { return GetModel || ValidateModel; }
