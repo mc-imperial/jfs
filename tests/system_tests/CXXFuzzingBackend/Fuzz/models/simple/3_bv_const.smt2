@@ -7,10 +7,9 @@
 (assert (= c #x00))
 (check-sat)
 ; CHECK: {{^sat}}
-; CHECK-NEXT: (define-fun a () (_ BitVec 8)
-; CHECK-NEXT: #xff)
-; CHECK-NEXT: (define-fun b () (_ BitVec 8)
-; CHECK-NEXT: #x0a)
-; CHECK-NEXT: (define-fun c () (_ BitVec 8)
-; CHECK-NEXT:  #x00)
+; CHECK: (
+; CHECK-NEXT: (define-fun a () (_ BitVec 8) #xff)
+; CHECK-NEXT: (define-fun b () (_ BitVec 8) #x0a)
+; CHECK-NEXT: (define-fun c () (_ BitVec 8) #x00)
+; CHECK-NEXT: )
 

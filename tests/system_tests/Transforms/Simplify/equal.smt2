@@ -3,6 +3,7 @@
 ; CHECK-NOT: (declare-fun x
 (declare-fun x () (_ BitVec 8))
 
-; CHECK: (assert true)
+; simplify now removes the constraint entirely.
+; CHECK: Start constraints (0)
 (assert (= x x))
 (check-sat)

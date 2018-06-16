@@ -17,6 +17,11 @@
 namespace jfs {
 namespace core {
 
+struct ModelPrintOptions {
+  bool sortDecls = false;
+  bool useModelKeyword = false;
+};
+
 class Model {
 protected:
   jfs::core::Z3ModelHandle z3Model;
@@ -24,12 +29,18 @@ protected:
   Model(JFSContext& ctx);
 
 public:
+  // The idea behind this interface is to allow implementations
+  // to defer working with Z3ModelHandle and only forcing use when
+  // `getRepr()` is called. At the time of writing no implementations
+  // actually do this so perhaps we should remove this complexity?
   virtual Z3ASTHandle getAssignmentFor(Z3FuncDeclHandle);
   virtual bool addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
                                 bool allowOverwrite = false);
-  virtual std::string getSMTLIBString();
+  virtual std::string getSMTLIBString(ModelPrintOptions* opts = nullptr);
   virtual bool hasAssignmentFor(Z3FuncDeclHandle decl);
   virtual Z3ModelHandle getRepr() { return z3Model; }
+  virtual bool replaceRepr(Z3ModelHandle replacement);
+
   JFSContext& getContext();
   virtual ~Model();
 };

@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/Z3Node.h"
+#include "jfs/Core/Model.h"
 #include "llvm/Support/raw_ostream.h"
 #include <assert.h>
 
@@ -76,23 +77,14 @@ template <> void Z3NodeHandle<Z3_model>::dump() const {
 template <> std::string Z3NodeHandle<Z3_model>::toStr() const {
   // FIXME: We need to grab a lock over all calls to `Z3_*_to_string()`
   // to make this thread safe.
-  // FIXME: The syntax we print isn't standard. We should try to use
-  // the SMT-LIBv2.6 standard instead.
-  const char* s = ::Z3_model_to_string(context, node);
-  if (s[0] == '\0') {
-    return "(model )";
-  }
-  return s;
+  return ::Z3_model_to_string(context, node);
 }
 
 Z3ASTHandle Z3ModelHandle::getAssignmentFor(Z3FuncDeclHandle funcDecl) {
   assert(funcDecl.getContext() == context && "mismatched contexts");
-  Z3_ast rawPointer = nullptr;
-  Z3_bool success =
-      ::Z3_model_eval(context, node, ::Z3_func_decl_to_ast(context, funcDecl),
-                      /*model_completion=*/true, &rawPointer);
-  assert(success && "Failed to get assignment from Z3 model");
-  return Z3ASTHandle(rawPointer, context);
+  // TODO: Do we want to support assignments to uninterpreted functions too?
+  return Z3ASTHandle(::Z3_model_get_const_interp(context, node, funcDecl),
+                     context);
 }
 
 bool Z3ModelHandle::hasAssignmentFor(Z3FuncDeclHandle decl) const {
@@ -127,6 +119,12 @@ uint64_t Z3ModelHandle::getNumAssignments() const {
     return 0;
   }
   return Z3_model_get_num_consts(context, node);
+}
+
+Z3FuncDeclHandle Z3ModelHandle::getVariableDeclForIndex(uint64_t index) {
+  assert(index < getNumAssignments());
+  return Z3FuncDeclHandle(::Z3_model_get_const_decl(context, node, index),
+                          context);
 }
 
 bool Z3ModelHandle::isEmpty() const {
@@ -374,6 +372,10 @@ std::string Z3FuncDeclHandle::getName() const {
   return std::string(::Z3_get_symbol_string(context, sym));
 }
 
+Z3ASTHandle Z3FuncDeclHandle::asAST() const {
+  return Z3ASTHandle(::Z3_func_decl_to_ast(context, node), context);
+}
+
 unsigned Z3FuncDeclHandle::getNumParams() const {
   return ::Z3_get_decl_num_parameters(context, node);
 }
@@ -425,6 +427,12 @@ Z3ApplyResultHandle Z3TacticHandle::apply(Z3GoalHandle goal) {
   return Z3ApplyResultHandle(::Z3_tactic_apply(context, node, goal), context);
 }
 
+Z3ApplyResultHandle Z3TacticHandle::applyWithParams(Z3GoalHandle goal,
+                                                    Z3ParamsHandle params) {
+  return Z3ApplyResultHandle(::Z3_tactic_apply_ex(context, node, goal, params),
+                             context);
+}
+
 // Z3ApplyResultHandle
 template <> void Z3NodeHandle<Z3_apply_result>::dump() const {
   llvm::errs() << "Z3ApplyResultHandle:\n" << toStr() << "\n";
@@ -454,6 +462,16 @@ void Z3ApplyResultHandle::collectAllFormulas(
       formulas.push_back(subGoal.getFormula(formulaIndex));
     }
   }
+}
+
+Z3ModelHandle
+Z3ApplyResultHandle::convertModelForGoal(unsigned index,
+                                         Z3ModelHandle toConvert) {
+  assert(index < getNumGoals());
+  assert(!toConvert.isNull());
+  assert(toConvert.getContext() == context);
+  return Z3ModelHandle(
+      Z3_apply_result_convert_model(context, node, index, toConvert), context);
 }
 }
 }

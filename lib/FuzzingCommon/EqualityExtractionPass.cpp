@@ -214,5 +214,46 @@ bool EqualityExtractionPass::run(jfs::core::Query& q) {
   }
   return true;
 }
+
+bool EqualityExtractionPass::convertModel(jfs::core::Model* model) {
+  for (auto& es : equalities) {
+    Z3ASTSet needsAssignment;
+    Z3ASTSet assignment;
+    for (auto& e : *es) {
+      if (e.isConstant()) {
+        // This is a constant to assign
+        assert(assignment.size() == 0);
+        auto successIteratorPair = assignment.insert(e);
+        assert(successIteratorPair.second && "insertion failed");
+        continue;
+      }
+      assert(e.isFreeVariable());
+      // Get the corresponding Z3FuncDecl.
+      Z3FuncDeclHandle decl = e.asApp().getFuncDecl();
+      if (model->hasAssignmentFor(decl)) {
+        // We already have an assignment for this.
+        // This implies that all other variables in the equality
+        // set should get this assignment.
+        assert(assignment.size() == 0);
+        auto successIteratorPair = assignment.insert(e);
+        assert(successIteratorPair.second && "insertion failed");
+        continue;
+      }
+
+      // This variable needs an assignment
+      auto successIteratorPair = needsAssignment.insert(decl.asAST());
+      assert(successIteratorPair.second && "insertion failed");
+    }
+
+    // Now add assignments to model
+    assert(assignment.size() == 1);
+    Z3ASTHandle assignmentForSet = *(assignment.begin());
+    for (auto& decl : needsAssignment) {
+      assert(decl.isFuncDecl());
+      model->addAssignmentFor(decl.asFuncDecl(), assignmentForSet);
+    }
+  }
+  return true;
+}
 }
 }

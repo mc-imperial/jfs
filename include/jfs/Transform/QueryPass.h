@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_TRANSFORM_QUERY_PASS_H
 #define JFS_TRANSFORM_QUERY_PASS_H
+#include "jfs/Core/Model.h"
 #include "jfs/Core/Query.h"
 #include "jfs/Support/ICancellable.h"
 #include "llvm/ADT/StringRef.h"
@@ -28,6 +29,7 @@ public:
   virtual bool run(jfs::core::Query&) = 0;
   virtual llvm::StringRef getName() = 0;
   void cancel() override { cancelled = true; }
+  virtual bool convertModel(jfs::core::Model* m) = 0;
 };
 }
 }

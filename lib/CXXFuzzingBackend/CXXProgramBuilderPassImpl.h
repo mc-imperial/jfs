@@ -48,6 +48,7 @@ private:
       std::shared_ptr<jfs::fuzzingCommon::FuzzingAnalysisInfo> info,
       const CXXProgramBuilderOptions* options, jfs::core::JFSContext& ctx);
 
+  bool convertModel(jfs::core::Model* m);
   void build(const jfs::core::Query& q);
 
   CXXCodeBlockRef getConstraintIsFalseBlock();

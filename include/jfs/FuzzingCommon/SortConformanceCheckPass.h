@@ -28,6 +28,7 @@ public:
   virtual llvm::StringRef getName() override;
   bool predicateAlwaysHeld() const { return predicateHeld; }
   void reset() { predicateHeld = false; }
+  virtual bool convertModel(jfs::core::Model* m) override;
 };
 }
 }

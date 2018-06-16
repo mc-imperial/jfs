@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef JFS_TRANSFORM_QUERY_PASS_MANAGER_H
 #define JFS_TRANSFORM_QUERY_PASS_MANAGER_H
+#include "jfs/Core/Model.h"
 #include "jfs/Support/ICancellable.h"
 #include "jfs/Transform/QueryPass.h"
 #include <memory>
@@ -32,6 +33,10 @@ public:
   void run(jfs::core::Query& q);
   void cancel() override;
   void clear();
+  // Modify (in-place) the provided model so that it is a solution to the Query
+  // passed to the last call to `run()` before it was modified. It is assumed
+  // that the provided model already satisfies the modified query.
+  bool convertModel(jfs::core::Model* m);
 };
 }
 }

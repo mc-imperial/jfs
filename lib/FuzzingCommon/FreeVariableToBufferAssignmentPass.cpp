@@ -241,5 +241,11 @@ bool FreeVariableToBufferAssignmentPass::run(jfs::core::Query& q) {
   }
   return false;
 }
+
+bool FreeVariableToBufferAssignmentPass::convertModel(jfs::core::Model* m) {
+  // This pass preserves equivalence so the model does not need to be
+  // converted.
+  return true;
+}
 }
 }

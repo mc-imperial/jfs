@@ -79,6 +79,47 @@ public:
     }
     IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager finished)\n";);
   }
+
+  // FIXME: We should probably make this cancellable.
+  bool convertModel(jfs::core::Model* m) {
+    std::lock_guard<std::mutex> lock(passesMutex);
+    JFSContext& ctx = m->getContext();
+    JFS_AG_COL(convert_model_pass_times, ctx);
+    IF_VERB(ctx, ctx.getDebugStream()
+                     << "(QueryPassManager::convertModel starting)\n";);
+    // We have to walk through the passes backwards so that we perform model
+    // conversion in the right order.
+    for (auto pi = passes.rbegin(), pe = passes.rend(); pi != pe; ++pi) {
+      IF_VERB(ctx, ctx.getDebugStream() << "(QueryPassManager::convertModel \""
+                                        << (*pi)->getName() << "\")\n";);
+      IF_VERB_GT(ctx, 1,
+                 ctx.getDebugStream()
+                     << ";Before \"" << (*pi)->getName() << "\n"
+                     << m->getSMTLIBString() << "\n";);
+      // FIXME: In an asserts build we should hold on to a copy of the final
+      // query and original query and check that the models satisfy the
+      // constraints.
+      {
+        JFS_AG_TIMER(convert_modenl_pass_timer, (*pi)->getName(),
+                     convert_model_pass_times, ctx);
+        // Now ask the pass to convert the model.
+        bool success = (*pi)->convertModel(m);
+        if (!success) {
+          ctx.getErrorStream()
+              << "(QueryPassManager::convertModel conversion failed with pass "
+              << (*pi)->getName() << ")\n";
+          return false;
+        }
+      }
+
+      IF_VERB_GT(ctx, 1,
+                 ctx.getDebugStream() << ";After \"" << (*pi)->getName() << "\n"
+                                      << m->getSMTLIBString() << "\n";);
+    }
+    IF_VERB(ctx, ctx.getDebugStream()
+                     << "(QueryPassManager::convertModel finished)\n";);
+    return true;
+  }
 };
 
 QueryPassManager::QueryPassManager() : impl(new QueryPassManagerImpl()) {}
@@ -87,5 +128,8 @@ void QueryPassManager::add(std::shared_ptr<QueryPass> pass) { impl->add(pass); }
 void QueryPassManager::run(Query &q) { impl->run(q); }
 void QueryPassManager::cancel() { impl->cancel(); }
 void QueryPassManager::clear() { impl->clear(); }
+bool QueryPassManager::convertModel(jfs::core::Model* m) {
+  return impl->convertModel(m);
+}
 }
 }

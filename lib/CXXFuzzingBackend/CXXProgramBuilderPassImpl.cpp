@@ -59,6 +59,12 @@ CXXProgramBuilderPassImpl::CXXProgramBuilderPassImpl(
       insertSymbol("jfs_libfuzzer_custom_counter");
 }
 
+bool CXXProgramBuilderPassImpl::convertModel(jfs::core::Model* m) {
+  // This pass preserves equivalence so the model does not need to be
+  // converted.
+  return true;
+}
+
 CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsFalseBlock() {
   if (options->getBranchEncoding() ==
       CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST) {

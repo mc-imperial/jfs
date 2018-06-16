@@ -152,6 +152,7 @@ public:
   bool isTrue() const;
   bool isFalse() const;
   bool isConstant() const;
+  // FIXME: Should be renamed isAppOfFreeVariable
   bool isFreeVariable() const;
   bool isAppOf(Z3_decl_kind) const;
   bool isStructurallyEqualTo(Z3ASTHandle other) const;
@@ -191,6 +192,7 @@ public:
   Z3ASTHandle getKid(unsigned) const;
 
   bool isConstant() const;
+  // FIXME: Should be renamed isAppOfFreeVariable
   bool isFreeVariable() const;
   Z3ASTHandle asAST() const;
   Z3SortHandle getSort() const;
@@ -220,6 +222,7 @@ public:
   Z3_decl_kind getKind() const;
   Z3SortHandle getSort() const;
   std::string getName() const;
+  Z3ASTHandle asAST() const;
 
   // Parameters
   unsigned getNumParams() const;
@@ -271,6 +274,7 @@ public:
   bool addAssignmentFor(Z3FuncDeclHandle decl, Z3ASTHandle e,
                         bool allowOverwrite = false);
   uint64_t getNumAssignments() const;
+  Z3FuncDeclHandle getVariableDeclForIndex(uint64_t index);
   bool isEmpty() const;
 };
 
@@ -312,6 +316,7 @@ class Z3TacticHandle : public Z3NodeHandle<Z3_tactic> {
 public:
   using Z3NodeHandle<Z3_tactic>::Z3NodeHandle;
   Z3ApplyResultHandle apply(Z3GoalHandle goal);
+  Z3ApplyResultHandle applyWithParams(Z3GoalHandle goal, Z3ParamsHandle params);
 };
 
 // Specialise for Z3_apply_result
@@ -335,6 +340,7 @@ public:
   unsigned getNumGoals() const;
   Z3GoalHandle getGoal(unsigned index) const;
   void collectAllFormulas(std::vector<Z3ASTHandle>&) const;
+  Z3ModelHandle convertModelForGoal(unsigned index, Z3ModelHandle toConvert);
 };
 }
 }

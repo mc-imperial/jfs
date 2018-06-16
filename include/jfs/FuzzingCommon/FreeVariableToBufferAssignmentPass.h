@@ -55,6 +55,8 @@ public:
   // the
   // EqualityExtractionPass has run and so constantAssignment is always empty.
   std::shared_ptr<ConstantAssignment> constantAssignments;
+
+  virtual bool convertModel(jfs::core::Model* m) override;
 };
 } // namespace fuzzingCommon
 } // namespace jfs

@@ -5,10 +5,9 @@
 (assert (and a b c))
 (check-sat)
 ; CHECK: {{^sat}}
-; CHECK-NEXT: (define-fun a () Bool
-; CHECK-NEXT: true)
-; CHECK-NEXT: (define-fun b () Bool
-; CHECK-NEXT: true)
-; CHECK-NEXT: (define-fun c () Bool
-; CHECK-NEXT:  true)
+; CHECK-NEXT: (
+; CHECK-NEXT: (define-fun a () Bool true)
+; CHECK-NEXT: (define-fun b () Bool true)
+; CHECK-NEXT: (define-fun c () Bool true)
+; CHECK-NEXT: )
 

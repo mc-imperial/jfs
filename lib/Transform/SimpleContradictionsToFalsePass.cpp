@@ -105,5 +105,11 @@ bool SimpleContradictionsToFalsePass::run(Query &q) {
 llvm::StringRef SimpleContradictionsToFalsePass::getName() {
   return "SimpleContradictionsToFalse";
 }
+
+bool SimpleContradictionsToFalsePass::convertModel(jfs::core::Model* m) {
+  // This pass preserves equivalence so the model does not need to be
+  // converted.
+  return true;
+}
 }
 }

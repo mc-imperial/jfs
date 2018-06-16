@@ -3,5 +3,6 @@
 (assert (= a (_ NaN 8 24)))
 (check-sat)
 ; CHECK: {{^sat}}
-; CHECK-NEXT: (define-fun a () (_ FloatingPoint 8 24)
-; CHECK-NEXT: (_ NaN 8 24))
+; CHECK-NEXT: (
+; CHECK-NEXT: (define-fun a () (_ FloatingPoint 8 24) (_ NaN 8 24))
+; CHECK-NEXT: )

@@ -356,9 +356,16 @@ int main(int argc, char** argv) {
     // Print the found model
     auto model = response->getModel();
     if (model) {
-      // FIXME: We need to pipe this through the passes to get
-      // the real model.
-      llvm::outs() << model->getSMTLIBString() << "\n";
+      // Convert the model if necessary so it satifies the constraints
+      // originally given.
+      bool convertModelSuccess = pm.convertModel(model);
+      if (!convertModelSuccess) {
+        ctx.raiseFatalError("Failed to convert model");
+      }
+      ModelPrintOptions mpo;
+      // Sort the declarations so they are listed in a deterministic order.
+      mpo.sortDecls = true;
+      llvm::outs() << model->getSMTLIBString(&mpo) << "\n";
     } else {
       // Don't bail out here because we may want to still record stats.
       ctx.getErrorStream() << "(error Failed to get model)\n";

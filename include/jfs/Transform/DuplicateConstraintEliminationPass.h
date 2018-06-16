@@ -21,6 +21,7 @@ public:
   ~DuplicateConstraintEliminationPass() {}
   bool run(jfs::core::Query& q) override;
   virtual llvm::StringRef getName() override;
+  virtual bool convertModel(jfs::core::Model* m) override;
 };
 }
 }

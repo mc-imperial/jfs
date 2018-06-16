@@ -6,4 +6,4 @@
 ;(get-model)
 ; CHECK: {{^sat}}
 ; Empty model
-; CHECK-NEXT: (model )
+; CHECK-NEXT: ()

@@ -14,14 +14,16 @@
 namespace jfs {
 namespace transform {
 void AddStandardPasses(QueryPassManager &pm) {
-  // TODO: We should implement a wrapper pass that executes until
-  // a fixed point is reached. We should then use it with some of
-  // these passes.
 
   // Seperate out into as many constraints as possible.
   pm.add(std::make_shared<AndHoistingPass>());
 
-  // TODO: This should probably be iterated to a fixed point
+  // TODO: This should probably be iterated to a fixed point. This just became
+  // much harder because now we have to support model generation. The current
+  // implementation can only have convertModel() called on a pass once (i.e.
+  // we can't reuse a pass because it stores the model conversion information
+  // for that step).
+
   // FIXME: BvBoundPropagationPass shouldn't be here. There seems to be some
   // issues when combining simplifier and propagate-bv-bounds
   // https://github.com/Z3Prover/z3/issues/1054

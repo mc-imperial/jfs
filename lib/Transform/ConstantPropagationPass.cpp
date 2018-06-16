@@ -42,8 +42,8 @@ bool ConstantPropagationPass::run(Query &q) {
     return false;
   }
 
-  // Apply the tactic
-  Z3ApplyResultHandle result = propagateValuesTactic.apply(initialGoal);
+  // Apply the tactic and store it for use in convertModel()
+  result = propagateValuesTactic.apply(initialGoal);
 
   if (cancelled) {
     IF_VERB(ctx, ctx.getDebugStream() << "(" << getName() << " cancelled)\n");

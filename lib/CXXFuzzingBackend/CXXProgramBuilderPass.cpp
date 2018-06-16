@@ -47,5 +47,9 @@ bool CXXProgramBuilderPass::run(Query& q) {
   }
   return false;
 }
+
+bool CXXProgramBuilderPass::convertModel(jfs::core::Model* m) {
+  return impl->convertModel(m);
+}
 }
 }

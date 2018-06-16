@@ -63,6 +63,7 @@ public:
       cancellablePassManager->cancel();
     }
   }
+
   std::unique_ptr<SolverResponse> solve(const jfs::core::Query& q,
                                         bool produceModel) {
     assert(q.getContext() == interF->ctx);
@@ -78,12 +79,14 @@ public:
     if (q.constraints.size() == 0) {
       // Empty constraint set is trivially satisifiable
 
-      // Make empty model
-      auto model = std::unique_ptr<FileSerializableModel>(
-          new FileSerializableModel(q.getContext()));
       auto resp = std::unique_ptr<TrivialFuzzingSolverResponse>(
           new TrivialFuzzingSolverResponse(SolverResponse::SAT));
-      resp->setModel(std::move(model));
+      if (produceModel) {
+        // Make empty model
+        auto model = std::unique_ptr<FileSerializableModel>(
+            new FileSerializableModel(q.getContext()));
+        resp->setModel(std::move(model));
+      }
       return resp;
     }
 
@@ -142,9 +145,23 @@ public:
     // of equalities.
     if (qCopy.constraints.size() == 0) {
       // Empty constraint set is trivially satisifiable
-      assert(!produceModel && "producing models not implemented");
-      return std::unique_ptr<SolverResponse>(
+      auto resp = std::unique_ptr<TrivialFuzzingSolverResponse>(
           new TrivialFuzzingSolverResponse(SolverResponse::SAT));
+      if (produceModel) {
+        // Make empty model
+        auto model = std::unique_ptr<FileSerializableModel>(
+            new FileSerializableModel(q.getContext()));
+        // Now convert model so that it satisfies the query given to the
+        // preprocessing passes.
+        bool convertModelSuccess =
+            preprocessingPassses.convertModel(model.get());
+        if (!convertModelSuccess) {
+          // FIXME: Should we try to recover instead?
+          q.getContext().raiseFatalError("Failed to convert model");
+        }
+        resp->setModel(std::move(model));
+      }
+      return resp;
     }
 
     // Check if equalities simplified to false
@@ -154,7 +171,19 @@ public:
     }
 
     CHECK_CANCELLED()
-    return interF->fuzz(qCopy, produceModel, fai);
+    // Have to performing fuzzing
+    auto resp = interF->fuzz(qCopy, produceModel, fai);
+    if (produceModel) {
+      // Now convert model so that it satisfies the query given to the
+      // preprocessing passes.
+      bool convertModelSuccess =
+          preprocessingPassses.convertModel(resp->getModel());
+      if (!convertModelSuccess) {
+        // FIXME: Should we try to recover instead?
+        q.getContext().raiseFatalError("Failed to convert model");
+      }
+    }
+    return resp;
   }
 #undef CHECK_CANCELLED
 };

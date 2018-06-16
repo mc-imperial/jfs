@@ -34,6 +34,7 @@ public:
   virtual llvm::StringRef getName() override;
   // FIXME: Should be a const CXXProgram
   std::shared_ptr<CXXProgram> getProgram();
+  virtual bool convertModel(jfs::core::Model* m) override;
 };
 }
 }
