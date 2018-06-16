@@ -31,6 +31,7 @@ public:
   // to accidently be called.
   Query(const Query&&) = delete;
   Query& operator=(const Query&) = delete;
+  Query& operator=(const Query&&) = delete;
   void dump() const;
   void print(llvm::raw_ostream& os) const;
   JFSContext& getContext() const { return ctx; }
