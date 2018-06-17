@@ -1,4 +1,6 @@
 ; RUN: %jfs -cxx -get-model -validate-model %s | %FileCheck %s
+; FIXME: Make LibPureRandomFuzzer work on this example?
+; REQUIRES: LibFuzzer
 (declare-fun a () (_ BitVec 32))
 (declare-fun b () (_ BitVec 32))
 (declare-fun c () (_ BitVec 32))
