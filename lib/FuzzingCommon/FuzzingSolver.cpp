@@ -173,14 +173,16 @@ public:
     CHECK_CANCELLED()
     // Have to performing fuzzing
     auto resp = interF->fuzz(qCopy, produceModel, fai);
-    if (produceModel) {
-      // Now convert model so that it satisfies the query given to the
-      // preprocessing passes.
-      bool convertModelSuccess =
-          preprocessingPassses.convertModel(resp->getModel());
-      if (!convertModelSuccess) {
-        // FIXME: Should we try to recover instead?
-        q.getContext().raiseFatalError("Failed to convert model");
+    if (resp->sat == SolverResponse::SAT) {
+      if (produceModel) {
+        // Now convert model so that it satisfies the query given to the
+        // preprocessing passes.
+        bool convertModelSuccess =
+            preprocessingPassses.convertModel(resp->getModel());
+        if (!convertModelSuccess) {
+          // FIXME: Should we try to recover instead?
+          q.getContext().raiseFatalError("Failed to convert model");
+        }
       }
     }
     return resp;

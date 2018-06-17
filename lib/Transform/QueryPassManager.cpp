@@ -83,6 +83,7 @@ public:
   // FIXME: We should probably make this cancellable.
   bool convertModel(jfs::core::Model* m) {
     std::lock_guard<std::mutex> lock(passesMutex);
+    assert(m != nullptr);
     JFSContext& ctx = m->getContext();
     JFS_AG_COL(convert_model_pass_times, ctx);
     IF_VERB(ctx, ctx.getDebugStream()
