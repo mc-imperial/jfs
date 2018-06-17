@@ -13,6 +13,7 @@ jfs_add_component(JFSCore
   Model.cpp
   ModelValidator.cpp
   Query.cpp
+  SimpleModel.cpp
   SMTLIB2Parser.cpp
   Solver.cpp
   ToolErrorHandler.cpp

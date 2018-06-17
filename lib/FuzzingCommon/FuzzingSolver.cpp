@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/FuzzingCommon/FuzzingSolver.h"
 #include "jfs/Core/IfVerbose.h"
-#include "jfs/FuzzingCommon/FileSerializableModel.h"
+#include "jfs/Core/SimpleModel.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/FuzzingCommon/FuzzingSolverOptions.h"
 #include "jfs/Transform/QueryPassManager.h"
@@ -83,8 +83,8 @@ public:
           new TrivialFuzzingSolverResponse(SolverResponse::SAT));
       if (produceModel) {
         // Make empty model
-        auto model = std::unique_ptr<FileSerializableModel>(
-            new FileSerializableModel(q.getContext()));
+        auto model =
+            std::unique_ptr<SimpleModel>(new SimpleModel(q.getContext()));
         resp->setModel(std::move(model));
       }
       return resp;
@@ -149,8 +149,7 @@ public:
           new TrivialFuzzingSolverResponse(SolverResponse::SAT));
       if (produceModel) {
         // Make empty model
-        auto model = std::unique_ptr<FileSerializableModel>(
-            new FileSerializableModel(q.getContext()));
+        auto model = std::unique_ptr<Model>(new SimpleModel(q.getContext()));
         // Now convert model so that it satisfies the query given to the
         // preprocessing passes.
         bool convertModelSuccess =
