@@ -42,7 +42,10 @@ int Driver(int& argc, char**& argv) {
   const Options& opts = gFuzzer.opts;
 
   const uint& dataLength = opts.dataLength;
-  if (!dataLength) {
+  // Allow zero data length only in special case where we are doing a single
+  // run. JFS will do this when constraints consist only of constant
+  // expressions and constant folding is disabled.
+  if (!dataLength && opts.maxRuns != 1) {
     Debug("Test data length currently required");
     exit(1);
   }
@@ -161,4 +164,4 @@ void TimeoutHandler(int sig) {
   exit(gFuzzer.opts.timeoutExitCode);
 }
 
-} // prf
+} // namespace prf
