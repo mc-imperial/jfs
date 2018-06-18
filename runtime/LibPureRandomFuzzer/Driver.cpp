@@ -17,9 +17,9 @@
 #include "TestInput.h"
 #include <cassert>
 #include <chrono>
+#include <cstddef>
 #include <cstdio>
 #include <fstream>
-#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -41,7 +41,7 @@ int Driver(int& argc, char**& argv) {
   gFuzzer.opts = BuildOptions(argc, argv);
   const Options& opts = gFuzzer.opts;
 
-  const uint& dataLength = opts.dataLength;
+  const size_t& dataLength = opts.dataLength;
   // Allow zero data length only in special case where we are doing a single
   // run. JFS will do this when constraints consist only of constant
   // expressions and constant folding is disabled.
@@ -51,10 +51,6 @@ int Driver(int& argc, char**& argv) {
   }
 
   gFuzzer.testInput = new TestInput(dataLength, opts.seed);
-  uint maxRuns = std::numeric_limits<uint>::max();
-  if (opts.maxRuns >= 0) {
-    maxRuns = opts.maxRuns;
-  }
 
   // Set all appropriate signal and timer handlers
   Signals signals(opts);
@@ -63,6 +59,7 @@ int Driver(int& argc, char**& argv) {
   gFuzzer.API = new API();
 
   // Start testing loop
+  const size_t& maxRuns = opts.maxRuns;
   TestOneInputT* runTest = gFuzzer.API->TestOneInput;
   TestInput& testInput = *gFuzzer.testInput;
   uint& runs = gFuzzer.runs;
@@ -100,6 +97,12 @@ Options BuildOptions(int& argc, char**& argv) {
     }
     auto flagInput = arg.substr(1, equals - 1);
     auto valueInput = arg.substr(equals + 1);
+#define PRF_OPTION_SIZE_T(flag, name, _)                                       \
+    if (flagInput == #flag) {                                                  \
+      opts.name = stoul(valueInput);                                           \
+      Debug("opts.", #name, " = ", opts.name);                                 \
+      continue;                                                                \
+    }
 #define PRF_OPTION_UINT(flag, name, _)                                         \
     if (flagInput == #flag) {                                                  \
       opts.name = stoul(valueInput);                                           \
@@ -125,6 +128,7 @@ Options BuildOptions(int& argc, char**& argv) {
       continue;                                                                \
     }
 #include "Options.def"
+#undef PRF_OPTION_SIZE_T
 #undef PRF_OPTION_UINT
 #undef PRF_OPTION_INT
 #undef PRF_OPTION_BOOL

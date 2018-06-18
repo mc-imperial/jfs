@@ -11,8 +11,8 @@
 
 // PRF_OPTION_<TYPE>(flag, name, default value)
 
-PRF_OPTION_UINT(max_len, dataLength, 0)
-PRF_OPTION_INT(runs, maxRuns, -1)
+PRF_OPTION_SIZE_T(max_len, dataLength, 0)
+PRF_OPTION_SIZE_T(runs, maxRuns, UINT64_MAX)
 PRF_OPTION_UINT(seed, seed, 0)
 PRF_OPTION_INT(timeout, timeout, 1200)
 PRF_OPTION_INT(timeout_exitcode, timeoutExitCode, 77)
