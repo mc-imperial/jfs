@@ -17,8 +17,16 @@
 namespace prf {
 
 API::API() : TestOneInput(LLVMFuzzerTestOneInput) {
+#ifdef __APPLE__
+  // On macOS, `dlsym` can access any optional symbols by default
   atExit = reinterpret_cast<AtExitT*>(
     dlsym(RTLD_DEFAULT, "LLVMFuzzerAtExit"));
+#elif __linux__
+  // On Linux, weak symbols will resolve this to a value only if defined
+  atExit = LLVMFuzzerAtExit;
+#else
+#error "Unsupported platform"
+#endif
   if (atExit) {
     Debug("Optional user-provided function LLVMFuzzerAtExit found");
   }

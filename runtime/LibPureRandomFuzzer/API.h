@@ -19,12 +19,24 @@
 extern "C" {
 #endif // __cplusplus
 
+#ifdef __APPLE__
+// On macOS, the symbols don't need any special annotation
+#define PRF_OPTIONAL
+#elif __linux__
+// On Linux, use weak symbols to make the definition optional
+#define PRF_OPTIONAL __attribute__((weak))
+#else
+#error "Unsupported platform"
+#endif
+
 // user-provided, required
 int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size);
 typedef int TestOneInputT(const uint8_t* Data, size_t Size);
 // user-provided, optional
-void LLVMFuzzerAtExit();
+PRF_OPTIONAL void LLVMFuzzerAtExit();
 typedef void AtExitT();
+
+#undef PRF_OPTIONAL
 
 #ifdef __cplusplus
 }
