@@ -86,9 +86,11 @@ buildClangOptionsFromCmdLine(llvm::StringRef pathToExecutable) {
 
   // Sanitizer coverage options
   if (SanitizerCoverageOptions.size() == 0) {
-    // Default
-    clangOptions->appendSanitizerCoverageOption(
-        ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
+    // Default (depends on fuzzer library)
+    if (!PureRandomFuzzer) {
+      clangOptions->appendSanitizerCoverageOption(
+          ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD);
+    }
   } else {
     for (const auto& flag : SanitizerCoverageOptions) {
       clangOptions->appendSanitizerCoverageOption(flag);

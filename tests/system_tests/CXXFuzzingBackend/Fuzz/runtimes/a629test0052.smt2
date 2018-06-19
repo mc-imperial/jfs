@@ -1,4 +1,8 @@
 ; This test just checks that the different flags can be used to change the runtime
+; NOTE: We currently only generate the the runtimes that enable one or more of
+; runtime asserts, ASan, or UBSan with coverage instrumentation included, so
+; this means they require LibFuzzer.
+; REQUIRES: LibFuzzer
 ; FIXME: we don't actually check the right runtime gets used.
 ; RUN: %jfs -cxx %s | %FileCheck %s
 ; RUN: %jfs -cxx -runtime-asserts %s | %FileCheck %s

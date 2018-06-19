@@ -48,6 +48,17 @@ public:
   // FIXME: Not sure if this belongs here or in ClangOptions
   jfs::fuzzingCommon::SMTLIBRuntimeTy
   computeSMTLIBRuntime(const ClangOptions* options) const {
+    if (options->pureRandomFuzzer) {
+      if (options->useJFSRuntimeAsserts || options->useASan ||
+          options->useUBSan) {
+        // FIXME: We just don't build these combinations right now so we can
+        // easily fix this if desired.
+        ctx.raiseFatalError("Can't use pure random fuzzer with runtime asserts,"
+                            " ASan, or UBSan.");
+      }
+      return jfs::fuzzingCommon::SMTLIBRuntimeTy::DEBUGSYMBOLS_OPTIMIZED;
+    }
+
     assert((std::find(options->sanitizerCoverageOptions.cbegin(),
                       options->sanitizerCoverageOptions.cend(),
                       ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD) !=
@@ -182,7 +193,11 @@ public:
       cmdLineArgs.push_back("-fsanitize=undefined");
     }
     // SanitizerCoverage options
-    assert(options->sanitizerCoverageOptions.size() > 0);
+    if (options->pureRandomFuzzer) {
+      assert(options->sanitizerCoverageOptions.size() == 0);
+    } else {
+      assert(options->sanitizerCoverageOptions.size() > 0);
+    }
     for (const auto& sanitizerCovOpt : options->sanitizerCoverageOptions) {
       switch (sanitizerCovOpt) {
       case ClangOptions::SanitizerCoverageTy::TRACE_PC_GUARD:

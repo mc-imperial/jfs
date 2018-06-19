@@ -17,11 +17,11 @@
 namespace jfs {
 namespace cxxfb {
 
-ClangOptions::ClangOptions()
+ClangOptions::ClangOptions(bool pureRandomFuzzer)
     : pathToBinary(""), pathToRuntimeDir(""), pathToRuntimeIncludeDir(""),
       pathToLibFuzzerLib(""), optimizationLevel(OptimizationLevel::O0),
       debugSymbols(false), useASan(false), useUBSan(false),
-      useJFSRuntimeAsserts(false) {}
+      useJFSRuntimeAsserts(false), pureRandomFuzzer(pureRandomFuzzer) {}
 
 bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
   bool ok = true;
@@ -60,7 +60,7 @@ bool ClangOptions::checkPaths(jfs::core::JFSContext& ctx) const {
 
 ClangOptions::ClangOptions(llvm::StringRef pathToExecutable,
                            LibFuzzerBuildType lfbt, bool pureRandomFuzzer)
-    : ClangOptions() {
+    : ClangOptions(pureRandomFuzzer) {
   // Try to infer paths
   assert(pathToExecutable.data() != nullptr);
   assert(pathToExecutable.size() > 0);
@@ -151,6 +151,7 @@ void ClangOptions::print(llvm::raw_ostream& os) const {
     }
   }
   os << "\n";
+  os << "pureRandomFuzzer: " << (pureRandomFuzzer ? "true" : "false") << "\n";
 }
 }
 }
