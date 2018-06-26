@@ -2,6 +2,7 @@
 # Do not edit!
 config.jfs_tool_path = "@JFS_TOOL_PATH@"
 config.jfs_opt_tool_path = "@JFS_OPT_TOOL_PATH@"
+config.jfs_smt_to_cnf_tool_path = "@JFS_SMT_TO_CNF_TOOL_PATH@"
 config.jfs_smt_to_cxx_tool_path = "@JFS_SMT_TO_CXX_TOOL_PATH@"
 config.filecheck_tool_path = "@FILECHECK_BIN_PATH@"
 config.not_tool_path = "@NOT_BIN_PATH@"

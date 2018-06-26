@@ -10,9 +10,12 @@
 #===------------------------------------------------------------------------===#
 jfs_add_component(JFSTransform
   AndHoistingPass.cpp
+  BitBlastPass.cpp
   BvBoundPropagationPass.cpp
   ConstantPropagationPass.cpp
+  DIMACSOutputPass.cpp
   DuplicateConstraintEliminationPass.cpp
+  FpToBvPass.cpp
   QueryPassManager.cpp
   SimpleContradictionsToFalsePass.cpp
   SimplificationPass.cpp

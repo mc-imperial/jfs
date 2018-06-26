@@ -10,5 +10,6 @@
 #===------------------------------------------------------------------------===#
 add_subdirectory(jfs)
 add_subdirectory(jfs-opt)
+add_subdirectory(jfs-smt2cnf)
 add_subdirectory(jfs-smt2cxx)
 add_subdirectory(yaml-syntax-check)

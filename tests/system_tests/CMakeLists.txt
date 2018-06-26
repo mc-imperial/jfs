@@ -30,6 +30,7 @@ set(YAML_SYNTAX_CHECK_PATH "${CMAKE_BINARY_DIR}/bin/yaml-syntax-check")
 # FIXME: This is not portable
 set(JFS_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs")
 set(JFS_OPT_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs-opt")
+set(JFS_SMT_TO_CNF_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs-smt2cnf")
 set(JFS_SMT_TO_CXX_TOOL_PATH "${CMAKE_BINARY_DIR}/bin/jfs-smt2cxx")
 
 configure_file(lit.site.cfg.in
