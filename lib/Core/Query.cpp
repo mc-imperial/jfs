@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/Query.h"
 #include "jfs/Core/Z3NodeSet.h"
+#include "jfs/Core/Z3NodeUtil.h"
 #include "llvm/Support/raw_ostream.h"
 #include <algorithm>
 #include <list>
@@ -37,38 +38,20 @@ void Query::dump() const {
   llvm::errs() << *this;
 }
 
-void Query::print(llvm::raw_ostream& os) const {
-  Z3_context z3Ctx = ctx.getZ3Ctx();
-  // FIXME: Refactor this to use Z3NodeUtil
+void Query::collectFuncDecls(Z3FuncDeclSet& variables) const {
   std::list<Z3ASTHandle> workList;
   for (auto bi = constraints.begin(), be = constraints.end(); bi != be; ++bi) {
     workList.push_front(*bi);
   }
-  // Do DFS to collect variables
-  // FIXME: Not collecting custom sorts or functions
-  jfs::core::Z3FuncDeclSet variables; // Use a set to avoid duplicates
-  Z3ASTSet seenExpr;
-  while (workList.size() != 0) {
-    Z3ASTHandle node = workList.front();
-    workList.pop_front();
-    if (seenExpr.count(node) > 0) {
-      // Already visited
-      continue;
-    }
-    seenExpr.insert(node);
+  Z3NodeUtil::collectFuncDecls(variables, workList);
+}
 
-    if (node.isFreeVariable()) {
-      variables.insert(node.asApp().getFuncDecl());
-      continue;
-    }
-    if (!node.isApp())
-      continue;
-    // Must be a function application. Traverse the arguments
-    Z3AppHandle app = node.asApp();
-    for (unsigned index = 0; index < app.getNumKids(); ++index) {
-      workList.push_front(app.getKid(index));
-    }
-  }
+void Query::print(llvm::raw_ostream& os) const {
+  Z3_context z3Ctx = ctx.getZ3Ctx();
+
+  // Do DFS to collect variables
+  jfs::core::Z3FuncDeclSet variables; // Use a set to avoid duplicates
+  collectFuncDecls(variables);
 
   // Created a sorted list of variables for printing
   std::vector<Z3FuncDeclHandle> sortedVariables(variables.begin(),

@@ -12,6 +12,7 @@
 #define JFS_CORE_QUERY_H
 #include "jfs/Core/JFSContext.h"
 #include "jfs/Core/Z3Node.h"
+#include "jfs/Core/Z3NodeSet.h"
 #include "llvm/Support/raw_ostream.h"
 #include <vector>
 
@@ -33,6 +34,7 @@ public:
   Query& operator=(const Query&) = delete;
   Query& operator=(const Query&&) = delete;
   void dump() const;
+  void collectFuncDecls(Z3FuncDeclSet& variables) const;
   void print(llvm::raw_ostream& os) const;
   JFSContext& getContext() const { return ctx; }
 
