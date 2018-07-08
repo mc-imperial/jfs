@@ -31,23 +31,20 @@
 ; CHECK-NEXT: if (jfs_ssa_0)
 ; CHECK-NEXT: {
 ; CHECK-NEXT:   ++jfs_num_const_sat;
-; CHECK-NEXT:   if (jfs_max_num_const_sat < jfs_num_const_sat)
-; CHECK-NEXT:   {
-; CHECK-NEXT:     jfs_max_num_const_sat = jfs_num_const_sat;
-; CHECK-NEXT:   }
 ; CHECK-NEXT: }
 
 ; CHECK: const bool jfs_ssa_1 = b || c;
 ; CHECK-NEXT: if (jfs_ssa_1)
 ; CHECK-NEXT: {
 ; CHECK-NEXT:   ++jfs_num_const_sat;
-; CHECK-NEXT:   if (jfs_max_num_const_sat < jfs_num_const_sat)
-; CHECK-NEXT:   {
-; CHECK-NEXT:     jfs_max_num_const_sat = jfs_num_const_sat;
-; CHECK-NEXT:   }
 ; CHECK-NEXT: }
 
-; CHECK:      if (jfs_max_num_const_sat > 0)
+; CHECK-NEXT: if (jfs_max_num_const_sat < jfs_num_const_sat)
+; CHECK-NEXT: {
+; CHECK-NEXT:   jfs_max_num_const_sat = jfs_num_const_sat;
+; CHECK-NEXT: }
+
+; CHECK-NEXT: if (jfs_max_num_const_sat > 0)
 ; CHECK-NEXT: {
 ; CHECK-NEXT:   jfs_libfuzzer_custom_counter[jfs_max_num_const_sat -1] = 1;
 ; CHECK-NEXT: }

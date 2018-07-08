@@ -1,4 +1,4 @@
-; RUN: %jfs-smt2cxx -record-max-num-satisfied-constraints %s > %t.cpp
+; RUN: %jfs-smt2cxx -branch-encoding=fail-fast -record-max-num-satisfied-constraints %s > %t.cpp
 ; RUN: %cxx-rt-syntax %t.cpp
 ; RUN: %FileCheck -input-file=%t.cpp %s
 (declare-fun a () Bool)

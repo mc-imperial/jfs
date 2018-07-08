@@ -60,6 +60,7 @@ private:
   bool isTrackingWithLibFuzzerCustomCounter() const;
   bool isRecordingStats() const;
   bool isTracing() const;
+  bool isUpdatingMaxNumConstraintsSatisfiedAtEnd() const;
   CXXTypeRef getCounterTy();
   CXXTypeRef counterTy;
 
@@ -87,7 +88,7 @@ private:
   void insertLibFuzzerCustomCounterDecl();
   void insertLibFuzzerCustomCounterInc(CXXCodeBlockRef cb);
 
-  void insertMaxNumConstraintSatisfiedCheckToBlock(CXXCodeBlockRef cb);
+  void insertUpdateMaxNumConstraintsSatisfiedToBlock(CXXCodeBlockRef cb);
 
   // Only let CXXProgramBuilderPass use the implementation.
   friend class CXXProgramBuilderPass;

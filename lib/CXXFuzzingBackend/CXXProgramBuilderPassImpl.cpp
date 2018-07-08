@@ -92,13 +92,14 @@ CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
   ss << "++" << numConstraintsSatisfiedSymbolName;
   trueBlock->statements.push_back(
       std::make_shared<CXXGenericStatement>(trueBlock.get(), ss.str()));
-  if (isTrackingMaxNumConstraintsSatisfied()) {
-    insertMaxNumConstraintSatisfiedCheckToBlock(trueBlock);
+  if (isTrackingMaxNumConstraintsSatisfied() &&
+      !isUpdatingMaxNumConstraintsSatisfiedAtEnd()) {
+    insertUpdateMaxNumConstraintsSatisfiedToBlock(trueBlock);
   }
   return trueBlock;
 }
 
-void CXXProgramBuilderPassImpl::insertMaxNumConstraintSatisfiedCheckToBlock(
+void CXXProgramBuilderPassImpl::insertUpdateMaxNumConstraintsSatisfiedToBlock(
     CXXCodeBlockRef cb) {
   // Emit code to increment `maxNumConstraintsSatisfiedSymbolName`
   // if the number of constraints satisfied so far is greater than
@@ -181,6 +182,20 @@ bool CXXProgramBuilderPassImpl::isRecordingStats() const {
 bool CXXProgramBuilderPassImpl::isTracing() const {
   return options->getTraceIncreaseMaxNumSatisfiedConstraints() ||
          options->getTraceWrongSizedInputs();
+}
+
+bool CXXProgramBuilderPassImpl::isUpdatingMaxNumConstraintsSatisfiedAtEnd()
+    const {
+  if (!isTrackingMaxNumConstraintsSatisfied()) {
+    return false;
+  }
+  if (options->getBranchEncoding() ==
+      CXXProgramBuilderOptions::BranchEncodingTy::FAIL_FAST) {
+    return false;
+  }
+  // All other encodings can update the "maximum number of satisfied
+  // constraints" counter after evaluating all constraints.
+  return true;
 }
 
 CXXTypeRef CXXProgramBuilderPassImpl::getCounterTy() {
@@ -787,6 +802,11 @@ void CXXProgramBuilderPassImpl::build(const Query& q) {
   // Generate constraint branches
   for (const auto& constraint : q.constraints) {
     insertBranchForConstraint(constraint);
+  }
+  if (isTrackingNumConstraintsSatisfied() &&
+      isUpdatingMaxNumConstraintsSatisfiedAtEnd()) {
+    // Insert code to handle increases in the number of constraints satisfied.
+    insertUpdateMaxNumConstraintsSatisfiedToBlock(fuzzFn->defn);
   }
   insertLibFuzzerCustomCounterInc(fuzzFn->defn);
   insertFuzzingTarget(fuzzFn->defn);
