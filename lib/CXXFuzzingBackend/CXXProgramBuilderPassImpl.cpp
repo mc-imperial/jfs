@@ -93,45 +93,50 @@ CXXCodeBlockRef CXXProgramBuilderPassImpl::getConstraintIsTrueBlock() {
   trueBlock->statements.push_back(
       std::make_shared<CXXGenericStatement>(trueBlock.get(), ss.str()));
   if (isTrackingMaxNumConstraintsSatisfied()) {
-    // Emit code to increment `maxNumConstraintsSatisfiedSymbolName`
-    // if the number of constraints satisfied so far is greater than
-    // what had been observed previously.
-    std::string underlyingString;
-    llvm::raw_string_ostream ss(underlyingString);
-    ss << maxNumConstraintsSatisfiedSymbolName << " < "
-       << numConstraintsSatisfiedSymbolName;
-    auto maxNumGuard = std::make_shared<CXXIfStatement>(trueBlock.get(),
-                                                        /*condition=*/ss.str());
-    maxNumGuard->falseBlock = nullptr; // Do nothing is condition false.
-    // Construct block with code to update
-    // `maxNumConstraintsSatisfiedSymbolName`
-    auto incrementMaxNumConstraintsSatisfiedBlock =
-        std::make_shared<CXXCodeBlock>(maxNumGuard.get());
-    underlyingString.clear();
+    insertMaxNumConstraintSatisfiedCheckToBlock(trueBlock);
+  }
+  return trueBlock;
+}
 
-    if (options->getTraceIncreaseMaxNumSatisfiedConstraints()) {
-      ss << "jfs_info(\"Max num constraints satisfied increased from %" PRId64
-            " to %" PRId64 " (out of %" PRId64 ")\\n\","
-         << maxNumConstraintsSatisfiedSymbolName << ","
-         << numConstraintsSatisfiedSymbolName << ","
-         << "UINT64_C(" << numberOfConstraints << "))";
-      incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
-          std::make_shared<CXXGenericStatement>(
-              incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
-      underlyingString.clear();
-    }
+void CXXProgramBuilderPassImpl::insertMaxNumConstraintSatisfiedCheckToBlock(
+    CXXCodeBlockRef cb) {
+  // Emit code to increment `maxNumConstraintsSatisfiedSymbolName`
+  // if the number of constraints satisfied so far is greater than
+  // what had been observed previously.
+  std::string underlyingString;
+  llvm::raw_string_ostream ss(underlyingString);
+  ss << maxNumConstraintsSatisfiedSymbolName << " < "
+     << numConstraintsSatisfiedSymbolName;
+  auto maxNumGuard = std::make_shared<CXXIfStatement>(cb.get(),
+                                                      /*condition=*/ss.str());
+  maxNumGuard->falseBlock = nullptr; // Do nothing is condition false.
+  // Construct block with code to update
+  // `maxNumConstraintsSatisfiedSymbolName`
+  auto incrementMaxNumConstraintsSatisfiedBlock =
+      std::make_shared<CXXCodeBlock>(maxNumGuard.get());
+  underlyingString.clear();
 
-    // HACK: Do assign. We should make a CXXDecl to do this.
-    ss << maxNumConstraintsSatisfiedSymbolName << " = "
-       << numConstraintsSatisfiedSymbolName;
+  if (options->getTraceIncreaseMaxNumSatisfiedConstraints()) {
+    ss << "jfs_info(\"Max num constraints satisfied increased from %" PRId64
+          " to %" PRId64 " (out of %" PRId64 ")\\n\","
+       << maxNumConstraintsSatisfiedSymbolName << ","
+       << numConstraintsSatisfiedSymbolName << ","
+       << "UINT64_C(" << numberOfConstraints << "))";
     incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
         std::make_shared<CXXGenericStatement>(
             incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
-
-    maxNumGuard->trueBlock = incrementMaxNumConstraintsSatisfiedBlock;
-    trueBlock->statements.push_back(maxNumGuard);
+    underlyingString.clear();
   }
-  return trueBlock;
+
+  // HACK: Do assign. We should make a CXXDecl to do this.
+  ss << maxNumConstraintsSatisfiedSymbolName << " = "
+     << numConstraintsSatisfiedSymbolName;
+  incrementMaxNumConstraintsSatisfiedBlock->statements.push_back(
+      std::make_shared<CXXGenericStatement>(
+          incrementMaxNumConstraintsSatisfiedBlock.get(), ss.str()));
+
+  maxNumGuard->trueBlock = incrementMaxNumConstraintsSatisfiedBlock;
+  cb->statements.push_back(maxNumGuard);
 }
 
 bool CXXProgramBuilderPassImpl::isTrackingNumConstraintsSatisfied() const {

@@ -86,6 +86,9 @@ private:
   void insertNumInputsTriedIncrement(CXXCodeBlockRef cb);
   void insertLibFuzzerCustomCounterDecl();
   void insertLibFuzzerCustomCounterInc(CXXCodeBlockRef cb);
+
+  void insertMaxNumConstraintSatisfiedCheckToBlock(CXXCodeBlockRef cb);
+
   // Only let CXXProgramBuilderPass use the implementation.
   friend class CXXProgramBuilderPass;
 
