@@ -33,6 +33,7 @@ struct Fuzzer {
   Options opts;
   TestInput* testInput;
   uint runs;
+  time_point runStartTime;
   API* API;
 };
 static Fuzzer gFuzzer;
@@ -63,7 +64,9 @@ int Driver(int& argc, char**& argv) {
   TestOneInputT* runTest = gFuzzer.API->TestOneInput;
   TestInput& testInput = *gFuzzer.testInput;
   uint& runs = gFuzzer.runs;
+  time_point& runStartTime = gFuzzer.runStartTime;
   for (runs = 0; runs < maxRuns; runs++) {
+    runStartTime = std::chrono::system_clock::now();
     testInput.generate();
     runTest(testInput.get(), dataLength);
   }
@@ -162,6 +165,12 @@ void AbortHandler(int sig) {
 }
 
 void TimeoutHandler(int sig) {
+  std::chrono::duration<float> elapsedForRun =
+      std::chrono::system_clock::now() - gFuzzer.runStartTime;
+  float elapsedSecsForRun = elapsedForRun.count();
+  if (elapsedSecsForRun < gFuzzer.opts.timeout) {
+    return;
+  }
   Debug("Timeout occurred!");
   PrintFinalStats();
   gFuzzer.API->AtExit();
