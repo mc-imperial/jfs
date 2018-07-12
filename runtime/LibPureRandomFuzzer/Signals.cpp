@@ -20,10 +20,13 @@ namespace prf {
 Signals::Signals(const Options& opts) {
   if (opts.timeout > 0) {
     SetSignalHandler(SIGALRM, &TimeoutHandler);
-    // LibFuzzer transforms the timeout option in this way for some reason, so
-    // we'll apply the same to match.
+    // Just like LibFuzzer, we set a repeating OS level timer to just over half
+    // the requested timeout value.  When the timer callback fires, we'll
+    // compare time spent on the current run with the requested timeout, so in
+    // the worst case, a run might continue for `~1.5 * timeout` before
+    // aborting.
     int timeout = opts.timeout / 2 + 1;
-    itimerval timer = {{}, {timeout, 0}};
+    itimerval timer = {{timeout, 0}, {timeout, 0}};
     if (setitimer(ITIMER_REAL, &timer, nullptr)) {
       Debug("Unable to set timeout handler");
       exit(1);
