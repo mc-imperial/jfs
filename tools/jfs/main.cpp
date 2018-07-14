@@ -368,6 +368,11 @@ int main(int argc, char** argv) {
   int toolExitCode = 0;
   auto response = solver->solve(*query, /*produceModel=*/shouldRequestModel());
   llvm::outs() << SolverResponse::getSatString(response->sat) << "\n";
+  if (Verbosity > 0) {
+    ctx.getDebugStream() << "(" << solver->getName() << " responded with "
+                         << SolverResponse::getSatString(response->sat)
+                         << ")\n";
+  }
 
   if (response->sat == SolverResponse::SAT && shouldRequestModel()) {
     // Print the found model
