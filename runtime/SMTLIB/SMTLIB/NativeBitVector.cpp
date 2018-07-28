@@ -633,6 +633,54 @@ jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
   return data;
 }
 
+void jfs_nr_write_bitvector(const jfs_nr_bitvector_ty bv,
+                            const jfs_nr_width_ty bitWidth,
+                            uint8_t* bufferData,
+                            const uint64_t bufferSize,
+                            const uint64_t bitOffset) {
+  // Copy the bit vector so we can shift bits off as we go.
+  // TODO: Or just mark it not const in the params...?
+  // FIXME: Rework this algorithm to avoid the copy and shifting here if it
+  // appears to be a bottleneck. (It seems okay since bit vectors are a small,
+  // fixed size.)
+  jfs_nr_bitvector_ty tempBv = bv;
+  jassert(jfs_nr_is_valid(tempBv, bitWidth));
+  const uint64_t endBit = bitOffset + bitWidth - 1;
+  jassert(bufferData != nullptr);
+  jassert(bitOffset < (bufferSize * 8));
+  jassert(endBit < (bufferSize * 8));
+  const size_t startByte = bitOffset / 8;
+  const size_t endByte = endBit / 8;
+  jassert(startByte < bufferSize);
+  jassert(endByte < bufferSize);
+  // Track the current bit offset over time as well as the bits left to write.
+  uint64_t currentBitOffset = bitOffset;
+  jfs_nr_width_ty bitsRemaining = bitWidth;
+  // Track a view of the first byte of the bit vector.
+  const uint8_t* bvByteView = reinterpret_cast<const uint8_t*>(&tempBv);
+  // Write in the buffer byte by byte while preserving surrounding bits.
+  for (size_t currentByte = startByte; currentByte <= endByte; ++currentByte) {
+    // Example: `currentBitOffset` is 6. We can take bits [1, 0] from the BV and
+    // write them to bits [7, 6] in buffer.
+    const size_t offsetInByte = currentBitOffset % 8;
+    size_t bitsToWrite = 8 - offsetInByte;
+    // For the end byte, we have to cap `bitsToWrite` at the amount remaining.
+    if (bitsToWrite > bitsRemaining) {
+      bitsToWrite = bitsRemaining;
+    }
+    jassert(currentBitOffset < (bufferSize * 8));
+    jassert(currentBitOffset + bitsToWrite - 1 <= endBit);
+    const uint8_t bvMask = jfs_nr_get_bitvector_mask(bitsToWrite);
+    const uint8_t bufferMask = ~(bvMask << offsetInByte);
+    bufferData[currentByte] = (bufferData[currentByte] & bufferMask) |
+                              ((*bvByteView & bvMask) << offsetInByte);
+    // Shift the bits written off the bit vector.
+    tempBv >>= bitsToWrite;
+    currentBitOffset += bitsToWrite;
+    bitsRemaining -= bitsToWrite;
+  }
+}
+
 #ifdef __cplusplus
 }
 #endif

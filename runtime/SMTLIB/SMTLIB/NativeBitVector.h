@@ -157,6 +157,12 @@ jfs_nr_bitvector_ty jfs_nr_make_bitvector(const uint8_t* bufferData,
                                           const uint64_t lowBit,
                                           const uint64_t highBit);
 
+void jfs_nr_write_bitvector(const jfs_nr_bitvector_ty bv,
+                            const jfs_nr_width_ty bitWidth,
+                            uint8_t* bufferData,
+                            const uint64_t bufferSize,
+                            const uint64_t bitOffset);
+
 #ifdef __cplusplus
 }
 #endif
