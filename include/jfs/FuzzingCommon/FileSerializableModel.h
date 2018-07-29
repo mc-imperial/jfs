@@ -13,6 +13,7 @@
 #include "jfs/Core/Model.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/FuzzingCommon/BufferAssignment.h"
+#include "llvm/Support/FileOutputBuffer.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include <memory>
 
@@ -28,7 +29,8 @@ public:
   loadFrom(const llvm::MemoryBuffer* buf, const BufferAssignment* ba,
            jfs::core::JFSContext& ctx);
 
-  // TODO: Add method to serialize model to disk.
+  bool saveTo(llvm::FileOutputBuffer* buf, const BufferAssignment* ba,
+              jfs::core::JFSContext& ctx);
 };
 
 } // namespace fuzzingCommon

@@ -197,6 +197,7 @@ public:
   bool isConstant() const;
   // FIXME: Should be renamed isAppOfFreeVariable
   bool isFreeVariable() const;
+  bool isSpecialFPConstant() const;
   Z3ASTHandle asAST() const;
   Z3SortHandle getSort() const;
 

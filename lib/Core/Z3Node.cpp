@@ -370,6 +370,13 @@ bool Z3AppHandle::isFreeVariable() const {
   return true;
 }
 
+bool Z3AppHandle::isSpecialFPConstant() const {
+  auto kind = getKind();
+  return kind == Z3_OP_FPA_PLUS_ZERO || kind == Z3_OP_FPA_MINUS_ZERO ||
+         kind == Z3_OP_FPA_PLUS_INF || kind == Z3_OP_FPA_MINUS_INF ||
+         kind == Z3_OP_FPA_NAN;
+}
+
 Z3ASTHandle Z3AppHandle::asAST() const {
   return Z3ASTHandle(::Z3_app_to_ast(context, node), context);
 }

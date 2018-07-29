@@ -91,6 +91,7 @@ jfs_add_component(JFSFuzzingCommon
   # FIXME: This is a hack. Can we do this in a cleaner way?
   # Runtime code
   ${CMAKE_SOURCE_DIR}/runtime/SMTLIB/SMTLIB/NativeBitVector.cpp
+  ${CMAKE_SOURCE_DIR}/runtime/SMTLIB/SMTLIB/NativeFloat.cpp
 )
 
 # JFSFuzzingCommon needs to build some of the runtime functions
