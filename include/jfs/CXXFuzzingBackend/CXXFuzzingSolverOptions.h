@@ -41,7 +41,8 @@ public:
       std::unique_ptr<ClangOptions> clangOpt,
       std::unique_ptr<jfs::fuzzingCommon::LibFuzzerOptions> libFuzzerOpt,
       std::unique_ptr<CXXProgramBuilderOptions> cxxProgramBuilderOpt,
-      std::unique_ptr<jfs::fuzzingCommon::SeedManagerOptions> seedManagerOpt);
+      std::unique_ptr<jfs::fuzzingCommon::SeedManagerOptions> seedManagerOpt,
+      bool debugSaveModel);
   static bool classof(const SolverOptions* so) {
     return so->getKind() == CXX_FUZZING_SOLVER_KIND;
   }

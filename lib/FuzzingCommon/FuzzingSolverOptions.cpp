@@ -17,11 +17,15 @@ namespace fuzzingCommon {
 
 FuzzingSolverOptions::FuzzingSolverOptions(
     std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions,
+    bool debugSaveModel,
     SolverOptions::SolverOptionKind thisKind)
-    : SolverOptions(thisKind), fvtbapOptions(std::move(fvtbapOptions)) {}
+    : SolverOptions(thisKind), fvtbapOptions(std::move(fvtbapOptions)),
+      debugSaveModel(debugSaveModel) {}
 FuzzingSolverOptions::FuzzingSolverOptions(
-    std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions)
+    std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions,
+    bool debugSaveModel)
     : FuzzingSolverOptions(std::move(fvtbapOptions),
+                           debugSaveModel,
                            SolverOptions::FUZZING_SOLVER_KIND) {}
 
 FreeVariableToBufferAssignmentPassOptions*

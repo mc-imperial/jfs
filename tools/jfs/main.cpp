@@ -129,9 +129,19 @@ llvm::cl::opt<bool> ValidateModel(
     llvm::cl::desc(
         "Validate model if one is found (default false). Implies -get-model"),
     llvm::cl::ZeroOrMore);
+
+// This is a hidden option meant for testing the model saving functionality by
+// ensuring that loading and saving models round trips as expected.
+llvm::cl::opt<bool>
+    DebugSaveModel("debug-save-model", llvm::cl::init(false),
+                   llvm::cl::desc("Save model to disk if one is found (default "
+                                  "false). Implies -get-model"),
+                   llvm::cl::Hidden);
 } // namespace
 
-bool shouldRequestModel() { return GetModel || ValidateModel; }
+bool shouldRequestModel() {
+  return GetModel || ValidateModel || DebugSaveModel;
+}
 
 void printVersion(llvm::raw_ostream& os) {
   os << support::getVersionString() << "\n";
@@ -152,7 +162,7 @@ makeWorkingDirectory(JFSContext& ctx) {
   llvm::SmallVector<char, 256> currentDir;
   if (auto ec = llvm::sys::fs::current_path(currentDir)) {
     ctx.getErrorStream()
-        << "(error failed to get current workding directory because "
+        << "(error failed to get current working directory because "
         << ec.message() << ")\n";
     exit(1);
   }
@@ -225,7 +235,8 @@ makeSolver(JFSContext& ctx,
         new jfs::cxxfb::CXXFuzzingSolverOptions(
             std::move(freeVariableToBufferAssignmentPassOptions),
             std::move(clangOptions), std::move(libFuzzerOptions),
-            std::move(cxxProgramBuilderOptions), std::move(seedManagerOpts)));
+            std::move(cxxProgramBuilderOptions), std::move(seedManagerOpts),
+            DebugSaveModel));
     // Decide if the clang/LibFuzzer stdout/stderr should be redirected
     solverOptions->redirectClangOutput =
         shouldRedirectOutput(ClangOutputRedirect, ctx);

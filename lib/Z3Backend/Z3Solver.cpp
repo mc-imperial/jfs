@@ -52,7 +52,8 @@ namespace jfs {
     }
   }
 
-  std::unique_ptr<SolverResponse> Z3Solver::solve(const Query &q, bool getModel) {
+  std::unique_ptr<SolverResponse> Z3Solver::solve(const Query& q,
+                                                  bool getModel) {
     assert(&ctx == &(q.getContext()));
     assert(z3Ctx == q.getContext().getZ3Ctx());
     // Use default solver behaviour

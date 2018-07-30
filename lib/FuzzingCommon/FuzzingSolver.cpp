@@ -74,6 +74,9 @@ public:
     return std::unique_ptr<SolverResponse>(                                    \
         new TrivialFuzzingSolverResponse(SolverResponse::UNKNOWN));            \
   }
+    auto fuzzingOptions =
+        static_cast<FuzzingSolverOptions*>(interF->options.get());
+    assert(fuzzingOptions);
 
     // Check for trivial SAT
     if (q.constraints.size() == 0) {
@@ -86,6 +89,11 @@ public:
         auto model =
             std::unique_ptr<SimpleModel>(new SimpleModel(q.getContext()));
         resp->setModel(std::move(model));
+      }
+      if (fuzzingOptions->debugSaveModel) {
+        JFSContext& ctx = q.getContext();
+        IF_VERB(ctx, ctx.getDebugStream()
+            << "(model save request ignored, not serializable");
       }
       return resp;
     }
@@ -159,6 +167,12 @@ public:
           q.getContext().raiseFatalError("Failed to convert model");
         }
         resp->setModel(std::move(model));
+      }
+      if (fuzzingOptions->debugSaveModel) {
+        JFSContext& ctx = q.getContext();
+        IF_VERB(ctx, ctx.getDebugStream()
+            << "(model save request ignored, not serializable");
+
       }
       return resp;
     }

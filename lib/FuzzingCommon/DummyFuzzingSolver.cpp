@@ -39,7 +39,7 @@ public:
 };
 
 std::unique_ptr<jfs::core::SolverResponse>
-DummyFuzzingSolver::fuzz(jfs::core::Query &q, bool produceModel,
+DummyFuzzingSolver::fuzz(jfs::core::Query& q, bool produceModel,
                          std::shared_ptr<FuzzingAnalysisInfo> info) {
   // Don't try to fuzz. Just give up immediately
   return std::unique_ptr<SolverResponse>(new DummyFuzzingSolverResponse());

@@ -24,11 +24,14 @@ protected:
   // For subclasses
   FuzzingSolverOptions(
       std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions,
+      bool debugSaveModel,
       jfs::core::SolverOptions::SolverOptionKind thisKind);
 
 public:
+  bool debugSaveModel;
   FuzzingSolverOptions(
-      std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions);
+      std::unique_ptr<FreeVariableToBufferAssignmentPassOptions> fvtbapOptions,
+      bool debugSaveModel);
   static bool classof(const SolverOptions* so) {
     return so->getKind() >= jfs::core::SolverOptions::FUZZING_SOLVER_KIND &&
            so->getKind() < jfs::core::SolverOptions::LAST_FUZZING_SOLVER_KIND;

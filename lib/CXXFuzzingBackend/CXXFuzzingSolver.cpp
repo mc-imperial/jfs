@@ -180,7 +180,7 @@ public:
   }
 
   std::unique_ptr<jfs::core::SolverResponse>
-  fuzz(jfs::core::Query &q, bool produceModel,
+  fuzz(jfs::core::Query& q, bool produceModel,
        std::shared_ptr<FuzzingAnalysisInfo> info) {
     assert(ctx == q.getContext());
 #define CHECK_CANCELLED()                                                      \
@@ -368,6 +368,28 @@ public:
             mb.get(), info->freeVariableAssignment->bufferAssignment.get(),
             ctx);
       }
+      // Save model back to disk for testing if requested
+      if (options->debugSaveModel) {
+        BufferAssignment* ba =
+            info->freeVariableAssignment->bufferAssignment.get();
+
+        auto modelOutputPath =
+          wdm->getPathToFileInDirectory("model-output");
+        llvm::StringRef moduleOutputPathRef(modelOutputPath);
+        auto expectedModelOutputBuffer = llvm::FileOutputBuffer::create(
+            moduleOutputPathRef, ba->getRequiredStoreBytes());
+
+        std::unique_ptr<llvm::FileOutputBuffer> modelOutputBuffer = nullptr;
+        if (expectedModelOutputBuffer) {
+          modelOutputBuffer = std::move(*expectedModelOutputBuffer);
+        } else {
+          // Failed
+          ctx.getErrorStream()
+              << "(error Failed to created FileOutputBuffer for model)\n";
+        }
+
+        resp->model->saveTo(modelOutputBuffer.get(), ba, ctx);
+      }
       return resp;
     }
     default:
@@ -389,7 +411,7 @@ CXXFuzzingSolver::CXXFuzzingSolver(
 CXXFuzzingSolver::~CXXFuzzingSolver() {}
 
 std::unique_ptr<jfs::core::SolverResponse>
-CXXFuzzingSolver::fuzz(jfs::core::Query &q, bool produceModel,
+CXXFuzzingSolver::fuzz(jfs::core::Query& q, bool produceModel,
                        std::shared_ptr<FuzzingAnalysisInfo> info) {
   return impl->fuzz(q, produceModel, info);
 }
