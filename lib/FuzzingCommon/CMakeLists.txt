@@ -87,6 +87,7 @@ jfs_add_component(JFSFuzzingCommon
   SeedManager.cpp
   SeedManagerStat.cpp
   SortConformanceCheckPass.cpp
+  SpecialConstantSeedGenerator.cpp
   WorkingDirectoryManager.cpp
   # FIXME: This is a hack. Can we do this in a cleaner way?
   # Runtime code

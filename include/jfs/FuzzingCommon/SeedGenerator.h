@@ -48,8 +48,6 @@ public:
   bool empty() const override;
 };
 
-// TODO: Write more advanced seed generators
-
 } // namespace fuzzingCommon
 } // namespace jfs
 

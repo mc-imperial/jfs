@@ -12,6 +12,7 @@
 #include "jfs/FuzzingCommon/CommandLineCategory.h"
 #include "jfs/FuzzingCommon/SeedGenerator.h"
 #include "jfs/FuzzingCommon/SeedManagerOptions.h"
+#include "jfs/FuzzingCommon/SpecialConstantSeedGenerator.h"
 #include "llvm/Support/CommandLine.h"
 
 namespace {
@@ -39,6 +40,13 @@ llvm::cl::opt<bool>
                    llvm::cl::desc("Add seed of all one bits (default: true)"),
                    llvm::cl::init(true),
                    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+
+llvm::cl::opt<bool> AddSpecialConstantSeeds(
+    "sm-special-constant-seeds",
+    llvm::cl::desc(
+        "Add special constant seeds based on constraints (default: false)"),
+    llvm::cl::init(false),
+    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 } // namespace
 
 namespace jfs {
@@ -61,6 +69,12 @@ buildSeedManagerOptionsFromCmdLine() {
     auto abeGen = std::unique_ptr<SeedGenerator>(
         new AllBytesEqualGenerator("ones", /*byteValue=*/0xff));
     opts->generators.push_back(std::move(abeGen));
+  }
+
+  if (AddSpecialConstantSeeds) {
+    auto scsGen = std::unique_ptr<SeedGenerator>(
+        new SpecialConstantSeedGenerator("special-constant"));
+    opts->generators.push_back(std::move(scsGen));
   }
 
   return opts;
