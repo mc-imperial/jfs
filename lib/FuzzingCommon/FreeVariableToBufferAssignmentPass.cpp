@@ -44,7 +44,7 @@ FreeVariableToBufferAssignmentPass::FreeVariableToBufferAssignmentPass(
   if (options == nullptr) {
     // Use default options if not set.
     defaultOptions.reset(new FreeVariableToBufferAssignmentPassOptions());
-    options = defaultOptions.get();
+    this->options = defaultOptions.get();
   }
 }
 
