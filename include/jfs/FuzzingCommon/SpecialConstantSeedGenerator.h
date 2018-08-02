@@ -12,8 +12,9 @@
 #define JFS_FUZZING_COMMON_SPECIAL_CONSTANT_SEED_GENERATOR_H
 
 #include "jfs/FuzzingCommon/SeedGenerator.h"
-#include "llvm/ADT/StringRef.h"
-#include <string>
+#include "jfs/Core/Z3Node.h"
+#include "jfs/Core/Z3NodeMap.h"
+#include <vector>
 
 namespace jfs {
 namespace fuzzingCommon {
@@ -29,6 +30,11 @@ class SpecialConstantSeedGenerator : public SeedGenerator {
   void preGenerationCallBack(SeedManager& sm) override;
   bool writeSeed(SeedManager& sm) override;
   bool empty() const override;
+
+private:
+  // Track vectors of constants found in constraints by sort.
+  jfs::core::Z3SortMap<std::vector<jfs::core::Z3ASTHandle>>
+      sortToConstraintConstantMap;
 };
 
 } // namespace fuzzingCommon

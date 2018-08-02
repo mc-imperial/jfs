@@ -109,6 +109,8 @@ public:
   bool isBoolTy() const;
   bool isBitVectorTy() const;
   bool isFloatingPointTy() const;
+  // Return 0 if not bitvector, floating point, or bool
+  unsigned getWidth() const;
   // Return 0 if not a bitvector
   unsigned getBitVectorWidth() const;
   // Return 0 if not floating point

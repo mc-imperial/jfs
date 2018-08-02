@@ -156,6 +156,19 @@ bool Z3SortHandle::isFloatingPointTy() const {
   return getKind() == Z3_FLOATING_POINT_SORT;
 }
 
+unsigned Z3SortHandle::getWidth() const {
+  switch (getKind()) {
+  case Z3_BOOL_SORT:
+    return 1;
+  case Z3_BV_SORT:
+    return getBitVectorWidth();
+  case Z3_FLOATING_POINT_SORT:
+    return getFloatingPointBitWidth();
+  default:
+    return 0;
+  }
+}
+
 unsigned Z3SortHandle::getBitVectorWidth() const {
   if (getKind() != Z3_BV_SORT)
     return 0;
