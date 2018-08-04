@@ -92,7 +92,14 @@ public:
     SET_ARG(numberOfRunsArgs, "-runs=" << numRunsAsStr);
 
     // Seed
-    SET_ARG(seedArg, "-seed=" << options->seed);
+    // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a
+    // random seed. To ensure determistic behavior, we adjust the seed here if
+    // it is 0.
+    uint32_t seed = ctx.getConfig().seed;
+    if (!seed) {
+      seed = 1;
+    }
+    SET_ARG(seedArg, "-seed=" << seed);
 
     // Mutation depth
     SET_ARG(mutationDepthArg, "-mutate_depth=" << options->mutationDepth);

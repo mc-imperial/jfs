@@ -18,12 +18,6 @@ namespace {
 // Only provide options for fields that are intended to be modified
 // publicly.
 
-llvm::cl::opt<unsigned> FuzzerSeed(
-    "libfuzzer-seed",
-    llvm::cl::desc(
-        "LibFuzzer random seed (0 means pick a random seed) (default: 1)"),
-    llvm::cl::init(1), llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
-
 llvm::cl::opt<unsigned long long> FuzzerRuns(
     "libfuzzer-runs",
     llvm::cl::desc(
@@ -65,10 +59,7 @@ buildLibFuzzerOptionsFromCmdLine() {
   // Fuzzing runs
   libFuzzerOptions->runs = FuzzerRuns;
 
-  // Fuzzer seed
-  libFuzzerOptions->seed = FuzzerSeed;
-
-  // Mutationd depth
+  // Mutation depth
   libFuzzerOptions->mutationDepth = MutationDepth;
 
   // Crossover

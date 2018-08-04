@@ -3,7 +3,7 @@
 ; RUN: rm -f %t-stats_fail-fast.yml
 
 ; Fail fast encoding
-; RUN: %jfs -cxx -branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=100 -libfuzzer-seed=1 -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -cxx -branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=100 -seed=1 -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
 ; RUN: %yaml-syntax-check %t-stats_fail-fast.yml
 ; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats_fail-fast.yml %s
 

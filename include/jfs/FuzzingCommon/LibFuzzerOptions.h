@@ -22,9 +22,6 @@ namespace fuzzingCommon {
 struct LibFuzzerOptions {
   // NOTE: `runs` value of `0` means an infinite number of runs.
   size_t runs; // Approximately corresponds to `-runs=<N>` option.
-  // NOTE: `seed` value of 0 is special in that is causes LibFuzzer to pick a
-  // random seed.
-  uint64_t seed;          // Corresponds to `-seed=<N>` option
   uint64_t mutationDepth; // Corresponds to `-mutate_depth=<N>`
   bool crossOver;         // Corresponds to `-cross_over` option
   uint64_t maxLength;     // Corresponds to `-max_len=<N>` option (bytes).

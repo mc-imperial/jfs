@@ -1,5 +1,5 @@
 ; RUN: rm -f %t-stats.yml
-; RUN: %jfs -cxx --branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=100 -libfuzzer-seed=1  -stats-file=%t-stats.yml -record-max-num-satisfied-constraints %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -cxx --branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=100 -seed=1  -stats-file=%t-stats.yml -record-max-num-satisfied-constraints %s | %FileCheck -check-prefix=CHECK-SAT %s
 ; RUN: %yaml-syntax-check %t-stats.yml
 ; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats.yml %s
 ; CHECK-SAT: {{^unknown}}
