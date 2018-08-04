@@ -80,6 +80,10 @@ llvm::cl::opt<bool> DisableStandardPasses(
     llvm::cl::desc("Do not run standard passes (default false)"),
     llvm::cl::Hidden);
 
+llvm::cl::opt<uint64_t>
+    Seed("seed", llvm::cl::init(1),
+         llvm::cl::desc("Seed for random number generator (default: 1)"));
+
 enum RedirectOutputTy {
   WHEN_NOT_VERBOSE, // Legacy
   REDIRECT,
@@ -268,6 +272,7 @@ int main(int argc, char** argv) {
   JFSContextConfig ctxCfg;
   ctxCfg.verbosity = Verbosity;
   ctxCfg.gathericStatistics = (StatsFilename != "");
+  ctxCfg.seed = Seed;
 
   JFSContext ctx(ctxCfg);
   ToolErrorHandler toolHandler(/*ignoreCanceled*/ true);

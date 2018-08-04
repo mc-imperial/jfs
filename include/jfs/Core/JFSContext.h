@@ -25,6 +25,7 @@ namespace core {
 struct JFSContextConfig {
   unsigned verbosity = 0;
   bool gathericStatistics = false;
+  uint64_t seed = 1;
 };
 
 class JFSContext;
@@ -41,6 +42,7 @@ public:
 };
 
 class JFSContextImpl;
+class RNG;
 
 class JFSContext {
 private:
@@ -76,6 +78,7 @@ public:
   void raiseError(llvm::StringRef msg);
   jfs::support::StatisticsManager* getStats() const;
   const JFSContextConfig& getConfig() const;
+  RNG& getRNG() const;
 };
 }
 }

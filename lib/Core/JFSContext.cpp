@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "jfs/Core/JFSContext.h"
+#include "jfs/Core/RNG.h"
 #include "jfs/Support/StatisticsManager.h"
 #include "llvm/Support/raw_os_ostream.h"
 #include <assert.h>
@@ -36,13 +37,15 @@ public:
   Z3_context z3Ctx;
   JFSContextConfig config;
   std::unique_ptr<jfs::support::StatisticsManager> stats;
+  RNG rng;
   // Global to all instances
   static std::unordered_map<Z3_context, jfs::core::JFSContextImpl*>
       activeContexts;
   static std::mutex activeContextsMutex; // protects
 public:
   JFSContextImpl(JFSContext* ctx, const JFSContextConfig& ctxCfg)
-      : publicContext(ctx), config(ctxCfg), stats(nullptr) {
+      : publicContext(ctx), config(ctxCfg), stats(nullptr),
+        rng(ctxCfg.seed) {
     std::lock_guard<std::mutex> lock(activeContextsMutex);
     // TODO use ctxCfg
     Z3_config z3Cfg = Z3_mk_config();
@@ -224,5 +227,7 @@ jfs::support::StatisticsManager* JFSContext::getStats() const {
 const JFSContextConfig& JFSContext::getConfig() const {
   return impl->getConfig();
 }
+
+RNG& JFSContext::getRNG() const { return impl->rng; }
 }
 }
