@@ -2,7 +2,7 @@
 ; REQUIRES: LibFuzzer
 ; RUN: rm -rf %t-output-dir
 
-; RUN: %jfs -libfuzzer-runs=20 -seed=1 -redirect-libfuzzer-output=1 -output-dir=%t-output-dir -keep-output-dir -libfuzzer-default-mutations-resize-input=1 -trace-wrong-sized-inputs -cxx %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -libfuzzer-runs=20 -seed=1 -sm-special-constant-seeds=false -redirect-libfuzzer-output=1 -output-dir=%t-output-dir -keep-output-dir -libfuzzer-default-mutations-resize-input=1 -trace-wrong-sized-inputs -cxx %s | %FileCheck -check-prefix=CHECK-SAT %s
 
 ; RUN: %FileCheck -check-prefix=CHECK-LIBFUZZER -input-file=%t-output-dir/libfuzzer.stderr.txt %s
 
@@ -10,7 +10,9 @@
 
 ; The first warning is spurious because LibFuzzer tries a zero-sized input
 ; during INIT. However the second warning should be genuine and is very likely
-; to occur when `-libfuzzer-default-mutations-resize-input=1`.
+; to occur when `-libfuzzer-default-mutations-resize-input=1`. (The second
+; warning goes away if special constant seeds are enabled, likely because the
+; fuzzer reaches the target before trying a mutation.)
 
 ; CHECK-LIBFUZZER: JFS WARNING: Wrong sized input tried.
 ; CHECK-LIBFUZZER: JFS WARNING: Wrong sized input tried.

@@ -169,7 +169,7 @@ public:
   static Z3ASTHandle getFalse(Z3_context ctx);
   static Z3ASTHandle getBVZero(Z3_context, unsigned width);
   static Z3ASTHandle getBVZero(Z3SortHandle sort);
-  static Z3ASTHandle getFloatPositiveZero(Z3SortHandle sort);
+  static Z3ASTHandle getBV(Z3SortHandle sort, uint64_t value);
   static Z3ASTHandle getFloatAbsoluteSmallestSubnormal(Z3SortHandle sort,
                                                        bool positive);
   static Z3ASTHandle getFloatAbsoluteLargestSubnormal(Z3SortHandle sort,
@@ -178,6 +178,10 @@ public:
                                                     bool positive);
   static Z3ASTHandle getFloatAbsoluteLargestNormal(Z3SortHandle sort,
                                                    bool positive);
+  static Z3ASTHandle getFloatZero(Z3SortHandle sort, bool positive = true);
+  static Z3ASTHandle getFloatInfinity(Z3SortHandle sort, bool positive = true);
+  static Z3ASTHandle getFloatNAN(Z3SortHandle sort);
+  static Z3ASTHandle getFloatFromInt(Z3SortHandle sort, signed value);
 };
 
 // Specialise for Z3_app

@@ -327,17 +327,41 @@ Z3ASTHandle Z3ASTHandle::getBVZero(Z3_context ctx, unsigned width) {
 }
 
 Z3ASTHandle Z3ASTHandle::getBVZero(Z3SortHandle sort) {
+  return getBV(sort, 0);
+}
+
+Z3ASTHandle Z3ASTHandle::getBV(Z3SortHandle sort, uint64_t value) {
   assert(sort.isBitVectorTy());
-  return Z3ASTHandle(::Z3_mk_unsigned_int(sort.getContext(), 0, sort),
+  assert(sort.getBitVectorWidth() > 0);
+  assert(sort.getBitVectorWidth() <= 64);
+  return Z3ASTHandle(::Z3_mk_unsigned_int64(sort.getContext(), value, sort),
                      sort.getContext());
 }
 
-Z3ASTHandle Z3ASTHandle::getFloatPositiveZero(Z3SortHandle sort) {
+Z3ASTHandle Z3ASTHandle::getFloatZero(Z3SortHandle sort, bool positive) {
   assert(sort.isFloatingPointTy());
   return Z3ASTHandle(
-      ::Z3_mk_fpa_zero(sort.getContext(), sort, /*negative=*/false),
+      ::Z3_mk_fpa_zero(sort.getContext(), sort, /*negative=*/!positive),
       sort.getContext());
-  ;
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatInfinity(Z3SortHandle sort, bool positive) {
+  assert(sort.isFloatingPointTy());
+  return Z3ASTHandle(
+      ::Z3_mk_fpa_inf(sort.getContext(), sort, /*negative=*/!positive),
+      sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatNAN(Z3SortHandle sort) {
+  assert(sort.isFloatingPointTy());
+  return Z3ASTHandle(::Z3_mk_fpa_nan(sort.getContext(), sort),
+                     sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatFromInt(Z3SortHandle sort, signed value) {
+  assert(sort.isFloatingPointTy());
+  return Z3ASTHandle(::Z3_mk_fpa_numeral_int(sort.getContext(), value, sort),
+                     sort.getContext());
 }
 
 static size_t getEMax(Z3SortHandle fpSort) {

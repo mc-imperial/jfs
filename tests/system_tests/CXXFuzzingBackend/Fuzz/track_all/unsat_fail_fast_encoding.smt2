@@ -3,7 +3,7 @@
 ; RUN: rm -f %t-stats_fail-fast.yml
 
 ; Fail fast encoding
-; RUN: %jfs -cxx -branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=100 -seed=1 -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
+; RUN: %jfs -cxx -branch-encoding=fail-fast --disable-equality-extraction --disable-standard-passes -libfuzzer-runs=200 -seed=1 -stats-file=%t-stats_fail-fast.yml -record-max-num-satisfied-constraints -record-num-inputs -record-num-wrong-sized-inputs %s | %FileCheck -check-prefix=CHECK-SAT %s
 ; RUN: %yaml-syntax-check %t-stats_fail-fast.yml
 ; RUN: %FileCheck -check-prefix=CHECK-STATS -input-file=%t-stats_fail-fast.yml %s
 
@@ -14,7 +14,7 @@
 ; CHECK-STATS-NEXT: num_constraints: 3
 ; CHECK-STATS: name: runtime_fuzzing_stats
 ; CHECK-STATS-NEXT: jfs_max_num_const_sat: 2
-; CHECK-STATS-NEXT: jfs_num_inputs: 99
+; CHECK-STATS-NEXT: jfs_num_inputs: 199
 ; It appears that LibFuzzer tries one wrong sized input. This is an internal
 ; implementation detail that we probably shouldn't expose to users.
 ; CHECK-STATS-NEXT: jfs_num_wrong_size_inputs: 1

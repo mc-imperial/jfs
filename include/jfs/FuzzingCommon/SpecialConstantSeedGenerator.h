@@ -17,8 +17,16 @@
 #include <vector>
 
 namespace jfs {
+namespace core {
+class JFSContext;
+class Model;
+}
+}
+
+namespace jfs {
 namespace fuzzingCommon {
 
+class BufferElement;
 class SeedManager;
 
 // A seed generator that emits special constants based on the sorts used in the
@@ -35,6 +43,13 @@ private:
   // Track vectors of constants found in constraints by sort.
   jfs::core::Z3SortMap<std::vector<jfs::core::Z3ASTHandle>>
       sortToConstraintConstantMap;
+
+  bool chooseBool(core::JFSContext& ctx, const BufferElement& be,
+                  core::Model& model);
+  bool chooseBitVector(core::JFSContext& ctx, const BufferElement& be,
+                       core::Model& model);
+  bool chooseFloatingPoint(core::JFSContext& ctx, const BufferElement& be,
+                       core::Model& model);
 };
 
 } // namespace fuzzingCommon

@@ -107,7 +107,7 @@ Z3ASTHandle Model::getDefaultValueFor(Z3SortHandle sort) {
     return Z3ASTHandle::getTrue(sort.getContext());
   }
   case Z3_FLOATING_POINT_SORT: {
-    return Z3ASTHandle::getFloatPositiveZero(sort);
+    return Z3ASTHandle::getFloatZero(sort);
   }
   case Z3_BV_SORT: {
     return Z3ASTHandle::getBVZero(sort);
