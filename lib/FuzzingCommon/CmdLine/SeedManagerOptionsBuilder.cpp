@@ -17,17 +17,17 @@
 
 namespace {
 
-llvm::cl::opt<unsigned>
-    MaxSeedSpaceInBytes("sm-max-seed-space",
-                        llvm::cl::desc("Maximum space total space for seeds in "
-                                       "bytes. 0 means no limit (default: 0)"),
-                        llvm::cl::init(0),
-                        llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+llvm::cl::opt<unsigned> MaxSeedSpaceInBytes(
+    "sm-max-seed-space",
+    llvm::cl::desc("Maximum space total space for seeds in bytes. 0 means no "
+                   "limit (default: 50 MiB)"),
+    llvm::cl::init(50 * 1024 * 1024),
+    llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 
 llvm::cl::opt<unsigned> MaxNumSeed(
     "sm-max-num-seed",
-    llvm::cl::desc("Maximum number of seeds. 0 means no limit (default: 0)"),
-    llvm::cl::init(0), llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
+    llvm::cl::desc("Maximum number of seeds. 0 means no limit (default: 100)"),
+    llvm::cl::init(100), llvm::cl::cat(jfs::fuzzingCommon::CommandLineCategory));
 
 llvm::cl::opt<bool>
     AddAllZerosSeed("sm-all-zeros-seed",
