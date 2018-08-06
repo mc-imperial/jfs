@@ -98,10 +98,9 @@ int main(int argc, char** argv) {
   // bit-blasted version may be able to simplify away some bits leaving less
   // variables.
   if (variablesSize > bits) {
-    ctx.getErrorStream()
-        << "(error " << variablesSize << " SAT variables unexpectedly larger "
-        << "than " << bits << " bits in fuzzing buffer)\n";
-    return 1;
+    ctx.getWarningStream()
+        << "(warning " << variablesSize << " SAT variables larger than " << bits
+        << " bits in fuzzing buffer)\n";
   }
 
   IF_VERB(ctx, ctx.getDebugStream()
