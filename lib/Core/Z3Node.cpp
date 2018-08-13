@@ -194,6 +194,14 @@ Z3SortHandle Z3SortHandle::getBitVectorTy(Z3_context ctx, unsigned bitWidth) {
   return Z3SortHandle(Z3_mk_bv_sort(ctx, bitWidth), ctx);
 }
 
+Z3SortHandle Z3SortHandle::getFloat32Ty(Z3_context ctx) {
+  return Z3SortHandle(Z3_mk_fpa_sort_32(ctx), ctx);
+}
+
+Z3SortHandle Z3SortHandle::getFloat64Ty(Z3_context ctx) {
+  return Z3SortHandle(Z3_mk_fpa_sort_64(ctx), ctx);
+}
+
 // Z3ASTHandle helper methods
 Z3_ast_kind Z3ASTHandle::getKind() const {
   return ::Z3_get_ast_kind(context, node);
@@ -317,6 +325,109 @@ Z3ASTHandle Z3ASTHandle::getFloatPositiveZero(Z3SortHandle sort) {
       ::Z3_mk_fpa_zero(sort.getContext(), sort, /*negative=*/false),
       sort.getContext());
   ;
+}
+
+static size_t getEMax(Z3SortHandle fpSort) {
+  assert(fpSort.isFloatingPointTy());
+  // IEEE-754 3.4 defines e_max equal to the bias which is
+  // 2^(w-1) -1, where `w` is the exponent bit width.
+  size_t eBits = fpSort.getFloatingPointExponentBitWidth();
+  size_t eMax = (1 << (eBits - 1)) - 1;
+  return eMax;
+}
+
+static size_t getEMin(Z3SortHandle fpSort) {
+  assert(fpSort.isFloatingPointTy());
+  // Compute e_min for the floating point sort.
+  // IEEE-754 2008 3.3, defines this as (1 - e_max)
+  size_t eMax = getEMax(fpSort);
+  size_t eMin = 1 - eMax;
+  return eMin;
+}
+Z3ASTHandle Z3ASTHandle::getFloatAbsoluteSmallestSubnormal(Z3SortHandle sort,
+                                                           bool positive) {
+  assert(sort.isFloatingPointTy());
+  size_t eMin = getEMin(sort);
+  // Z3's `Z3_mk_fpa_numeral_int64_uint64(..)` is super unclear here.
+  // It is not clear if the exponent is biased and whether or not
+  // the implicit bit is included in the significand.
+  //
+  // Observations:
+  // * `sig` does not include the implicit bit.
+  // * `exp` appears to be signed and is the IEEE-754 binary encoding of the
+  //   exponent  minus the bias.
+  //
+  // Note that the true exponent for the subnormal numbers and normals with the
+  // smallest exponent is the same (e.g. for Float32 it's -126).
+  //
+  // Normals with smallest exp: 1.<significand bits> x 2^(-126)
+  // Subnormals               : 0.<significand bits> x 2^(-126)
+  //
+  // However because the implicit bit is missing in the `sig` argument, the
+  // only way to differentiate between subnormal and normal numbers is for the
+  // value of `exp` to be different from the smallest exponent for normal
+  // numbers. Using the smallest exponent for normal numbers -1 seems to work
+  // but this API design is profoundly confusing.
+  //
+  // I guess the easiest way to think about this is that the `exp` argument is
+  // the representation of the exponent in the IEEE-754 binary encoding minus
+  // the bias. This is different from the true exponent.
+  return Z3ASTHandle(Z3_mk_fpa_numeral_int64_uint64(
+                         /*context=*/sort.getContext(),
+                         /*sgn=*/!positive,
+                         /*exp=*/eMin - 1,
+                         /*sig=*/1,
+                         /*typ=*/sort),
+                     sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatAbsoluteLargestSubnormal(Z3SortHandle sort,
+                                                          bool positive) {
+  assert(sort.isFloatingPointTy());
+  size_t eMin = getEMin(sort);
+  // Z3's `Z3_mk_fpa_numeral_int64_uint64(..)` is super unclear here.
+  // See getFloatAbsoluteSmallestSubnormal(...) for a discussion.
+  // Note: Z3 seems to ignore the irrelevant bits for the sort in `sig`
+  // so passing `UINT64_MAX` seems to be okay.
+  return Z3ASTHandle(Z3_mk_fpa_numeral_int64_uint64(
+                         /*context=*/sort.getContext(),
+                         /*sgn=*/!positive,
+                         /*exp=*/eMin - 1,
+                         /*sig=*/UINT64_MAX,
+                         /*typ=*/sort),
+                     sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatAbsoluteSmallestNormal(Z3SortHandle sort,
+                                                        bool positive) {
+  assert(sort.isFloatingPointTy());
+  size_t eMin = getEMin(sort);
+  // Z3's `Z3_mk_fpa_numeral_int64_uint64(..)` is super unclear here.
+  // See getFloatAbsoluteSmallestSubnormal(...) for a discussion.
+  return Z3ASTHandle(Z3_mk_fpa_numeral_int64_uint64(
+                         /*context=*/sort.getContext(),
+                         /*sgn=*/!positive,
+                         /*exp=*/eMin,
+                         /*sig=*/0,
+                         /*typ=*/sort),
+                     sort.getContext());
+}
+
+Z3ASTHandle Z3ASTHandle::getFloatAbsoluteLargestNormal(Z3SortHandle sort,
+                                                       bool positive) {
+  assert(sort.isFloatingPointTy());
+  size_t eMax = getEMax(sort);
+  // Z3's `Z3_mk_fpa_numeral_int64_uint64(..)` is super unclear here.
+  // See getFloatAbsoluteSmallestSubnormal(...) for a discussion.
+  // Note: Z3 seems to ignore the irrelevant bits for the sort in `sig`
+  // so passing `UINT64_MAX` seems to be okay.
+  return Z3ASTHandle(Z3_mk_fpa_numeral_int64_uint64(
+                         /*context=*/sort.getContext(),
+                         /*sgn=*/!positive,
+                         /*exp=*/eMax,
+                         /*sig=*/UINT64_MAX,
+                         /*typ=*/sort),
+                     sort.getContext());
 }
 
 // Z3AppHandle helpers

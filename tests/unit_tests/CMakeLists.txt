@@ -13,6 +13,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/add_jfs_unit_test.cmake")
 # Note we assume GTest is already built in `utils/CMakeLists.txt`
 
 # Unit Tests
+add_subdirectory(Core)
 add_subdirectory(Dummy)
 add_subdirectory(FuzzingCommon)
 
