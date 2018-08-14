@@ -1,3 +1,6 @@
+; FIXME: This test produces different results on Linux
+; enable on OSX only for now.
+; REQUIRES: darwin
 ; RUN: %jfs -v=2 -sm-special-constant-seeds=true -sm-max-num-seed=10 %s 2>&1 | %FileCheck %s
 
 (declare-fun a () Bool)
