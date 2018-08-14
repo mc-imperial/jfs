@@ -80,7 +80,9 @@ llvm::cl::opt<bool> DisableStandardPasses(
     llvm::cl::desc("Do not run standard passes (default false)"),
     llvm::cl::Hidden);
 
-llvm::cl::opt<uint64_t>
+// FIXME: llvm::cl::opt<uint64_t> doesn't work it acts like a bool
+// option.
+llvm::cl::opt<unsigned long long>
     Seed("seed", llvm::cl::init(1),
          llvm::cl::desc("Seed for random number generator (default: 1)"));
 
