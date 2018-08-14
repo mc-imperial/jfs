@@ -74,9 +74,10 @@ public:
     return std::unique_ptr<SolverResponse>(                                    \
         new TrivialFuzzingSolverResponse(SolverResponse::UNKNOWN));            \
   }
-    auto fuzzingOptions =
-        static_cast<FuzzingSolverOptions*>(interF->options.get());
-    assert(fuzzingOptions);
+    // Use dyn_cast because the options provided aren't neccessarily
+    // an instance of `FuzzingSolverOptions`.
+    const FuzzingSolverOptions* fuzzingOptions =
+        llvm::dyn_cast<FuzzingSolverOptions>(interF->options.get());
 
     // Check for trivial SAT
     if (q.constraints.size() == 0) {
@@ -90,7 +91,7 @@ public:
             std::unique_ptr<SimpleModel>(new SimpleModel(q.getContext()));
         resp->setModel(std::move(model));
       }
-      if (fuzzingOptions->debugSaveModel) {
+      if (fuzzingOptions && fuzzingOptions->debugSaveModel) {
         JFSContext& ctx = q.getContext();
         IF_VERB(ctx, ctx.getDebugStream()
             << "(model save request ignored, not serializable");
@@ -168,7 +169,7 @@ public:
         }
         resp->setModel(std::move(model));
       }
-      if (fuzzingOptions->debugSaveModel) {
+      if (fuzzingOptions && fuzzingOptions->debugSaveModel) {
         JFSContext& ctx = q.getContext();
         IF_VERB(ctx, ctx.getDebugStream()
             << "(model save request ignored, not serializable");
