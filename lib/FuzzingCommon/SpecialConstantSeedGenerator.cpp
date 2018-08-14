@@ -291,6 +291,16 @@ bool SpecialConstantSeedGenerator::writeSeed(SeedManager& sm) {
       llvm_unreachable("Unhandled sort");
     }
 
+    if (!success) {
+      std::string underlyingString;
+      llvm::raw_string_ostream ss(underlyingString);
+      ss << "Failed to generate assignment for \"";
+      be.print(ss);
+      ss << "\"";
+      ctx.raiseError(ss.str());
+      return false;
+    }
+
     if (ctx.getVerbosity() > 1) {
       if (fsm.hasAssignmentFor(be.getDecl())) {
         ctx.getDebugStream()
