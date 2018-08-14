@@ -4,3 +4,6 @@
 # suppresses these warnings.
 vptr:gtest.cc
 vptr:gtest.h
+# We seem to get pointer alignment problems with libstdc++'s
+# std::shared_ptr<...>. Ignore for now.
+alignment:shared_ptr_base.h
