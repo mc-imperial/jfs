@@ -66,6 +66,9 @@ public:
 
   ~JFSContextImpl() {
     std::lock_guard<std::mutex> lock(activeContextsMutex);
+    // We have to delete stats before we destroy the Z3
+    // context because it might be holding on to Z3 objects.
+    stats.reset(nullptr);
     auto it = activeContexts.find(z3Ctx);
     if (it == activeContexts.end()) {
       llvm::errs() << "Context not registered\n";

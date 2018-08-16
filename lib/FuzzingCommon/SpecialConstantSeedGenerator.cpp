@@ -17,6 +17,7 @@
 #include "jfs/FuzzingCommon/FileSerializableModel.h"
 #include "jfs/FuzzingCommon/FuzzingAnalysisInfo.h"
 #include "jfs/FuzzingCommon/SeedManager.h"
+#include "jfs/Support/StatisticsManager.h"
 #include <climits>
 
 using namespace jfs::core;
@@ -60,6 +61,15 @@ uint64_t getMask(const unsigned bitWidth) {
 namespace jfs {
 namespace fuzzingCommon {
 
+#define INCREMENT_ON_COVER(variable)                                           \
+  do {                                                                         \
+    static bool has_been_covered = false;                                      \
+    if (!has_been_covered) {                                                   \
+      has_been_covered = true;                                                 \
+      ++(variable);                                                            \
+    }                                                                          \
+  } while (false)
+
 bool SpecialConstantSeedGenerator::chooseBool(JFSContext& ctx,
                                               const BufferElement& be,
                                               Model& model) {
@@ -67,8 +77,10 @@ bool SpecialConstantSeedGenerator::chooseBool(JFSContext& ctx,
   bool value = ctx.getRNG().generate(2);
   Z3ASTHandle valueAsAST;
   if (value) {
+    INCREMENT_ON_COVER(stats->numCoveredBoolConstants);
     valueAsAST = Z3ASTHandle::getTrue(ctx.getZ3Ctx());
   } else {
+    INCREMENT_ON_COVER(stats->numCoveredBoolConstants);
     valueAsAST = Z3ASTHandle::getFalse(ctx.getZ3Ctx());
   }
   return model.addAssignmentFor(be.getDecl(), valueAsAST);
@@ -96,22 +108,30 @@ bool SpecialConstantSeedGenerator::chooseBitVector(JFSContext& ctx,
   // special constant. Otherwise, we selected a constant from the constraints.
   Z3ASTHandle valueAsAST;
   switch (value) {
-  case SpecialConstantBitVector::ZERO:
+  case SpecialConstantBitVector::ZERO: {
+    INCREMENT_ON_COVER(stats->numCoveredBVConstants);
     valueAsAST = Z3ASTHandle::getBV(sort, 0);
     break;
-  case SpecialConstantBitVector::ONE:
+  }
+  case SpecialConstantBitVector::ONE: {
+    INCREMENT_ON_COVER(stats->numCoveredBVConstants);
     valueAsAST = Z3ASTHandle::getBV(sort, 1);
     break;
-  case SpecialConstantBitVector::MAX_UNSIGNED_INT:
+  }
+  case SpecialConstantBitVector::MAX_UNSIGNED_INT: {
+    INCREMENT_ON_COVER(stats->numCoveredBVConstants);
     // Max unsigned int is of the form 0b11..11.
     // This is equal to a mask for the full width of the bit vector.
     valueAsAST = Z3ASTHandle::getBV(sort, getMask(width));
     break;
-  case SpecialConstantBitVector::MAX_SIGNED_INT:
+  }
+  case SpecialConstantBitVector::MAX_SIGNED_INT: {
+    INCREMENT_ON_COVER(stats->numCoveredBVConstants);
     // Max unsigned int is of the form 0b01..11.
     // This is equal to a mask for one less than the width of the bit vector.
     valueAsAST = Z3ASTHandle::getBV(sort, getMask(width - 1));
     break;
+  }
   default:
     auto index = static_cast<size_t>(value) - specialConstantsSize;
     valueAsAST = valuesFromConstraints[index];
@@ -143,59 +163,89 @@ bool SpecialConstantSeedGenerator::chooseFloatingPoint(JFSContext& ctx,
   // special constant. Otherwise, we selected a constant from the constraints.
   Z3ASTHandle valueAsAST;
   switch (value) {
-  case SpecialConstantFloatingPoint::POSITIVE_ZERO:
+  case SpecialConstantFloatingPoint::POSITIVE_ZERO: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatZero(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::NEGATIVE_ZERO:
+  }
+  case SpecialConstantFloatingPoint::NEGATIVE_ZERO: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatZero(sort, /*positive=*/false);
     break;
-  case SpecialConstantFloatingPoint::POSITIVE_INFINITY:
+  }
+  case SpecialConstantFloatingPoint::POSITIVE_INFINITY: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatInfinity(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::NEGATIVE_INFINITY:
+  }
+  case SpecialConstantFloatingPoint::NEGATIVE_INFINITY: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatInfinity(sort, /*positive=*/false);
     break;
-  case SpecialConstantFloatingPoint::NOT_A_NUMBER:
+  }
+  case SpecialConstantFloatingPoint::NOT_A_NUMBER: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatNAN(sort);
     break;
-  case SpecialConstantFloatingPoint::POSITIVE_ONE:
+  }
+  case SpecialConstantFloatingPoint::POSITIVE_ONE: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatFromInt(sort, 1);
     break;
-  case SpecialConstantFloatingPoint::NEGATIVE_ONE:
+  }
+  case SpecialConstantFloatingPoint::NEGATIVE_ONE: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatFromInt(sort, -1);
     break;
-  case SpecialConstantFloatingPoint::SMALLEST_POSITIVE_SUBNORMAL:
+  }
+  case SpecialConstantFloatingPoint::SMALLEST_POSITIVE_SUBNORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteSmallestSubnormal(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::LARGEST_POSITIVE_SUBNORMAL:
+  }
+  case SpecialConstantFloatingPoint::LARGEST_POSITIVE_SUBNORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteLargestSubnormal(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::SMALLEST_POSITIVE_NORMAL:
+  }
+  case SpecialConstantFloatingPoint::SMALLEST_POSITIVE_NORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteSmallestNormal(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::LARGEST_POSITIVE_NORMAL:
+  }
+  case SpecialConstantFloatingPoint::LARGEST_POSITIVE_NORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteLargestNormal(sort, /*positive=*/true);
     break;
-  case SpecialConstantFloatingPoint::SMALLEST_NEGATIVE_SUBNORMAL:
+  }
+  case SpecialConstantFloatingPoint::SMALLEST_NEGATIVE_SUBNORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteLargestSubnormal(sort, /*positive=*/false);
     break;
-  case SpecialConstantFloatingPoint::LARGEST_NEGATIVE_SUBNORMAL:
+  }
+  case SpecialConstantFloatingPoint::LARGEST_NEGATIVE_SUBNORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST = Z3ASTHandle::getFloatAbsoluteSmallestSubnormal(
         sort, /*positive=*/false);
     break;
-  case SpecialConstantFloatingPoint::SMALLEST_NEGATIVE_NORMAL:
+  }
+  case SpecialConstantFloatingPoint::SMALLEST_NEGATIVE_NORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteLargestNormal(sort, /*positive=*/false);
     break;
-  case SpecialConstantFloatingPoint::LARGEST_NEGATIVE_NORMAL:
+  }
+  case SpecialConstantFloatingPoint::LARGEST_NEGATIVE_NORMAL: {
+    INCREMENT_ON_COVER(stats->numCoveredFPConstants);
     valueAsAST =
         Z3ASTHandle::getFloatAbsoluteSmallestNormal(sort, /*positive=*/false);
     break;
+  }
   default:
     auto index = static_cast<size_t>(value) - specialConstantsSize;
     valueAsAST = valuesFromConstraints[index];
@@ -207,11 +257,22 @@ bool SpecialConstantSeedGenerator::chooseFloatingPoint(JFSContext& ctx,
 
 void SpecialConstantSeedGenerator::postGenerationCallBack(SeedManager& sm) {
   sortToConstraintConstantMap.clear();
+  // Add stats
+  if (sm.getContext().getStats()) {
+    sm.getContext().getStats()->append(std::move(stats));
+  }
 }
 
 void SpecialConstantSeedGenerator::preGenerationCallBack(SeedManager& sm) {
   auto query = sm.getCurrentQuery();
   auto& ctx = sm.getContext();
+  stats.reset(
+      new SpecialConstantSeedGeneratorStat("special_constant_seed_generator"));
+  stats->totalNumBuiltInBVConstants =
+      static_cast<uint64_t>(SpecialConstantBitVector::SIZE);
+  stats->totalNumBuiltInFPConstants =
+      static_cast<uint64_t>(SpecialConstantFloatingPoint::SIZE);
+  stats->totalNumBuiltInBoolConstants = 2;
 
   // Do a DFS to find any constants in the constraints.
   std::list<Z3ASTHandle> workList;
@@ -236,6 +297,9 @@ void SpecialConstantSeedGenerator::preGenerationCallBack(SeedManager& sm) {
       }
       auto& constants = sortToConstraintConstantMap[sort];
       constants.push_back(node);
+      // Update stats
+      auto& count = stats->foundConstantsCount.emplace(sort, 0).first->second;
+      ++count;
       continue;
     }
 

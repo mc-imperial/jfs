@@ -11,9 +11,10 @@
 #ifndef JFS_FUZZING_COMMON_SPECIAL_CONSTANT_SEED_GENERATOR_H
 #define JFS_FUZZING_COMMON_SPECIAL_CONSTANT_SEED_GENERATOR_H
 
-#include "jfs/FuzzingCommon/SeedGenerator.h"
 #include "jfs/Core/Z3Node.h"
 #include "jfs/Core/Z3NodeMap.h"
+#include "jfs/FuzzingCommon/SeedGenerator.h"
+#include "jfs/FuzzingCommon/SpecialConstantSeedGeneratorStat.h"
 #include <vector>
 
 namespace jfs {
@@ -44,6 +45,7 @@ private:
   // Track vectors of constants found in constraints by sort.
   jfs::core::Z3SortMap<std::vector<jfs::core::Z3ASTHandle>>
       sortToConstraintConstantMap;
+  std::unique_ptr<SpecialConstantSeedGeneratorStat> stats;
 
   bool chooseBool(core::JFSContext& ctx, const BufferElement& be,
                   core::Model& model);

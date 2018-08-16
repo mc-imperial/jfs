@@ -29,7 +29,8 @@ public:
     AGGREGATE_TIMER,
     CXX_PROGRAM,
     RUNTIME,
-    SEED_MANAGER
+    SEED_MANAGER,
+    SEED_GENERATOR
   };
 
 private:
