@@ -137,7 +137,17 @@ public:
           ++numSeedsWritten;
         }
       }
+      // Do post seed generation call backs
+      for (auto& g : activeGenerators) {
+        CHECK_CANCELLED();
+        g->postGenerationCallBack(*wrapper);
+      }
+      for (auto& g : emptyGenerators) {
+        CHECK_CANCELLED();
+        g->postGenerationCallBack(*wrapper);
+      }
     }
+
     IF_VERB(ctx, ctx.getDebugStream()
                      << "(SeedManager wrote " << numSeedsWritten << " seeds ("
                      << seedSize << " bytes each))\n");

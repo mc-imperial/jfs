@@ -15,6 +15,7 @@ namespace jfs {
 namespace fuzzingCommon {
 
 void SeedGenerator::preGenerationCallBack(SeedManager& sm) {}
+void SeedGenerator::postGenerationCallBack(SeedManager& sm) {}
 
 SeedGenerator::SeedGenerator(llvm::StringRef name) : name(name) {}
 

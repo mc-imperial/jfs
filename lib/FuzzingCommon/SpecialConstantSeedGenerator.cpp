@@ -205,6 +205,10 @@ bool SpecialConstantSeedGenerator::chooseFloatingPoint(JFSContext& ctx,
   return model.addAssignmentFor(be.getDecl(), valueAsAST);
 }
 
+void SpecialConstantSeedGenerator::postGenerationCallBack(SeedManager& sm) {
+  sortToConstraintConstantMap.clear();
+}
+
 void SpecialConstantSeedGenerator::preGenerationCallBack(SeedManager& sm) {
   auto query = sm.getCurrentQuery();
   auto& ctx = sm.getContext();

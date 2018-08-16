@@ -36,6 +36,7 @@ class SpecialConstantSeedGenerator : public SeedGenerator {
   using SeedGenerator::SeedGenerator;
 
   void preGenerationCallBack(SeedManager& sm) override;
+  void postGenerationCallBack(SeedManager& sm) override;
   bool writeSeed(SeedManager& sm) override;
   bool empty() const override;
 
