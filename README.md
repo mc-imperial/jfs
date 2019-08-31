@@ -18,6 +18,15 @@ JFS is built on top of the following projects
 
 [1]: http://smtlib.cs.uiowa.edu/
 
+## FSE 2019 paper
+
+[A paper on JFS](https://srg.doc.ic.ac.uk/files/papers/jfs-esecfse-19.pdf) was presented and published at ESEC/FSE 2019.
+
+Additional resources:
+
+* [artifact](https://github.com/mc-imperial/jfs-fse-2019-artifact)
+* [slides](https://docs.google.com/presentation/d/1wPxNJ3rXVqLRCm9jRMZTsL5sEW5aW9WZ583TPpb2Ffo/edit?usp=sharing)
+
 ## Building JFS
 
 JFS has been tested on Linux and macOS.
