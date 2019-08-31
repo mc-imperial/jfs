@@ -1,8 +1,9 @@
 # JFS
 
-JFS (JIT Fuzzing Solver) is an experimental constraint solver designed to
-investigate using __coverage guided fuzzing__ as an incomplete strategy for
-solving boolean, BitVector, and floating-point constraints.
+JFS (Just Fuzz it Solver) (originally JIT Fuzzing Solver) is an experimental
+constraint solver designed to investigate using __coverage guided fuzzing__ as
+an incomplete strategy for solving boolean, BitVector, and floating-point
+constraints.
 
 JFS supports constraints in the [SMT-LIBv2][1] constraint langauge in the
 `QF_BV`, `QF_BVFP`, and `QF_FP` logics. JFS's primary purpose however is
