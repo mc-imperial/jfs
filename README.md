@@ -27,6 +27,37 @@ Additional resources:
 * [artifact](https://github.com/mc-imperial/jfs-fse-2019-artifact)
 * [slides](https://docs.google.com/presentation/d/1wPxNJ3rXVqLRCm9jRMZTsL5sEW5aW9WZ583TPpb2Ffo/edit?usp=sharing)
 
+The [Docker image](https://cloud.docker.com/u/delcypher/repository/docker/delcypher/jfs_build) with the tag `fse_2019`
+
+## Using JFS Docker image
+
+If you want to get started with JFS with minimal effort the easiest thing to do
+is download the latest Docker image for JFS. Note this image may not be up-to-date
+so you might not the latest changes.
+
+To obtain the image run (replace `fse_2019` with the tag you wish to use).
+
+```
+docker pull delcypher/jfs_build:fse_2019
+```
+
+The simplest invocation is something like this which will show JFS's help output.
+
+```
+docker run --user 1000 --rm -t delcypher/jfs_build:fse_2019 /home/user/jfs/build/bin/jfs --help
+```
+
+To run JFS on a SMT-LIBv2 file that exists outside the container (`/path/to/simple.smt2` in this example) run this command below.
+
+```
+docker run --rm -t -v /path/to/simple.smt2:/tmp/simple.smt2 delcypher/jfs_build:fse_2019 /home/user/jfs/build/bin/jfs /tmp/simple.smt2
+```
+
+Note that the `docker run` command creates a new container and destroys it
+afterwards which has notable overhead. For better performance consider running
+JFS outside of a docker container or creating a single container and spawning a
+shell inside it and then launch JFS from there.
+
 ## Building JFS
 
 JFS has been tested on Linux and macOS.
