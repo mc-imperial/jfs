@@ -11,11 +11,11 @@ set -o pipefail
 # Set values if not already set externally
 LLVM_CMAKE_GENERATOR="${LLVM_CMAKE_GENERATOR:-Ninja}"
 LLVM_BRANCH=release_60
-LLVM_GIT_URL="${LLVM_GIT_URL:-http://llvm.org/git/llvm.git}"
-CLANG_GIT_URL="${CLANG_GIT_URL:-http://llvm.org/git/clang.git}"
-COMPILER_RT_GIT_URL="${COMPILER_RT_GIT_URL:-http://llvm.org/git/compiler-rt.git}"
-LIBCXX_GIT_URL="${LIBCXX_GIT_URL:-http://git.llvm.org/git/libcxx.git}"
-LIBCXXABI_GIT_URL="${LIBCXXABI_GIT_URL:-http://git.llvm.org/git/libcxxabi.git}"
+LLVM_GIT_URL="${LLVM_GIT_URL:-https://github.com/llvm-mirror/llvm.git}"
+CLANG_GIT_URL="${CLANG_GIT_URL:-https://github.com/llvm-mirror/clang.git}"
+COMPILER_RT_GIT_URL="${COMPILER_RT_GIT_URL:-https://github.com/llvm-mirror/compiler-rt.git}"
+LIBCXX_GIT_URL="${LIBCXX_GIT_URL:-https://github.com/llvm-mirror/libcxx.git}"
+LIBCXXABI_GIT_URL="${LIBCXXABI_GIT_URL:-https://github.com/llvm-mirror/libcxxabi.git}"
 
 ADDITIONAL_LLVM_OPTS=()
 
