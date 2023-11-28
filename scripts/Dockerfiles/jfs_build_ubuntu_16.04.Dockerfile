@@ -3,7 +3,7 @@ FROM ${BASE_IMAGE}
 LABEL maintainer "dan@su-root.co.uk"
 
 # Install lit
-RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" && \
+RUN curl "https://bootstrap.pypa.io/pip/3.5/get-pip.py" -o "get-pip.py" && \
   sudo python3 get-pip.py && \
   sudo pip install lit==0.5.0
 
